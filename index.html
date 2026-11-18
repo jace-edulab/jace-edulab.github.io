@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>전북AI융합교육연구회 JACE</title>
+<meta name="description" content="교사가 직접 만든 AI 수업 도구로 수업과 평가를 바꾸는 교과별 실천 연구 — 전북AI융합교육연구회 JACE">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="전북AI융합교육연구회 JACE">
+<meta property="og:title" content="전북AI융합교육연구회 JACE">
+<meta property="og:description" content="교사가 직접 만든 AI 수업 도구로 수업과 평가를 바꾸는 교과별 실천 연구">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316307A'/%3E%3Ctext x='50' y='72' font-family='Arial,sans-serif' font-weight='900' font-size='64' text-anchor='middle' fill='%23FF8A3D'%3EJ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+:root{--navy:#16307A;--orange:#E2560B;--orange-l:#FF8A3D;--bg:#f4f6fa;--line:#dde3ec;--text:#1f2633;--sub:#5b6577;--card:#fff;--tint:#eef2fb}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.65;word-break:keep-all}
+a{color:var(--navy)}
+header{background:var(--navy);color:#fff}
+.hwrap{max-width:1160px;margin:0 auto;padding:18px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.home{display:flex;align-items:center;gap:14px;color:#fff;text-decoration:none}
+.logo{height:48px;padding:0 12px;border-radius:12px;background:#fff;display:grid;place-items:center;flex:none}
+.wm{font-family:"Montserrat",sans-serif;font-weight:800;letter-spacing:-.5px;line-height:1;color:var(--orange)}
+.wm i{font-style:normal;color:var(--navy)}
+.logo .wm{font-size:24px}
+.brand h1{margin:0;font-size:20px;font-weight:900;letter-spacing:-.3px}
+.brand p{margin:0;font-size:12.5px;opacity:.78}
+.hright{margin-left:auto}
+.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:10px;padding:9px 16px;font-size:14px;font-weight:500;text-decoration:none}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+.btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.nwrap{max-width:1160px;margin:0 auto;padding:6px 20px;display:flex;gap:4px;overflow-x:auto;align-items:center}
+nav a{display:block;padding:8px 15px;border-radius:10px;color:var(--sub);text-decoration:none;font-weight:500;white-space:nowrap;transition:background .15s,color .15s}
+nav a:hover{background:var(--tint);color:var(--navy)}
+main{max-width:1160px;margin:0 auto;padding:22px 20px 60px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 28px;margin-bottom:18px}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:28px;align-items:center;padding:36px 34px}
+.hero .wm{font-size:clamp(64px,11vw,112px);letter-spacing:-3px}
+.hero .en{font-family:"Montserrat",sans-serif;font-weight:600;font-size:12.5px;letter-spacing:3px;color:var(--navy);margin:10px 0 0;display:flex;align-items:center;gap:12px}
+.hero .en::before,.hero .en::after{content:"";height:2px;width:28px;background:var(--orange);flex:none}
+.hero .kn{font-weight:900;font-size:22px;color:var(--navy);margin:12px 0 0}
+.hero h2{margin:0 0 10px;font-size:23px;line-height:1.45;letter-spacing:-.4px}
+.hero h2 em{font-style:normal;color:var(--orange)}
+.hero p{margin:0 0 18px;color:var(--sub)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.eyebrow{font-size:12.5px;font-weight:700;color:var(--orange);letter-spacing:.5px;margin:0 0 4px}
+h3{margin:0 0 12px;font-size:19px;letter-spacing:-.3px;color:var(--navy)}
+.lead{font-size:17px;font-weight:700;line-height:1.6;margin:0 0 10px;padding-left:14px;border-left:4px solid var(--orange)}
+.sub{color:var(--sub);margin:0}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.cell{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fbfcfe}
+.cell b{display:block;font-size:16px;color:var(--navy);margin-bottom:4px}
+.cell p{margin:0;font-size:14px;color:var(--sub)}
+.cell .no{font-family:"Montserrat",sans-serif;font-weight:800;font-size:13px;color:var(--orange);display:block;margin-bottom:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.two .panel{margin-bottom:0}
+ul.plain{margin:0;padding-left:18px}
+ul.plain li{margin:4px 0}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{display:grid;grid-template-columns:86px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0;padding-top:0}
+.steps b{color:var(--navy)}
+.join{background:var(--navy);color:#fff;border-color:var(--navy)}
+.join h3{color:#fff}
+.join .eyebrow{color:var(--orange-l)}
+.join p{margin:0 0 6px;opacity:.9}
+.join .note{font-size:13.5px;opacity:.75;margin-top:12px}
+footer{max-width:1160px;margin:0 auto;padding:0 20px 40px;color:var(--sub);font-size:13px;text-align:center}
+@media(max-width:860px){
+  .hero{grid-template-columns:1fr;padding:28px 22px;gap:22px}
+  .grid3,.two{grid-template-columns:1fr}
+  .two{gap:18px}
+  .panel{padding:22px 20px}
+  .hright{display:none}
+  .hero .en{font-size:10.5px;letter-spacing:1.5px;white-space:nowrap}
+  .hero .en::before,.hero .en::after{display:none}
+  .steps li{grid-template-columns:1fr;gap:2px}
+}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <a class="home" href="#top" aria-label="JACE 첫 화면으로">
+    <div class="logo"><span class="wm" role="img" aria-label="JACE"><i>J</i>ACE</span></div>
+    <div class="brand"><h1>전북AI융합교육연구회</h1><p>교사가 직접 만드는 AI 수업 도구, 교실에서 함께 실천하는 연구</p></div>
+  </a>
+  <div class="hright"><a class="btn ghost" href="#join">함께하기</a></div>
+</div></header>
+<nav aria-label="주요 메뉴"><div class="nwrap">
+  <a href="#about">소개</a>
+  <a href="#topic">연구 주제</a>
+  <a href="#tracks">갈래</a>
+  <a href="#plan">활동</a>
+  <a href="#join">함께하기</a>
+</div></nav>
+
+<main id="top">
+  <section class="panel hero" id="about">
+    <div>
+      <div class="wm" role="img" aria-label="JACE"><i>J</i>ACE</div>
+      <p class="en">JEONBUK AI CONVERGENCE EDUCATION</p>
+      <p class="kn">전북AI융합교육연구회</p>
+    </div>
+    <div>
+      <h2>AI를 배우기만 하는 모임이 아니라,<br><em>우리 교실의 불편함을 직접 푸는</em> 모임입니다.</h2>
+      <p>JACE(제이스)는 전북의 교사들이 수업에 필요한 도구를 AI로 직접 만들고, 교실에서 써 보고, 그 과정을 함께 나누는 연구회입니다. 전북의 ACE라는 뜻을 이름에 담았습니다.</p>
+      <div class="acts"><a class="btn primary" href="#join">회원 모집 안내</a><a class="btn" href="#topic">연구 주제 보기</a></div>
+    </div>
+  </section>
+
+  <section class="panel" id="topic">
+    <p class="eyebrow">연구 주제</p>
+    <h3>무엇을 연구하나요</h3>
+    <p class="lead">교사가 직접 만든 AI 수업 도구로 수업과 평가를 바꾸는 교과별 실천 연구</p>
+    <p class="sub">완성된 서비스를 가져다 쓰는 데서 그치지 않고, 내 수업에 꼭 맞는 도구를 스스로 만들어 적용합니다. 만든 도구와 수업 기록은 다른 교실에서도 쓸 수 있게 정리해 나눕니다.</p>
+    <div class="grid3">
+      <div class="cell"><span class="no">01</span><b>만들기</b><p>수업에서 느낀 불편함을 AI와 함께 도구로 만듭니다. 코딩 경험이 없어도 시작할 수 있습니다.</p></div>
+      <div class="cell"><span class="no">02</span><b>적용하기</b><p>만든 도구를 실제 수업과 평가에 써 보고, 학생의 변화와 고칠 점을 기록합니다.</p></div>
+      <div class="cell"><span class="no">03</span><b>나누기</b><p>도구와 수업 자료, 적용 사례를 모아 다른 선생님이 바로 쓸 수 있게 공유합니다.</p></div>
+    </div>
+  </section>
+
+  <section class="panel" id="tracks">
+    <p class="eyebrow">갈래</p>
+    <h3>각자의 교과에서 실천합니다</h3>
+    <p class="sub">초등, 중학교, 고등학교 선생님이 함께하며, 교과와 영역에 따라 갈래를 나누어 연구합니다.</p>
+    <div class="grid3">
+      <div class="cell"><b>체육</b><p>운동 기록과 판정, 스포츠클럽 리그 운영처럼 체육 수업과 활동을 돕는 도구</p></div>
+      <div class="cell"><b>보건</b><p>건강 기록과 보건 수업 자료처럼 학생의 건강한 생활을 돕는 도구</p></div>
+      <div class="cell"><b>초등 교과 전반</b><p>독서 기록, 실시간 설문, 학급 운영처럼 여러 교과와 학급 살이를 돕는 도구</p></div>
+    </div>
+  </section>
+
+  <div class="two" id="plan">
+    <section class="panel">
+      <p class="eyebrow">활동</p>
+      <h3>이런 활동을 합니다</h3>
+      <ul class="plain">
+        <li>월 1회 모임: 수업 도구 만들기 실습과 적용 사례 나눔</li>
+        <li>갈래별 연구: 각자의 교과와 영역에서 실천하고 기록</li>
+        <li>만든 도구와 수업 자료 공유</li>
+        <li>연말 사례집 발간</li>
+      </ul>
+    </section>
+    <section class="panel">
+      <p class="eyebrow">대상</p>
+      <h3>이런 분을 기다립니다</h3>
+      <ul class="plain">
+        <li>코딩 경험이 없어도 수업에 쓸 도구를 직접 만들어 보고 싶은 분</li>
+        <li>이미 나온 도구를 내 수업에 적용하고 기록해 보고 싶은 분</li>
+        <li>초등, 중등 구분 없이 전북의 교원 누구나</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="panel join" id="join" style="margin-top:18px">
+    <p class="eyebrow">함께하기</p>
+    <h3>창립 회원을 모집합니다</h3>
+    <p>JACE는 2027학년도 활동을 목표로 준비하고 있습니다. 줄넘기 기록, 독서 기록, 실시간 설문, 스포츠클럽 리그전 등 현장에서 쓰이고 있는 도구를 만든 경험을 바탕으로 처음부터 함께 안내합니다.</p>
+    <p class="note">가입 신청 방법과 문의처는 모집 공고와 함께 이곳에 안내합니다.</p>
+  </section>
+</main>
+
+<footer>전북AI융합교육연구회 JACE · Jeonbuk AI Convergence Education</footer>
+</body>
+</html>
