@@ -72,7 +72,10 @@ async def run(b, vp, tag):
     check(f"{tag} 승인 회원: 고치기 단추 없음", await pg.get_by_role("button", name="신청 내용 고치기").count() == 0); await pg.close()
     # 4 운영진
     db["members"]["w1"] = {"name": "나교사", "school": "별초등학교", "level": "초등학교", "pos": "교감", "subject": "초등교과전반", "phone": "010-3333-4444", "others": "2개 이상", "status": "대기", "t": 2}
+    db["members"]["ad"] = {"name": "전북AI융합교육연구회", "school": "-", "phone": "010-0000-0000", "email": "admin@x.kr", "status": "대기", "t": 3}
     pg, errs = await page({"uid": "ad", "email": "Admin@x.kr"}, db=db)
+    check(f"{tag} 대표 계정: 운영진 표시", "대표 계정" in await pg.locator("#hright").inner_text())
+    check(f"{tag} 대표 계정: 가입 신청 단추 없음", await pg.get_by_role("button", name="가입 신청서 쓰기").count() == 0 and await pg.get_by_role("button", name="가입 신청").count() == 0)
     await pg.locator("#hright").get_by_role("button", name="회원 관리").click(); await pg.wait_for_timeout(150)
     check(f"{tag} 운영진: 명단 2줄", await pg.locator("table.adm tr").count() == 3)
     check(f"{tag} 운영진: 인원 집계", "회원 1명" in await pg.locator(".adm-top").inner_text() and "9명" in await pg.locator(".adm-top").inner_text())

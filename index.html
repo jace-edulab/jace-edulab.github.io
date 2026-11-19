@@ -224,7 +224,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast" role="status"></div>
 <footer>전북AI융합교육연구회 JACE · Jeonbuk AI Convergence Education</footer>
 <script>
-const APP_VERSION = "1.1.1";
+const APP_VERSION = "1.2.0";
 const ADMINS = (window.JACE_ADMINS || []).map(e => String(e).toLowerCase());
 const LEVELS = ["초등학교", "중학교", "고등학교", "특수학교", "교육기관"];
 const POSITIONS = ["교사", "수석교사", "교감", "교장", "교육전문직"];
@@ -273,6 +273,12 @@ function paint() {
     acts.innerHTML = '<button class="btn primary" onclick="openJoin()">가입 신청</button>';
     state.hidden = true; return;
   }
+  if (isAdmin()) {
+    h.innerHTML = '<span class="who">JACE 대표 계정<span class="pill ok">운영진</span></span><button class="btn ghost" onclick="openAdmin()">회원 관리</button><button class="btn ghost" onclick="logout()">로그아웃</button>';
+    acts.innerHTML = '<button class="btn primary" onclick="openAdmin()">회원 관리</button>';
+    state.hidden = false; state.innerHTML = "<b>대표 계정으로 로그인했습니다.</b> 대표 계정은 가입 신청 없이 운영진으로 바로 쓰고, 회원 명단에는 들어가지 않습니다.";
+    return;
+  }
   const nm = MINE && MINE.name ? esc(MINE.name) + " 선생님" : esc(USER.email);
   h.innerHTML = '<span class="who">' + nm + (MINE ? statusPill(MINE.status) : "") + '</span>'
     + (isAdmin() ? '<button class="btn ghost" onclick="openAdmin()">회원 관리</button>' : "")
@@ -287,7 +293,6 @@ function paint() {
       : MINE.status === "보류" ? "<b>가입이 보류되었습니다.</b> 운영진에게 문의해 주세요."
       : "<b>가입 신청이 접수되었습니다.</b> 운영진이 확인하면 회원으로 등록됩니다.";
   }
-  if (isAdmin()) acts.innerHTML += '<button class="btn" onclick="openAdmin()">회원 관리</button>';
 }
 
 async function login() {
@@ -315,6 +320,7 @@ function openJoin() {
     openM('<h2 id="mtitle">가입 신청</h2><p style="color:var(--sub);margin:6px 0 0">본인 확인을 위해 구글 계정으로 먼저 로그인해 주세요. 로그인하면 신청서가 바로 열립니다.</p><div class="mfoot"><button class="btn" onclick="closeM()">닫기</button><button class="btn primary" onclick="sessionStorageSet(\'jaceWantJoin\',\'1\');closeM();login()">구글 계정으로 로그인</button></div>');
     return;
   }
+  if (isAdmin()) { openAdmin(); return; }
   if (MINE && MINE.status === "승인") { toast("이미 회원으로 등록되어 있습니다"); return; }
   const m = MINE || {};
   openM('<h2 id="mtitle">JACE 가입 신청</h2><p style="margin:0;color:var(--sub);font-size:14px">' + esc(USER.email) + ' 계정으로 신청합니다.</p>'
@@ -371,7 +377,7 @@ async function openAdmin() {
 }
 function rowsSorted() {
   const order = { "승인": 0, "대기": 1, "보류": 2 };
-  return Object.entries(ALL).map(([uid, m]) => Object.assign({ uid }, m)).sort((a, b) => (order[a.status] - order[b.status]) || (a.t - b.t));
+  return Object.entries(ALL).map(([uid, m]) => Object.assign({ uid }, m)).filter(r => !ADMINS.includes(String(r.email || "").toLowerCase())).sort((a, b) => (order[a.status] - order[b.status]) || (a.t - b.t));
 }
 function paintAdmin() {
   const rows = rowsSorted(), n = s => rows.filter(r => r.status === s).length;
