@@ -84,7 +84,56 @@ footer{max-width:1160px;margin:0 auto;padding:0 20px 40px;color:var(--sub);font-
   .hero .en::before,.hero .en::after{display:none}
   .steps li{grid-template-columns:1fr;gap:2px}
 }
+/* 가입·운영 */
+.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.who{font-size:13px;opacity:.92}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;margin-left:6px;background:#fff3ea;color:#a63c00}
+.pill.ok{background:#e5f4e4;color:#1d6b2b}
+.pill.no{background:#eef0f4;color:#4a5263}
+.join .acts{margin-top:14px}
+.join .btn{border-color:rgba(255,255,255,.4)}
+.join .btn.primary{border-color:var(--orange)}
+.join .state{margin-top:12px;font-size:14px;background:rgba(255,255,255,.1);border-radius:10px;padding:10px 14px}
+.modal{position:fixed;inset:0;background:rgba(15,25,55,.55);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow-y:auto;padding:30px 14px}
+.modal.on{display:flex}
+.mbox{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:24px 24px 20px;position:relative}
+.mbox.wide{max-width:980px}
+.mbox h2{margin:0 0 6px;font-size:20px;color:var(--navy)}
+.mbox .x{position:absolute;top:12px;right:12px;width:36px;height:36px;border:0;background:#f1f3f8;border-radius:10px;font-size:18px;cursor:pointer}
+.form{display:grid;gap:6px;margin-top:14px}
+.form label{font-size:13.5px;font-weight:700;color:var(--text);margin-top:6px}
+.form input[type=text],.form input[type=tel],.form select{font:inherit;font-size:15px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;background:#fff}
+.form .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form .row2>div{display:grid;gap:6px}
+.check{display:flex !important;gap:8px;align-items:flex-start;font-weight:500 !important;font-size:14px !important;line-height:1.5}
+.check input{margin-top:4px;width:17px;height:17px;flex:none}
+.box3{background:var(--tint);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--sub);margin-top:10px}
+details.priv{font-size:13px;color:var(--sub);margin-top:8px}
+details.priv table{border-collapse:collapse;margin:8px 0;width:100%}
+details.priv th,details.priv td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+details.priv th{background:#f7f8fb;white-space:nowrap}
+.err{color:#b42318;font-size:14px;min-height:20px;margin-top:6px}
+.mfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.adm-top{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 14px}
+.adm-top .cnt{font-size:14px;color:var(--sub)}
+.adm-top .sp{flex:1}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table.adm{border-collapse:collapse;width:100%;font-size:14px;min-width:760px}
+table.adm th,table.adm td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.adm th{background:#f7f8fb;font-size:13px;color:var(--sub)}
+table.adm td.warn{color:#b42318;font-weight:700}
+.btn.mini{padding:5px 10px;font-size:13px;border-radius:8px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f2633;color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;z-index:60;display:none}
+@media(max-width:860px){
+  .hright{display:flex;margin-left:0;width:100%}
+  .form .row2{grid-template-columns:1fr}
+  .mbox{padding:22px 18px 18px}
+}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="config.js"></script>
 </head>
 <body>
 <header><div class="hwrap">
@@ -92,7 +141,7 @@ footer{max-width:1160px;margin:0 auto;padding:0 20px 40px;color:var(--sub);font-
     <div class="logo"><span class="wm" role="img" aria-label="JACE"><i>J</i>ACE</span></div>
     <div class="brand"><h1>전북AI융합교육연구회</h1><p>교사가 직접 만드는 AI 수업 도구, 교실에서 함께 실천하는 연구</p></div>
   </a>
-  <div class="hright"><a class="btn ghost" href="#join">함께하기</a></div>
+  <div class="hright" id="hright"><a class="btn ghost" href="#join">함께하기</a></div>
 </div></header>
 <nav aria-label="주요 메뉴"><div class="nwrap">
   <a href="#about">소개</a>
@@ -165,10 +214,187 @@ footer{max-width:1160px;margin:0 auto;padding:0 20px 40px;color:var(--sub);font-
     <p class="eyebrow">함께하기</p>
     <h3>창립 회원을 모집합니다</h3>
     <p>JACE는 2027학년도 활동을 목표로 준비하고 있습니다. 줄넘기 기록, 독서 기록, 실시간 설문, 스포츠클럽 리그전 등 현장에서 쓰이고 있는 도구를 만든 경험을 바탕으로 처음부터 함께 안내합니다.</p>
-    <p class="note">가입 신청 방법과 문의처는 모집 공고와 함께 이곳에 안내합니다.</p>
+    <div class="acts" id="joinActs"><a class="btn primary" href="#join" onclick="openJoin();return false">가입 신청</a></div>
+    <div class="state" id="joinState" hidden></div>
+    <p class="note">구글 계정으로 로그인한 뒤 신청서를 내면, 운영진 확인 후 회원으로 등록됩니다. 교육학습공동체 신청 때 회원 명단에 들어갈 정보를 함께 받습니다.</p>
   </section>
 </main>
 
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle" onclick="if(event.target===this)closeM()"><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast" role="status"></div>
 <footer>전북AI융합교육연구회 JACE · Jeonbuk AI Convergence Education</footer>
+<script>
+const APP_VERSION = "1.1.0";
+const ADMINS = (window.JACE_ADMINS || []).map(e => String(e).toLowerCase());
+const LEVELS = ["초등학교", "중학교", "고등학교", "특수학교", "교육기관"];
+const POSITIONS = ["교사", "수석교사", "교감", "교장", "교육전문직"];
+const OTHERS = ["없음", "1개", "2개 이상"];
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let AUTH = null, DB = null, USER = null, MINE = null, READY = false, ALL = null;
+
+function fbReady() { return !!(window.firebase && window.JACE_FIREBASE && window.JACE_FIREBASE.apiKey); }
+function isAdmin() { return !!(USER && USER.email && ADMINS.includes(USER.email.toLowerCase())); }
+function toast(t) { const el = $("#toast"); el.textContent = t; el.style.display = "block"; clearTimeout(toast.t); toast.t = setTimeout(() => el.style.display = "none", 3200); }
+function openM(html, wide) { const b = $("#mbox"); b.className = "mbox" + (wide ? " wide" : ""); b.innerHTML = '<button class="x" onclick="closeM()" aria-label="닫기">×</button>' + html; $("#modal").classList.add("on"); }
+function closeM() { $("#modal").classList.remove("on"); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeM(); });
+
+function init() {
+  if (!fbReady()) { paint(); return; }
+  try {
+    firebase.initializeApp(window.JACE_FIREBASE);
+    AUTH = firebase.auth(); DB = firebase.database();
+    AUTH.onAuthStateChanged(async u => {
+      USER = u; MINE = null;
+      if (u) { try { const s = await DB.ref("members/" + u.uid).get(); MINE = s.val(); } catch (e) { MINE = null; } }
+      READY = true; paint();
+      if (u && sessionStorageGet("jaceWantJoin")) { sessionStorageSet("jaceWantJoin", ""); openJoin(); }
+    });
+  } catch (e) { paint(); }
+}
+function sessionStorageGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+
+function statusPill(st) {
+  if (st === "승인") return '<span class="pill ok">회원</span>';
+  if (st === "보류") return '<span class="pill no">가입 보류</span>';
+  return '<span class="pill">승인 대기 중</span>';
+}
+function paint() {
+  const h = $("#hright"), acts = $("#joinActs"), state = $("#joinState");
+  if (!fbReady()) {
+    h.innerHTML = '<a class="btn ghost" href="#join">함께하기</a>';
+    acts.innerHTML = '<span class="btn" aria-disabled="true" style="opacity:.6">가입 신청 준비 중</span>';
+    state.hidden = true; return;
+  }
+  if (!USER) {
+    h.innerHTML = '<button class="btn ghost" onclick="openJoin()">가입 신청</button><button class="btn ghost" onclick="login()">로그인</button>';
+    acts.innerHTML = '<button class="btn primary" onclick="openJoin()">가입 신청</button>';
+    state.hidden = true; return;
+  }
+  const nm = MINE && MINE.name ? esc(MINE.name) + " 선생님" : esc(USER.email);
+  h.innerHTML = '<span class="who">' + nm + (MINE ? statusPill(MINE.status) : "") + '</span>'
+    + (isAdmin() ? '<button class="btn ghost" onclick="openAdmin()">회원 관리</button>' : "")
+    + '<button class="btn ghost" onclick="logout()">로그아웃</button>';
+  if (!MINE) {
+    acts.innerHTML = '<button class="btn primary" onclick="openJoin()">가입 신청서 쓰기</button>';
+    state.hidden = true;
+  } else {
+    acts.innerHTML = MINE.status === "승인" ? "" : '<button class="btn" onclick="openJoin()">신청 내용 고치기</button>';
+    state.hidden = false;
+    state.innerHTML = MINE.status === "승인" ? "<b>JACE 회원으로 등록되었습니다.</b> 함께해 주셔서 고맙습니다."
+      : MINE.status === "보류" ? "<b>가입이 보류되었습니다.</b> 운영진에게 문의해 주세요."
+      : "<b>가입 신청이 접수되었습니다.</b> 운영진이 확인하면 회원으로 등록됩니다.";
+  }
+  if (isAdmin()) acts.innerHTML += '<button class="btn" onclick="openAdmin()">회원 관리</button>';
+}
+
+async function login() {
+  if (!AUTH) return;
+  try { await AUTH.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch (e) {
+    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) { try { await AUTH.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (e2) { toast("로그인하지 못했습니다. 잠시 뒤 다시 해 주세요"); } }
+    else if (!(e && e.code === "auth/popup-closed-by-user")) toast("로그인하지 못했습니다. 잠시 뒤 다시 해 주세요");
+  }
+}
+async function logout() { if (AUTH) { await AUTH.signOut(); toast("로그아웃했습니다"); } }
+
+function opt(list, cur) { return '<option value="">고르기</option>' + list.map(x => '<option' + (x === cur ? " selected" : "") + '>' + esc(x) + '</option>').join(""); }
+function validPhone(p) { return /^01[016789]-?\d{3,4}-?\d{4}$/.test(String(p).replace(/\s/g, "")); }
+function fmtPhone(p) { const d = String(p).replace(/\D/g, ""); return d.length === 11 ? d.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); }
+
+function openJoin() {
+  if (!fbReady()) { toast("가입 신청은 곧 열립니다"); return; }
+  if (!USER) {
+    openM('<h2 id="mtitle">가입 신청</h2><p style="color:var(--sub);margin:6px 0 0">본인 확인을 위해 구글 계정으로 먼저 로그인해 주세요. 로그인하면 신청서가 바로 열립니다.</p><div class="mfoot"><button class="btn" onclick="closeM()">닫기</button><button class="btn primary" onclick="sessionStorageSet(\'jaceWantJoin\',\'1\');closeM();login()">구글 계정으로 로그인</button></div>');
+    return;
+  }
+  if (MINE && MINE.status === "승인") { toast("이미 회원으로 등록되어 있습니다"); return; }
+  const m = MINE || {};
+  openM('<h2 id="mtitle">JACE 가입 신청</h2><p style="margin:0;color:var(--sub);font-size:14px">' + esc(USER.email) + ' 계정으로 신청합니다.</p>'
+   + '<div class="form">'
+   + '<div class="row2"><div><label for="jn">이름</label><input type="text" id="jn" maxlength="20" autocomplete="name" value="' + esc(m.name || USER.displayName || "") + '"></div>'
+   + '<div><label for="jp">휴대전화</label><input type="tel" id="jp" inputmode="numeric" autocomplete="tel" placeholder="예: 010-1234-5678" value="' + esc(m.phone || "") + '"></div></div>'
+   + '<label for="js">소속 학교(기관)</label><input type="text" id="js" maxlength="40" placeholder="예: 햇살초등학교" value="' + esc(m.school || "") + '">'
+   + '<div class="row2"><div><label for="jl">학교급</label><select id="jl">' + opt(LEVELS, m.level) + '</select></div>'
+   + '<div><label for="jpos">직위</label><select id="jpos">' + opt(POSITIONS, m.pos) + '</select></div></div>'
+   + '<label for="jsub">담당 교과·분야</label><input type="text" id="jsub" maxlength="30" placeholder="예: 초등교과전반, 체육, 보건, 정보" value="' + esc(m.subject || "") + '">'
+   + '<label for="jo">JACE 말고 내년에 신청할 교육학습공동체 수</label><select id="jo">' + opt(OTHERS, m.others) + '</select>'
+   + '<div class="box3">교육학습공동체는 한 사람이 <b>3개까지</b> 신청할 수 있고, <b>3월 1일 기준</b> 휴직 예정자, 학습연구년제 교원, 학위 취득 파견 교원은 회원이 될 수 없습니다.</div>'
+   + '<label class="check"><input type="checkbox" id="jelig"' + (m.eligible ? " checked" : "") + '> <span><b>(필수)</b> 내년 3월 1일에 휴직, 학습연구년제, 학위 취득 파견 예정이 아닙니다.</span></label>'
+   + '<details class="priv"><summary>개인정보 수집·이용 안내 (펼쳐 보기)</summary><table>'
+   + '<tr><th>수집 항목</th><td>이름, 소속, 학교급, 직위, 담당 교과, 휴대전화 번호, 구글 계정 이메일</td></tr>'
+   + '<tr><th>이용 목적</th><td>회원 확인과 연락, 교육학습공동체 신청 회원 명단 작성과 제출</td></tr>'
+   + '<tr><th>보유 기간</th><td>회원 탈퇴 또는 연구회 활동 종료 시까지</td></tr></table>'
+   + '<p style="margin:0">동의하지 않을 수 있으나, 동의하지 않으면 가입할 수 없습니다.</p></details>'
+   + '<label class="check"><input type="checkbox" id="jpriv"' + (m.agreePrivacy ? " checked" : "") + '> <span><b>(필수)</b> 위 개인정보 수집·이용에 동의합니다.</span></label>'
+   + '<label class="check"><input type="checkbox" id="jreg"' + (m.agreeList ? " checked" : "") + '> <span><b>(필수)</b> 교육학습공동체 신청 때 회원 명단에 이름·소속·직위를 올리는 데 동의합니다.</span></label>'
+   + '<div class="err" id="jerr" role="alert"></div></div>'
+   + '<div class="mfoot"><button class="btn" onclick="closeM()">취소</button><button class="btn primary" id="jsend" onclick="sendJoin()">' + (MINE ? "고친 내용 보내기" : "신청서 보내기") + '</button></div>');
+  setTimeout(() => { const f = $("#jn"); if (f && !f.value) f.focus(); }, 30);
+}
+
+async function sendJoin() {
+  const v = id => $("#" + id).value.trim(), err = t => { $("#jerr").textContent = t; };
+  const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: v("jsub"), others: v("jo"),
+    eligible: $("#jelig").checked, agreePrivacy: $("#jpriv").checked, agreeList: $("#jreg").checked };
+  if (!body.name) return err("이름을 적어 주세요.");
+  if (!validPhone(body.phone)) return err("휴대전화 번호를 확인해 주세요. (예: 010-1234-5678)");
+  if (!body.school) return err("소속 학교(기관)를 적어 주세요.");
+  if (!body.level) return err("학교급을 골라 주세요.");
+  if (!body.pos) return err("직위를 골라 주세요.");
+  if (!body.subject) return err("담당 교과나 분야를 적어 주세요.");
+  if (!body.others) return err("내년에 신청할 다른 교육학습공동체 수를 골라 주세요.");
+  if (!body.eligible) return err("3월 1일 기준 회원 자격을 확인해 주세요.");
+  if (!body.agreePrivacy) return err("개인정보 수집·이용에 동의해 주세요.");
+  if (!body.agreeList) return err("회원 명단 제출에 동의해야 가입할 수 있습니다.");
+  const isNew = !MINE;
+  body.phone = fmtPhone(body.phone); body.email = USER.email; body.status = "대기";
+  body.t = MINE && MINE.t ? MINE.t : Date.now(); body.u = Date.now();
+  const btn = $("#jsend"); btn.disabled = true;
+  try { await DB.ref("members/" + USER.uid).set(body); MINE = body; closeM(); paint(); toast(isNew ? "가입 신청을 보냈습니다" : "신청 내용을 저장했습니다"); }
+  catch (e) { btn.disabled = false; err("저장하지 못했습니다. 잠시 뒤 다시 해 주세요."); }
+}
+
+/* ===== 운영진: 회원 관리 ===== */
+async function openAdmin() {
+  if (!isAdmin()) return;
+  openM('<h2 id="mtitle">회원 관리</h2><p style="color:var(--sub)">불러오는 중입니다…</p>', true);
+  try { const s = await DB.ref("members").get(); ALL = s.val() || {}; paintAdmin(); }
+  catch (e) { $("#mbox").innerHTML = '<button class="x" onclick="closeM()" aria-label="닫기">×</button><h2>회원 관리</h2><p class="err">명단을 불러오지 못했습니다. 운영진 계정인지, 데이터베이스 규칙이 들어갔는지 확인해 주세요.</p>'; }
+}
+function rowsSorted() {
+  const order = { "승인": 0, "대기": 1, "보류": 2 };
+  return Object.entries(ALL).map(([uid, m]) => Object.assign({ uid }, m)).sort((a, b) => (order[a.status] - order[b.status]) || (a.t - b.t));
+}
+function paintAdmin() {
+  const rows = rowsSorted(), n = s => rows.filter(r => r.status === s).length;
+  const ok = n("승인");
+  const html = '<button class="x" onclick="closeM()" aria-label="닫기">×</button><h2 id="mtitle">회원 관리</h2>'
+   + '<div class="adm-top"><span class="cnt">회원 <b>' + ok + '</b>명 · 대기 ' + n("대기") + '명 · 보류 ' + n("보류") + '명' + (ok < 10 ? ' · 연구회 기준 10명까지 <b>' + (10 - ok) + '</b>명' : "") + '</span><span class="sp"></span>'
+   + '<button class="btn mini" onclick="copyList()">명단 복사 (승인 회원)</button></div>'
+   + (rows.length ? '<div class="tbl-wrap"><table class="adm"><tr><th>상태</th><th>이름</th><th>소속</th><th>학교급</th><th>직위</th><th>교과·분야</th><th>휴대전화</th><th>다른 공동체</th><th>신청일</th><th></th></tr>'
+   + rows.map(r => '<tr><td>' + statusPill(r.status) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.school) + '</td><td>' + esc(r.level) + '</td><td>' + esc(r.pos) + '</td><td>' + esc(r.subject) + '</td><td>' + esc(r.phone) + '</td>'
+     + '<td' + (r.others === "2개 이상" ? ' class="warn" title="JACE까지 3개를 넘는지 확인"' : "") + '>' + esc(r.others) + '</td><td>' + esc(new Date(r.t).toLocaleDateString("ko-KR")) + '</td>'
+     + '<td>' + (r.status !== "승인" ? '<button class="btn mini primary" onclick="setSt(\'' + r.uid + '\',\'승인\')">승인</button> ' : "")
+     + (r.status !== "보류" ? '<button class="btn mini" onclick="setSt(\'' + r.uid + '\',\'보류\')">보류</button> ' : "")
+     + (r.status !== "대기" ? '<button class="btn mini" onclick="setSt(\'' + r.uid + '\',\'대기\')">대기로</button>' : "") + '</td></tr>').join("")
+   + '</table></div>' : '<p style="color:var(--sub)">아직 가입 신청이 없습니다.</p>')
+   + '<p style="font-size:13px;color:var(--sub);margin:12px 0 0">명단 복사는 승인된 회원을 "순, 소속, 직위, 성명, 교과" 순서로 복사합니다. 한글이나 엑셀 표에 바로 붙여 넣을 수 있습니다.</p>';
+  $("#mbox").innerHTML = html;
+}
+async function setSt(uid, st) {
+  try { await DB.ref("members/" + uid + "/status").set(st); ALL[uid].status = st; paintAdmin(); toast(ALL[uid].name + " 선생님: " + st); }
+  catch (e) { toast("바꾸지 못했습니다"); }
+}
+async function copyList() {
+  const rows = rowsSorted().filter(r => r.status === "승인");
+  const tsv = ["순\t소속\t직위\t성명\t교과"].concat(rows.map((r, i) => [i + 1, r.school, r.pos, r.name, r.subject].join("\t"))).join("\n");
+  try { await navigator.clipboard.writeText(tsv); toast("승인 회원 " + rows.length + "명을 복사했습니다"); }
+  catch (e) { toast("복사하지 못했습니다. 브라우저 권한을 확인해 주세요"); }
+}
+init();
+</script>
 </body>
 </html>
