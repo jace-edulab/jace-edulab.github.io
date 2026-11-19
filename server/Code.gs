@@ -11,7 +11,7 @@
  * 서버는 로그인한 선생님의 토큰으로 그 선생님 회원 기록만 읽어 회원·운영진인지 확인합니다.
  */
 
-var APP_VERSION = '2.6.0';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
+var APP_VERSION = '2.6.1';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
 var FIREBASE_API_KEY = 'AIzaSyD_t8_g2A21ELTB91s6X0xwCd_3CCZ3Sms';
 var FIREBASE_DB_URL = 'https://jace-edulab-default-rtdb.asia-southeast1.firebasedatabase.app';
 var ADMIN_EMAILS = ['jace.edulab@gmail.com'];       // 대표 계정: 가입 없이 운영진
