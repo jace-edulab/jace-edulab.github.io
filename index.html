@@ -224,7 +224,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast" role="status"></div>
 <footer>전북AI융합교육연구회 JACE · Jeonbuk AI Convergence Education</footer>
 <script>
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.3.1";
 const ADMINS = (window.JACE_ADMINS || []).map(e => String(e).toLowerCase());
 const MANAGERS = (window.JACE_MANAGERS || []).map(e => String(e).toLowerCase());
 const LEVELS = ["초등학교", "중학교", "고등학교", "특수학교", "교육기관"];
@@ -330,7 +330,7 @@ function openJoin() {
   openM('<h2 id="mtitle">JACE 가입 신청</h2><p style="margin:0;color:var(--sub);font-size:14px">' + esc(USER.email) + ' 계정으로 신청합니다.</p>'
    + '<div class="form">'
    + '<div class="row2"><div><label for="jn">이름</label><input type="text" id="jn" maxlength="20" autocomplete="name" value="' + esc(m.name || USER.displayName || "") + '"></div>'
-   + '<div><label for="jp">휴대전화</label><input type="tel" id="jp" inputmode="numeric" autocomplete="tel" placeholder="예: 010-1234-5678" value="' + esc(m.phone || "") + '"></div></div>'
+   + '<div><label for="jp">휴대전화</label><input type="tel" id="jp" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" oninput="this.value=this.value.replace(/\\D/g,\'\')" value="' + esc(String(m.phone || "").replace(/\D/g, "")) + '"></div></div>'
    + '<label for="js">소속 학교(기관)</label><input type="text" id="js" maxlength="40" placeholder="예: 햇살초등학교" value="' + esc(m.school || "") + '">'
    + '<div class="row2"><div><label for="jl">학교급</label><select id="jl">' + opt(LEVELS, m.level) + '</select></div>'
    + '<div><label for="jpos">직위</label><select id="jpos">' + opt(POSITIONS, m.pos) + '</select></div></div>'
@@ -355,7 +355,7 @@ async function sendJoin() {
   const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: v("jsub"), others: v("jo"),
     eligible: $("#jelig").checked, agreePrivacy: $("#jpriv").checked, agreeList: $("#jreg").checked };
   if (!body.name) return err("이름을 적어 주세요.");
-  if (!validPhone(body.phone)) return err("휴대전화 번호를 확인해 주세요. (예: 010-1234-5678)");
+  if (!validPhone(body.phone)) return err("휴대전화 번호를 숫자만 11자리로 적어 주세요. (예: 01012345678)");
   if (!body.school) return err("소속 학교(기관)를 적어 주세요.");
   if (!body.level) return err("학교급을 골라 주세요.");
   if (!body.pos) return err("직위를 골라 주세요.");
