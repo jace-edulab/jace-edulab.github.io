@@ -44,7 +44,12 @@ AD = {"ok": True, "sheetUrl": "#", "members": [
 
 B64 = "JVBERi0xLjMKJeLjz9MKMSAwIG9iago8PAovUHJvZHVjZXIgKHB5cGRmKQo+PgplbmRvYmoKMiAwIG9iago8PAovVHlwZSAvUGFnZXMKL0NvdW50IDIKL0tpZHMgWyA0IDAgUiA1IDAgUiBdCj4+CmVuZG9iagozIDAgb2JqCjw8Ci9UeXBlIC9DYXRhbG9nCi9QYWdlcyAyIDAgUgo+PgplbmRvYmoKNCAwIG9iago8PAovVHlwZSAvUGFnZQovUmVzb3VyY2VzIDw8Cj4+Ci9NZWRpYUJveCBbIDAuMCAwLjAgNTk1IDg0MiBdCi9QYXJlbnQgMiAwIFIKPj4KZW5kb2JqCjUgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1Jlc291cmNlcyA8PAo+PgovTWVkaWFCb3ggWyAwLjAgMC4wIDU5NSA4NDIgXQovUGFyZW50IDIgMCBSCj4+CmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDA1NCAwMDAwMCBuIAowMDAwMDAwMTE5IDAwMDAwIG4gCjAwMDAwMDAxNjggMDAwMDAgbiAKMDAwMDAwMDI2MiAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMyAwIFIKL0luZm8gMSAwIFIKPj4Kc3RhcnR4cmVmCjM1NgolJUVPRgo="
 REP = {"uid": "rep", "email": "jace.edulab@gmail.com"}
-DB0 = {"members": {
+RT0 = {"usedSc": {"p3": {"u1": "해초", "u2": "달초", "u3": "해초"}},
+       "used": {"p3": {"u1": {"n": "다교사", "sc": "해초", "g": "초등학교", "a": "5학년 체육", "x": "줄넘기 시간에 잘 썼어요", "t": 1790000000000}}},
+       "ideas": {"i1": {"uid": "zz", "n": "손님교사", "x": "모둠 차례 타이머가 있으면 좋겠어요", "g": "초등학교", "a": "체육", "t": 1790000000000},
+                 "i2": {"uid": "zz", "n": "손님교사", "x": "완성된 도구 아이디어 예시", "t": 1780000000000, "claim": {"uid": "m1", "n": "가교사", "t": 1}, "done": {"id": "p3", "t": 2}}},
+       "ideaLikes": {"i1": {"zz": True}}}
+DB0 = {**RT0, "members": {
   "m1": {"name": "가교사", "school": "달빛중학교", "level": "중학교", "pos": "교사", "subject": "체육", "phone": "010-1111-2222", "others": "없음", "status": "승인", "role": "회원", "email": "m1@x.kr", "t": 1},
   "w1": {"name": "나교사", "school": "별초등학교", "level": "초등학교", "pos": "교감", "subject": "초등교과전반", "phone": "010-3333-4444", "others": "2개 이상", "status": "대기", "email": "w1@x.kr", "t": 2},
   "bs": {"name": "박회장", "school": "봄초등학교", "level": "초등학교", "pos": "교사", "subject": "초등교과전반", "phone": "010-5555-6666", "others": "없음", "status": "승인", "email": "boss@x.kr", "t": 0}}}
@@ -54,7 +59,7 @@ def build(user, db=None, api=True):
     stub = f"""<script>
 window.JACE_FIREBASE={{apiKey:"k",authDomain:"a",databaseURL:"",projectId:"p",appId:"x"}};
 window.JACE_API_URL={json.dumps("https://api.invalid/exec" if api else "")};window.JACE_ADMINS=["jace.edulab@gmail.com"];window.JACE_MANAGERS=["boss@x.kr"];
-window.__CALLS=[];window.__DB={json.dumps(db or {}, ensure_ascii=False)};
+window.__RT_TEST=true;window.__NOCONFIRM=true;window.__CALLS=[];window.__DB={json.dumps(db or {}, ensure_ascii=False)};
 let __U={json.dumps(user)};if(__U)__U.getIdToken=async()=>"tok";let __cb=null;
 const __A={{get currentUser(){{return __U}},setPersistence(){{return Promise.resolve()}},onAuthStateChanged(cb){{__cb=cb;setTimeout(()=>cb(__U),20)}},signInWithPopup(){{__U={{uid:"new",email:"new@x.kr",displayName:"새교사",getIdToken:async()=>"tok"}};setTimeout(()=>__cb(__U),10);return Promise.resolve()}},signOut(){{__U=null;setTimeout(()=>__cb(null),10);return Promise.resolve()}}}};
 function __get(p){{return p.split("/").reduce((o,k)=>o==null?undefined:o[k],window.__DB)}}
@@ -95,7 +100,7 @@ async def newpage(b, width, user, db=None, api=True, hash=""):
 
 async def guest(b, width):
     tag = "휴대폰" if width < 500 else "PC"
-    pg, errs = await newpage(b, width, None)
+    pg, errs = await newpage(b, width, None, db=json.loads(json.dumps(RT0)))
     check(f"{tag} 첫 화면은 JACE 소개", await pg.locator(".ahero").count() == 1 and await pg.locator(".atabs button").count() == 5)
     for k, txt in [("topic", "교과별 실천 연구"), ("tools", "기록하고 쌓는 도구"), ("plan", "월 1회 모임"), ("join", "창립 회원")]:
         await pg.evaluate(f"pickA('{k}')"); await pg.wait_for_timeout(80)
@@ -121,6 +126,14 @@ async def guest(b, width):
     check(f"{tag} 자료 창 썸네일", await pg.locator("#ov .mthumb").count() == 1)
     await pg.evaluate("closeM();openItem('p1')"); await pg.wait_for_timeout(200)
     check(f"{tag} 회원만 자료 잠김", await pg.locator("#ov", has_text="회원만 내려받기").count() == 1)
+    check(f"{tag} 카드에 '2개 학교 사용'", "2개 학교 사용" in await pg.locator(".card.app", has_text="점퍼스").inner_text())
+    await pg.evaluate("closeM();openItem('p3')"); await pg.wait_for_timeout(300)
+    ub = await pg.inner_text("#usedBox")
+    check(f"{tag} 손님: 써 봤어요는 학교 수만", "2개 학교" in ub and "다교사" not in ub, ub)
+    await pg.evaluate("closeM();location.hash='#ideas'"); await pg.wait_for_timeout(300)
+    check(f"{tag} 아이디어함 2개", await pg.locator(".idea").count() == 2 and await pg.locator(".idea.done").count() == 1)
+    check(f"{tag} 아이디어함: 손님은 맡기 단추 없음", await pg.get_by_role("button", name="제가 만들어 볼게요").count() == 0)
+    check(f"{tag} 완성 아이디어에 자료 보기", await pg.locator(".idea.done").get_by_role("button", name="자료 보기").count() == 1)
     await pg.evaluate("closeM();location.hash='#guide'"); await pg.wait_for_timeout(250)
     check(f"{tag} 사용 안내", await pg.locator(".guide .panel").count() >= 5)
     await pg.evaluate("location.hash='#members'"); await pg.wait_for_timeout(200)
@@ -166,6 +179,23 @@ async def member(b, width):
     check(f"{tag} 회원 공간 탭은 6개", await pg.locator(".subtabs button:not(.tabedit)").count() == 6)
     await pg.evaluate("go('members');msub='cal';render();openEv('s1')"); await pg.wait_for_timeout(150)
     check(f"{tag} 일정 창", await pg.locator("#ov", has_text="참석").count() >= 1)
+    await pg.evaluate("closeM();go('public');render();openItem('p3')"); await pg.wait_for_timeout(300)
+    check(f"{tag} 회원: 써 봤어요 소감 보임", "줄넘기 시간에 잘 썼어요" in await pg.inner_text("#usedBox"))
+    await pg.get_by_role("button", name="써 봤어요 남기기").click(); await pg.wait_for_timeout(150)
+    await pg.fill("#usa", "1학년 체육"); await pg.fill("#usx", "수업에 잘 썼어요")
+    await pg.get_by_role("button", name="남기기", exact=True).click(); await pg.wait_for_timeout(400)
+    u = await pg.evaluate("[window.__DB.used.p3.m1, window.__DB.usedSc.p3.m1]")
+    check(f"{tag} 회원: 써 봤어요 저장", u[0] and u[0]["x"] == "수업에 잘 썼어요" and u[0]["sc"] == "달빛중학교" and u[1] == "달빛중학교", str(u))
+    check(f"{tag} 회원: 카드 3개 학교로 늘어남", "3개 학교 사용" in await pg.locator(".card.app", has_text="점퍼스").inner_text())
+    await pg.evaluate("closeM();location.hash='#ideas'"); await pg.wait_for_timeout(300)
+    await pg.locator(".idea", has_text="모둠 차례").locator(".like").click(); await pg.wait_for_timeout(200)
+    check(f"{tag} 아이디어: 저도 필요해요", await pg.evaluate("window.__DB.ideaLikes.i1.m1") is True and "2" in await pg.locator(".idea", has_text="모둠 차례").locator(".like").inner_text())
+    await pg.get_by_role("button", name="제가 만들어 볼게요").click(); await pg.wait_for_timeout(200)
+    check(f"{tag} 아이디어: 맡기", await pg.evaluate("window.__DB.ideas.i1.claim && window.__DB.ideas.i1.claim.uid") == "m1" and await pg.locator(".idea", has_text="가교사 선생님이 만드는 중").count() >= 1)
+    await pg.get_by_role("button", name="아이디어 남기기").click(); await pg.wait_for_timeout(200)
+    await pg.fill("#idx", "학급 발표 순서 뽑기 도구"); await pg.get_by_role("button", name="남기기", exact=True).click(); await pg.wait_for_timeout(300)
+    nw = await pg.evaluate("Object.values(window.__DB.ideas).filter(d => d && d.uid === 'm1')")
+    check(f"{tag} 아이디어: 남기기", len(nw) == 1 and nw[0]["n"] == "가교사" and await pg.locator(".idea").count() == 3, str(nw))
     await pg.evaluate("closeM();go('members');msub='book';render()"); await pg.wait_for_timeout(150)
     check(f"{tag} 책자 탭 원고 양식", await pg.locator(".msguide a[href$='ms-template.hwpx']").count() == 1)
     check(f"{tag} 회원 오류 없음", not errs, "; ".join(errs)); await pg.close()
@@ -217,6 +247,17 @@ async def rep_admin(b, width):
     await pg.get_by_role("button", name="명단 복사 (승인 회원)").click(); await pg.wait_for_timeout(200)
     clip = await pg.evaluate("navigator.clipboard.readText()")
     check(f"{tag} 운영진: 명단 복사", clip.splitlines()[0] == "순\t역할\t소속\t직위\t성명\t교과" and clip.splitlines()[1].startswith("1\t회장\t") and len(clip.splitlines()) == 4, clip)
+    await pg.evaluate("() => { window.__CALLS = []; openOwner('p2'); }"); await pg.wait_for_timeout(200)
+    opts = await pg.locator("#own option").all_inner_texts()
+    check(f"{tag} 올린이 바꾸기: 승인 회원 + 운영진만", any("박회장" in o for o in opts) and any("JACE 운영진" in o for o in opts) and not any("대기교사" in o for o in opts), str(opts))
+    await pg.select_option("#own", label=[o for o in opts if "박회장" in o][0])
+    await pg.evaluate("() => { sendOwner(); }"); await pg.wait_for_timeout(600)
+    oc = await pg.evaluate("window.__CALLS.filter(c => c.action === 'setOwner')")
+    check(f"{tag} 올린이 바꾸기 보냄", len(oc) == 1 and oc[0]["id"] == "p2" and oc[0]["email"] == "boss@x.kr" and oc[0]["name"] == "박회장" and oc[0]["school"] == "봄초등학교", str(oc))
+    check(f"{tag} 활동 실적 칸", await pg.locator(".kpi").count() == 6 and await pg.locator(".kpi", has_text="써 봤어요").locator("b").inner_text() == "1건")
+    await pg.get_by_role("button", name="실적 복사").click(); await pg.wait_for_timeout(200)
+    st = await pg.evaluate("navigator.clipboard.readText()")
+    check(f"{tag} 활동 실적 복사", st.startswith("[JACE 활동 실적]") and "도구 아이디어: 2건 (완성 1" in st and "모임: 1회, 참석 연인원 1명" in st, st[:300])
     check(f"{tag} 대표 오류 없음", not errs, "; ".join(errs))
     db2 = await pg.evaluate("window.__DB"); await pg.close()
     # 총무가 된 회원은 운영진 관리 가능

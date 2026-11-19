@@ -456,6 +456,17 @@ table.adm{border-collapse:collapse;width:100%;font-size:14px;min-width:820px}
 table.adm th,table.adm td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
 table.adm th{background:#f7f8fb;font-size:13px;color:var(--sub)}
 table.adm td.warn{color:#b42318;font-weight:700}
+.usedc{color:#0F7C86;font-weight:700}
+.usedbox:not(:empty){margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.usedbox h4{margin:0 0 8px;font-size:15px;color:var(--navy)}.usedbox h4 small{font-size:12px;color:#0F7C86;background:#e6f4f5;border-radius:999px;padding:2px 8px;margin-left:4px}
+.usedl{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:8px}.usedl li{background:var(--bg);border-radius:10px;padding:8px 12px}.usedl li div{font-size:13px}.usedl li span{color:var(--sub);margin-left:6px}.usedl li p{margin:4px 0 0;font-size:14px}.usedn{font-size:14px;color:var(--sub);margin:0 0 8px}
+.itabs{display:flex;gap:4px;flex-wrap:wrap}.itabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px}.itabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.idlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:12px}
+.idea{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}.idea.done{background:#f6fbf7}
+.ihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.iby{font-size:12px;color:var(--sub)}.ix{margin:0;white-space:pre-line;line-height:1.6}
+.ist{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--tint);color:var(--navy)}.ist.doing{background:#fff1e6;color:#b5651d}.ist.done{background:#e3f4e8;color:#2F8A57}
+.ifoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}.kpi{background:var(--bg);border-radius:12px;padding:12px 14px}.kpi span{display:block;font-size:12px;color:var(--sub)}.kpi b{display:block;font-size:22px;color:var(--navy);font-weight:900}.kpi small{display:block;font-size:12px;color:var(--sub);margin-top:2px}
+.sp{flex:1}
 </style>
 </head>
 <body>
@@ -468,6 +479,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <nav><div class="nwrap">
   <a href="#about" data-v="about">JACE 소개</a>
   <a href="#public" data-v="public">자료실</a>
+  <a href="#ideas" data-v="ideas">아이디어함</a>
   <a href="#members" data-v="members">회원 공간<span class="lock" id="lockTag">회원</span></a>
   <a href="#mine" data-v="mine" id="navMine">내가 올린 자료</a>
   <a href="#admin" data-v="admin" id="navAdmin">운영진 관리</a>
@@ -479,7 +491,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.1.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.3.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 
 /* ===== 설정 (config.js) ===== */
 const FIREBASE_CONFIG = window.JACE_FIREBASE || {};
@@ -584,6 +596,11 @@ async function loadMember() { if (isMember() && apiReady()) { MD = await api("me
 async function loadAdmin() {
   if (!isAdmin()) return;
   const s = await firebase.database().ref("members").get(); ALL = s.val() || {};
+  if (rtOK()) {
+    try { USEDALL = (await firebase.database().ref("used").get()).val() || {}; } catch (e) { USEDALL = {}; }
+    if (!REV.length) { try { const o = (await firebase.database().ref("reviews").get()).val() || {}; REVA = Object.keys(o).map(k => Object.assign({ id: k }, o[k])); } catch (e) {} }
+    await loadIdeas();
+  }
   if (apiReady()) { try { AD = await api("adminData"); } catch (e) { AD = { log: [], sheetUrl: "" }; } } else AD = { log: [], sheetUrl: "" };
 }
 async function reloadAll(fresh = true) { await loadPublic(fresh); if (isMember()) await loadMember(); if (isAdmin() && view === "admin") await loadAdmin(); render(); }
@@ -700,7 +717,7 @@ function card(it) {
   return `<div class="card app" onclick='openItem(${JSON.stringify(it.id)})'>${thumb}${canOpen ? `<a class="openbtn" href="${esc(L[0].url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.ty === "프로그램" ? "바로 열기" : "열기"}</a>` : ""}</div>
    <div class="cbody"><h3>${esc(it.t)}</h3><p>${esc(it.d)}</p>
    <div class="tags">${it.g.map(g => `<span class="tag">${esc(g)}</span>`).join("")}${it.a.map(a => { const cc = areaColor(a); return `<span class="tag${cc ? " tmain" : ""}"${cc ? ` style="--c:${cc}"` : ""}>${esc(a)}</span>`; }).join("")}</div>
-   <div class="cfoot"><span class="cby"><b>${esc(it.by)}</b> · ${esc(it.sc)}</span><span class="cmeta">${esc((it.dt || "").slice(5).replace("-", "."))}<span>조회 ${it.v}</span></span></div></div></div>`;
+   <div class="cfoot"><span class="cby"><b>${esc(it.by)}</b> · ${esc(it.sc)}</span><span class="cmeta">${usedSchools(it.id).length ? `<span class="usedc">${usedSchools(it.id).length}개 학교 사용</span>` : ""}${esc((it.dt || "").slice(5).replace("-", "."))}<span>조회 ${it.v}</span></span></div></div></div>`;
 }
 function listView(src, title, desc) {
   let list = src.filter(match);
@@ -733,9 +750,10 @@ function render() {
   else if (view === "mine") {
     if (!isMember()) { go("public"); return render(); }
     const mine = MD ? MD.items.filter(i => i.own) : [];
-    m.innerHTML = `<div class="panel"><h3>내가 올린 자료 (${mine.length})</h3>${mine.length ? `<table class="rt"><tr><th>자료</th><th>내려받기</th><th>올린 날</th><th>조회</th><th></th></tr>${mine.map(i => `<tr><td>${esc(i.t)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td>${esc(i.dt)}</td><td>${i.v}</td><td style="text-align:right"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> <button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 올린 자료가 없습니다.</p>'}</div>`;
+    m.innerHTML = `<div class="panel"><h3>내가 올린 자료 (${mine.length})</h3>${mine.length ? `<table class="rt"><tr><th>자료</th><th>내려받기</th><th>올린 날</th><th>조회</th><th></th></tr>${mine.map(i => `<tr><td>${esc(i.t)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td>${esc(i.dt)}</td><td>${i.v}</td><td style="text-align:right"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> ${isAdmin() ? `<button class="btn mini" onclick='openOwner(${JSON.stringify(i.id)})'>올린이 바꾸기</button> ` : ""}<button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 올린 자료가 없습니다.</p>'}</div>`;
   }
   else if (view === "guide") { m.innerHTML = guideView(); }
+  else if (view === "ideas") { m.innerHTML = ideasView(); }
   else if (view === "admin") {
     if (!isAdmin()) { go("public"); return render(); }
     m.innerHTML = adminView();
@@ -784,12 +802,13 @@ function openItem(id) {
    ${locked ? (!it.hasFile ? `<div class="file"><span class="ext">LINK</span><div>${esc(it.t)}<small>링크</small></div><button class="btn" onclick="closeM();openJoin()">회원만 열기</button></div>` : "") : LK.map(linkRow).join("")}
    ${locked ? `<div class="box2" style="margin-top:10px">이 자료는 <b>JACE 회원이 되면 열 수 있어요.</b></div>` : ""}
    ${it.src ? `<p style="font-size:13px;margin:10px 0 0"><b>참고한 자료</b> ${esc(it.src)}</p>` : ""}
+   <div class="usedbox" id="usedBox"></div>
    <div class="lic">이용 조건: 출처 표시 · 비영리 · 고쳐 쓰면 출처 밝히기${it.m ? " · 회원 외 배포 금지" : ""}</div>
    ${(() => { const F = MD && MD.items.find(x => x.id === it.id); return F && F.canEdit ? `<div style="text-align:right;margin-top:10px"><button class="btn mini" onclick='closeM();openUpload(${JSON.stringify(it.id)})'>이 자료 고치기</button></div>` : ""; })()}
    <div class="share"><div class="qrbox" id="qrBox" aria-label="이 자료로 바로 가는 QR 코드"></div><div class="sinfo"><b>이 자료 나누기</b><span>QR을 찍거나 링크를 누르면 이 자료가 바로 열려요. 연수 자료나 단톡방에 붙여 쓰세요.</span>
     <div class="sbtns"><button class="btn mini" onclick='copyText(itemLink(${JSON.stringify(it.id)}),"링크를 복사했습니다")'>링크 복사</button><button class="btn mini" onclick='qrCopy(${JSON.stringify(it.id)})'>QR 이미지 복사</button><button class="btn mini" onclick='qrSave(${JSON.stringify(it.id)})'>QR 내려받기</button></div></div></div>
    <div class="cite"><div><b>출처 표기</b><span id="citeTxt">${esc(citeOf(it))}</span></div><button class="btn mini" onclick="copyText($('#citeTxt').textContent,'출처를 복사했습니다')">출처 복사</button></div>`);
-  setTimeout(() => qrDraw(it.id), 0);
+  setTimeout(() => { qrDraw(it.id); usedFill(it.id); }, 0);
 }
 /* ===== 자료마다 바로 가는 링크와 QR ===== */
 const itemLink = id => location.origin + location.pathname.replace(/index\.html$/, "") + "?i=" + encodeURIComponent(id);
@@ -1076,6 +1095,206 @@ async function sendUpload() {
 async function flip(id) {
   const it = MD.items.find(x => x.id === id);
   try { busy(true); await api("updateItem", { id, scope: it.m ? "공개" : "회원" }); await reloadAll(true); toast("내려받기 범위를 바꿨습니다"); } catch (e) { toast(e.message); } finally { busy(false); }
+}
+
+/* ===== 실시간 DB 공통 (써 봤어요 · 아이디어함) ===== */
+const rtOK = () => !!(firebase.database && (FIREBASE_CONFIG.databaseURL || window.__RT_TEST));
+const rtRef = p => firebase.database().ref(p);
+const newKey = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const myUid = () => AUTH.currentUser ? AUTH.currentUser.uid : "";
+
+/* ===== 우리 반에서 써 봤어요 ===== */
+let USC = {}, USED = {}, USEDALL = {}, REVA = [];
+async function loadUsedSc() { if (!rtOK()) return; try { USC = (await rtRef("usedSc").get()).val() || {}; } catch (e) {} }
+const usedSchools = id => [...new Set(Object.values(USC[id] || {}).filter(Boolean).map(x => String(x).trim()))];
+async function usedFill(id) {
+  const box = $("#usedBox"); if (!box || !rtOK()) return;
+  const sch = usedSchools(id);
+  let rows = [];
+  if (isMember()) {
+    try { USED[id] = (await rtRef("used/" + id).get()).val() || {}; } catch (e) {}
+    rows = Object.entries(USED[id] || {}).filter(([, r]) => r).map(([u, r]) => Object.assign({ uid: u }, r)).sort((a, b) => (b.t || 0) - (a.t || 0));
+  }
+  const mine = rows.some(r => r.uid === myUid());
+  if (!$("#usedBox")) return;
+  $("#usedBox").innerHTML = `<h4>우리 반에서 써 봤어요${sch.length ? ` <small>${sch.length}개 학교</small>` : ""}</h4>` + (isMember()
+    ? (rows.length ? `<ul class="usedl">${rows.map(r => `<li><div><b>${esc(r.n)}</b><span>${esc([r.sc, r.g, r.a].filter(Boolean).join(" · "))}</span></div>${r.x ? `<p>${esc(r.x)}</p>` : ""}</li>`).join("")}</ul>` : `<p class="usedn">아직 기록이 없어요. 수업에 써 보셨다면 첫 기록을 남겨 주세요.</p>`)
+      + `<button class="btn mini${mine ? "" : " primary"}" onclick='openUsed(${JSON.stringify(id)})'>${mine ? "내 기록 고치기" : "써 봤어요 남기기"}</button>`
+    : `<p class="usedn">${sch.length ? `${sch.length}개 학교 선생님이 수업에 써 봤어요.` : "아직 써 본 기록이 없어요."} 회원이 되면 소감을 보고 남길 수 있어요.</p>`);
+}
+function openUsed(id) {
+  if (!isMember()) return;
+  const it = allItems().find(x => x.id === id) || { t: "" }, R = (USED[id] || {})[myUid()] || null;
+  openM(`<h2>우리 반에서 써 봤어요</h2><p style="margin:0 0 6px;color:var(--sub)">「${esc(it.t)}」</p><div class="form">
+   <div class="r2"><div><label for="usg">학교급</label><select id="usg">${CFG.grades.map(g => `<option${R && R.g === g ? " selected" : ""}>${esc(g)}</option>`).join("")}</select></div>
+   <div><label for="usa">학년·교과</label><input type="text" id="usa" maxlength="30" value="${esc(R ? R.a || "" : "")}" placeholder="예: 5학년 체육"></div></div>
+   <label for="usx">한 줄 소감 (120자까지)</label><textarea id="usx" maxlength="120" style="min-height:80px" placeholder="예: 모둠별로 돌아가며 써 보니 기다리는 시간이 줄었어요.">${esc(R ? R.x || "" : "")}</textarea>
+   <div class="sheetnote" style="margin-top:6px">소감과 이름은 회원에게만 보이고, 자료실 카드에는 "○개 학교 사용"처럼 학교 수만 보여요.</div></div>
+   <div class="mfoot">${R ? `<button class="btn" onclick='delUsed(${JSON.stringify(id)})'>기록 지우기</button><span class="sp"></span>` : ""}<button class="btn" onclick='openItem(${JSON.stringify(id)})'>취소</button><button class="btn primary" onclick='sendUsed(${JSON.stringify(id)})'>남기기</button></div>`);
+}
+async function sendUsed(id) {
+  const u = myUid(); if (!u) return;
+  const rec = { n: ME.name || "", sc: ME.school || "", g: $("#usg").value, a: $("#usa").value.trim().slice(0, 30), x: $("#usx").value.trim().slice(0, 120), t: Date.now() };
+  try {
+    await rtRef(`used/${id}/${u}`).set(rec); await rtRef(`usedSc/${id}/${u}`).set(rec.sc || rec.n);
+    (USED[id] = USED[id] || {})[u] = rec; (USC[id] = USC[id] || {})[u] = rec.sc || rec.n;
+    toast("기록을 남겼어요. 고맙습니다"); render(); openItem(id);
+  } catch (e) { toast("남기지 못했어요: " + e.message); }
+}
+async function delUsed(id) {
+  const u = myUid();
+  try { await rtRef(`used/${id}/${u}`).set(null); await rtRef(`usedSc/${id}/${u}`).set(null); if (USED[id]) delete USED[id][u]; if (USC[id]) delete USC[id][u]; toast("기록을 지웠어요"); render(); openItem(id); }
+  catch (e) { toast("지우지 못했어요"); }
+}
+
+/* ===== 도구 아이디어함 ===== */
+let IDEAS = null, ILK = {}, IDF = "all";
+async function loadIdeas() {
+  if (!rtOK()) { IDEAS = IDEAS || {}; return; }
+  try { const [a, b] = await Promise.all([rtRef("ideas").get(), rtRef("ideaLikes").get()]); IDEAS = a.val() || {}; ILK = b.val() || {}; } catch (e) { IDEAS = IDEAS || {}; }
+}
+const ideaSt = d => d.done ? "done" : d.claim ? "doing" : "new";
+const ideaLikes = id => Object.keys(ILK[id] || {}).filter(k => ILK[id][k]).length;
+const ideaList = () => Object.entries(IDEAS || {}).filter(([, d]) => d && d.x).map(([id, d]) => Object.assign({ id }, d));
+function ideasView() {
+  if (!rtOK()) return `<div class="empty">아이디어함은 실시간 데이터베이스가 연결되면 열립니다.</div>`;
+  if (!IDEAS) { loadIdeas().then(() => { if (view === "ideas") render(); }); return `<div class="loading">불러오는 중…</div>`; }
+  const all = ideaList(), ord = { new: 0, doing: 1, done: 2 }, n = st => all.filter(d => ideaSt(d) === st).length;
+  const list = all.filter(d => IDF === "all" || ideaSt(d) === IDF).sort((a, b) => ord[ideaSt(a)] - ord[ideaSt(b)] || ideaLikes(b.id) - ideaLikes(a.id) || (b.t || 0) - (a.t || 0));
+  const tab = (k, t) => `<button class="${IDF === k ? "on" : ""}" onclick="IDF='${k}';render()">${t}</button>`;
+  return `<div class="hero"><div class="htxt"><div class="hlabel"><span>도구 아이디어함</span></div><h2>이런 도구가 있으면 좋겠어요</h2><p>수업하다가 떠오른 도구 아이디어를 남겨 주세요. JACE 회원이 맡아서 만들고, 완성되면 자료실에 올려 드립니다. 회원이 아니어도 구글 로그인만 하면 남길 수 있어요.</p></div>
+   <div class="stats"><div class="stat s1"><span>새 아이디어</span><b>${n("new")}</b></div><div class="stat s2"><span>만드는 중</span><b>${n("doing")}</b></div><div class="stat s3"><span>완성</span><b>${n("done")}</b></div></div></div>
+   <div class="revbar"><div class="itabs">${tab("all", "모두")}${tab("new", "새 아이디어")}${tab("doing", "만드는 중")}${tab("done", "완성")}</div><span class="sp"></span><button class="btn primary" onclick="openIdea()">아이디어 남기기</button></div>
+   ${list.length ? `<div class="idlist">${list.map(ideaCard).join("")}</div>` : `<div class="empty">${all.length ? "이 칸에 해당하는 아이디어가 없어요." : "아직 남겨진 아이디어가 없어요. 첫 아이디어를 남겨 주세요."}</div>`}`;
+}
+function ideaCard(d) {
+  const me = myUid(), st = ideaSt(d), n = ideaLikes(d.id), liked = !!(me && ILK[d.id] && ILK[d.id][me]), J = JSON.stringify(d.id);
+  const item = d.done && allItems().find(i => i.id === d.done.id);
+  const pill = st === "done" ? `<span class="ist done">완성</span>` : st === "doing" ? `<span class="ist doing">${esc(d.claim.n)} 선생님이 만드는 중</span>` : `<span class="ist">새 아이디어</span>`;
+  const acts = [];
+  if (st === "new" && isMember()) acts.push(`<button class="btn mini primary" onclick='claimIdea(${J})'>제가 만들어 볼게요</button>`);
+  if (st === "doing" && (d.claim.uid === me || isAdmin())) acts.push(`<button class="btn mini primary" onclick='openIdeaDone(${J})'>완성했어요</button>`, `<button class="btn mini" onclick='unclaimIdea(${J})'>맡기 그만두기</button>`);
+  if (st === "done" && item) acts.push(`<button class="btn mini primary" onclick='openItem(${JSON.stringify(item.id)})'>자료 보기</button>`);
+  if (d.uid === me || isAdmin()) acts.push(`<button class="btn mini" onclick='delIdea(${J})'>지우기</button>`);
+  return `<article class="idea ${st}"><div class="ihead">${pill}<span class="sp"></span><span class="iby">${esc(d.n)}${d.sc ? " · " + esc(d.sc) : ""} · ${esc(new Date(d.t).toLocaleDateString("ko-KR"))}</span></div>
+   <p class="ix">${esc(d.x)}</p>${d.g || d.a ? `<div class="tags">${d.g ? `<span class="tag">${esc(d.g)}</span>` : ""}${d.a ? `<span class="tag">${esc(d.a)}</span>` : ""}</div>` : ""}
+   <div class="ifoot"><button class="like${liked ? " on" : ""}" onclick='likeIdea(${J})' aria-pressed="${liked}">${liked ? "♥" : "♡"} 저도 필요해요 ${n || ""}</button><span class="sp"></span>${acts.join("")}</div></article>`;
+}
+async function openIdea() {
+  if (!AUTH.currentUser) { try { await login(); } catch (e) {} if (!AUTH.currentUser) return; }
+  const nm = (ME && ME.name) || AUTH.currentUser.displayName || "", sc = (ME && ME.school) || "";
+  openM(`<h2>도구 아이디어 남기기</h2><div class="form">
+   <label for="idx">어떤 도구가 있으면 좋을까요? (300자까지)</label><textarea id="idx" maxlength="300" style="min-height:120px" placeholder="예: 모둠 활동 시간에 남은 시간과 차례를 큰 화면에 보여 주는 타이머. 모둠 이름을 넣으면 차례대로 돌아갔으면 좋겠어요."></textarea>
+   <div class="r2"><div><label for="idg">학교급</label><select id="idg"><option value="">고르지 않음</option>${CFG.grades.map(g => `<option>${esc(g)}</option>`).join("")}</select></div>
+   <div><label for="ida">교과·활동</label><input type="text" id="ida" maxlength="30" placeholder="예: 체육, 학급 운영"></div></div>
+   <div class="r2"><div><label for="idn">이름</label><input type="text" id="idn" maxlength="20" value="${esc(nm)}"></div>
+   <div><label for="ids">소속 (적지 않아도 돼요)</label><input type="text" id="ids" maxlength="40" value="${esc(sc)}"></div></div>
+   <div class="sheetnote" style="margin-top:6px">남긴 아이디어와 이름은 누구나 볼 수 있어요.</div></div>
+   <div class="err" id="iderr"></div>
+   <div class="mfoot"><button class="btn" onclick="closeM()">취소</button><button class="btn primary" onclick="sendIdea()">남기기</button></div>`);
+}
+async function sendIdea() {
+  const x = $("#idx").value.trim(), n = $("#idn").value.trim();
+  if (x.length < 5) { $("#iderr").textContent = "아이디어를 조금 더 적어 주세요."; return; }
+  if (!n) { $("#iderr").textContent = "이름을 적어 주세요."; return; }
+  const id = newKey(), d = { uid: myUid(), n: n.slice(0, 20), sc: $("#ids").value.trim().slice(0, 40), g: $("#idg").value, a: $("#ida").value.trim().slice(0, 30), x: x.slice(0, 300), t: Date.now() };
+  try { await rtRef("ideas/" + id).set(d); (IDEAS = IDEAS || {})[id] = d; closeM(); IDF = "all"; go("ideas"); render(); toast("아이디어를 남겼어요. 고맙습니다"); }
+  catch (e) { $("#iderr").textContent = "남기지 못했어요: " + e.message; }
+}
+async function likeIdea(id) {
+  if (!AUTH.currentUser) { toast("로그인하면 '저도 필요해요'를 누를 수 있어요"); return login(); }
+  const u = myUid(), on = !!(ILK[id] && ILK[id][u]);
+  try { await rtRef(`ideaLikes/${id}/${u}`).set(on ? null : true); ILK[id] = ILK[id] || {}; if (on) delete ILK[id][u]; else ILK[id][u] = true; render(); }
+  catch (e) { toast("누르지 못했어요"); }
+}
+async function claimIdea(id) {
+  const c = { uid: myUid(), n: ME.name || "JACE 운영진", t: Date.now() };
+  try { await rtRef(`ideas/${id}/claim`).set(c); IDEAS[id].claim = c; render(); toast("맡았어요. 완성되면 자료실에 올리고 [완성했어요]를 눌러 주세요"); }
+  catch (e) { toast("맡지 못했어요. 다른 선생님이 먼저 맡았을 수 있어요"); await loadIdeas(); render(); }
+}
+async function unclaimIdea(id) {
+  if (!confirmLite("맡기를 그만둘까요? 다른 선생님이 맡을 수 있게 됩니다.")) return;
+  try { await rtRef(`ideas/${id}/claim`).set(null); delete IDEAS[id].claim; render(); } catch (e) { toast("바꾸지 못했어요"); }
+}
+function openIdeaDone(id) {
+  const d = IDEAS[id]; if (!d) return;
+  const L = (MD ? MD.items : []).slice().sort((a, b) => (b.own - a.own) || b.dt.localeCompare(a.dt));
+  openM(`<h2>완성했어요</h2><p style="margin:0 0 8px;color:var(--sub)">${esc(d.x.slice(0, 80))}</p><div class="form">
+   <label for="idi">자료실에 올린 자료를 골라 주세요</label>${L.length ? `<select id="idi">${L.map(i => `<option value="${esc(i.id)}">${i.own ? "[내 자료] " : ""}${esc(i.t)}</option>`).join("")}</select>` : `<p>먼저 자료실에 올려 주세요.</p>`}
+   <div class="sheetnote" style="margin-top:6px">아이디어를 남긴 선생님과 "저도 필요해요"를 누른 선생님이 바로 자료로 갈 수 있어요.</div></div>
+   <div class="mfoot"><button class="btn" onclick="closeM()">취소</button>${L.length ? `<button class="btn primary" onclick='sendIdeaDone(${JSON.stringify(id)})'>완성으로 바꾸기</button>` : ""}</div>`);
+}
+async function sendIdeaDone(id) {
+  const v = { id: $("#idi").value, t: Date.now() };
+  try { await rtRef(`ideas/${id}/done`).set(v); IDEAS[id].done = v; closeM(); IDF = "all"; render(); toast("완성으로 바꿨어요"); } catch (e) { toast("바꾸지 못했어요"); }
+}
+async function delIdea(id) {
+  if (!confirmLite("이 아이디어를 지울까요?")) return;
+  try { await rtRef("ideas/" + id).set(null); try { await rtRef("ideaLikes/" + id).set(null); } catch (e) {} delete IDEAS[id]; render(); } catch (e) { toast("지우지 못했어요"); }
+}
+const confirmLite = msg => window.__NOCONFIRM ? true : window.confirm(msg);
+
+/* ===== 운영진: 활동 실적 ===== */
+let SY = TODAY.slice(0, 4);
+function actStats(y) {
+  const items = (MD ? MD.items : []).filter(i => (i.dt || "").startsWith(y));
+  const evs = (MD ? MD.schedules : []).filter(e => (e.d || "").startsWith(y) && e.d <= TODAY);
+  const revs = (REV.length ? REV : REVA).filter(r => (r.sd || (r.t ? new Date(r.t).toISOString().slice(0, 10) : "")).startsWith(y));
+  const used = []; Object.entries(USEDALL || {}).forEach(([iid, o]) => Object.values(o || {}).forEach(r => { if (r && String(new Date(r.t).getFullYear()) === y) used.push(Object.assign({ iid }, r)); }));
+  const ideas = ideaList().filter(d => String(new Date(d.t).getFullYear()) === y);
+  const mem = Object.values(ALL || {}).filter(m => m.status === "승인");
+  const cnt = (arr, key) => arr.reduce((o, x) => { const k = key(x) || "기타"; o[k] = (o[k] || 0) + 1; return o; }, {});
+  const att = evs.reduce((s, e) => s + (e.att ? e.att.length : 0), 0);
+  const months = Array.from({ length: 12 }, (_, i) => { const mm = y + "-" + String(i + 1).padStart(2, "0"), inM = t => String(t || "").startsWith(mm), ym = t => { const d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+    const me = evs.filter(e => inM(e.d));
+    return { m: i + 1, items: items.filter(x => inM(x.dt)).length, evs: me.length, att: me.reduce((s, e) => s + (e.att ? e.att.length : 0), 0), used: used.filter(u => ym(u.t) === mm).length, ideas: ideas.filter(d => ym(d.t) === mm).length }; })
+    .filter(r => r.items || r.evs || r.used || r.ideas);
+  return { y, mem: mem.length, lv: cnt(mem, m => m.level), items: items.length, ty: cnt(items, i => i.ty), makers: new Set(items.map(i => i.by)).size,
+    evs: evs.length, att, revs: revs.length, used: used.length, usedSch: new Set(used.map(u => u.sc).filter(Boolean)).size, usedItems: new Set(used.map(u => u.iid)).size,
+    ideas: ideas.length, ideaDone: ideas.filter(d => d.done).length, ideaDoing: ideas.filter(d => !d.done && d.claim).length, months };
+}
+const kv = o => Object.entries(o).map(([k, v]) => `${k} ${v}`).join(", ");
+function statsText(S) {
+  return [`[JACE 활동 실적] ${S.y}년 (${TODAY.replace(/-/g, ".")} 기준)`,
+    `- 회원: ${S.mem}명${S.mem ? ` (${kv(S.lv)})` : ""}`,
+    `- 자료실: ${S.items}개${S.items ? ` (${kv(S.ty)})` : ""}, 올린 선생님 ${S.makers}명`,
+    `- 모임: ${S.evs}회, 참석 연인원 ${S.att}명${S.evs ? ` (한 번에 평균 ${(S.att / S.evs).toFixed(1)}명)` : ""}`,
+    `- 연수 후기: ${S.revs}건`,
+    `- 수업 적용 기록(우리 반에서 써 봤어요): ${S.used}건, 자료 ${S.usedItems}개, ${S.usedSch}개 학교`,
+    `- 도구 아이디어: ${S.ideas}건 (완성 ${S.ideaDone}, 만드는 중 ${S.ideaDoing})`,
+    S.months.length ? "\n월\t새 자료\t모임\t참석\t써 봤어요\t아이디어\n" + S.months.map(r => [r.m + "월", r.items, r.evs, r.att, r.used, r.ideas].join("\t")).join("\n") : ""].filter(Boolean).join("\n");
+}
+function statsPanel() {
+  const S = actStats(SY), years = [...new Set([TODAY.slice(0, 4), String(+TODAY.slice(0, 4) - 1), SY])].sort().reverse();
+  const k = (t, v, sub) => `<div class="kpi"><span>${t}</span><b>${v}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>`;
+  return `<div class="panel"><div class="adm-top"><h3 style="margin:0">활동 실적</h3><select id="sy" onchange="SY=this.value;render()" aria-label="연도">${years.map(y => `<option${y === SY ? " selected" : ""}>${y}</option>`).join("")}</select><span class="sp"></span><button class="btn mini ok" onclick="copyText(statsText(actStats(SY)),'활동 실적을 복사했습니다. 보고서에 붙여 넣으세요')">실적 복사</button></div>
+   <div class="kpis">${k("회원", S.mem + "명", kv(S.lv))}${k("자료실", S.items + "개", `올린 선생님 ${S.makers}명`)}${k("모임", S.evs + "회", `참석 연인원 ${S.att}명`)}${k("연수 후기", S.revs + "건")}${k("써 봤어요", S.used + "건", `${S.usedSch}개 학교`)}${k("도구 아이디어", S.ideas + "건", `완성 ${S.ideaDone} · 만드는 중 ${S.ideaDoing}`)}</div>
+   ${S.months.length ? `<div style="overflow-x:auto;margin-top:12px"><table class="rt kpit"><tr><th>월</th><th>새 자료</th><th>모임</th><th>참석</th><th>써 봤어요</th><th>아이디어</th></tr>${S.months.map(r => `<tr><td>${r.m}월</td><td>${r.items}</td><td>${r.evs}</td><td>${r.att}</td><td>${r.used}</td><td>${r.ideas}</td></tr>`).join("")}</table></div>` : `<p style="color:var(--sub);margin:10px 0 0">${SY}년 기록이 아직 없어요.</p>`}
+   <div class="sheetnote">중간보고회와 활동 보고서에 쓸 수 있게 자동으로 모았어요. [실적 복사]를 누르면 월별 표까지 한글·엑셀에 붙여 넣을 수 있게 복사됩니다.</div></div>`;
+}
+
+/* 운영진: 올린 선생님 바꾸기 */
+function ownerChoices() {
+  const L = Object.values(ALL || {}).filter(m => m.status === "승인" && m.email).map(m => ({ email: String(m.email).toLowerCase(), name: m.name, school: m.school || "" }))
+    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  (window.JACE_ADMINS || ADMINS || []).forEach(e => L.push({ email: String(e).toLowerCase(), name: "JACE 운영진", school: "" }));
+  return L;
+}
+function openOwner(id) {
+  const it = (MD ? MD.items : []).find(x => x.id === id); if (!it) return;
+  const L = ownerChoices(), cur = String(it.mine || "").toLowerCase();
+  OWN = { id, L };
+  openM(`<h2>올린 선생님 바꾸기</h2><div class="form">
+   <p style="margin:0 0 8px;color:var(--sub)">「${esc(it.t)}」 · 지금: ${esc(it.by || "")}${it.sc ? " (" + esc(it.sc) + ")" : ""}</p>
+   <label for="own">누가 올린 자료로 할까요?</label><select id="own">${L.map((m, k) => `<option value="${k}"${m.email === cur ? " selected" : ""}>${esc(m.name)}${m.school ? " · " + esc(m.school) : ""}</option>`).join("")}</select>
+   <div class="sheetnote" style="margin-top:6px">바꾸면 카드에 그 선생님 이름과 소속이 뜨고, 그 선생님의 "내가 올린 자료"에서 직접 고치거나 지울 수 있어요. 파일은 그대로 둡니다.</div></div>
+   <div class="mfoot"><button class="btn" onclick="closeM()">취소</button><button class="btn primary" onclick="sendOwner()">바꾸기</button></div>`);
+}
+let OWN = null;
+async function sendOwner() {
+  const m = OWN && OWN.L[+$("#own").value]; if (!m) return;
+  try { busy(true); await api("setOwner", { id: OWN.id, email: m.email, name: m.name, school: m.school }); closeM(); await reloadAll(true); toast(m.name + " 선생님이 올린 자료로 바꿨습니다"); }
+  catch (e) { toast(e.message); } finally { busy(false); }
 }
 async function hideItem(id) {
   try { busy(true); await api("updateItem", { id, hide: true }); await reloadAll(true); toast("목록에서 내렸습니다 (파일은 드라이브에 남아 있어요)"); } catch (e) { toast(e.message); } finally { busy(false); }
@@ -1544,14 +1763,14 @@ function adminView() {
   if (!ALL) return `<div class="loading">불러오는 중…</div>`;
   const rows = rowsSorted(), n = st => rows.filter(r => r.status === st).length, ok = n("승인");
   const btns = r => { const u = JSON.stringify(r.uid); return (r.status !== "승인" ? `<button class="btn mini ok" onclick='setSt(${u},"승인")'>승인</button> ` : "") + (r.status !== "보류" ? `<button class="btn mini" onclick='setSt(${u},"보류")'>보류</button> ` : "") + (r.status !== "대기" ? `<button class="btn mini" onclick='setSt(${u},"대기")'>대기로</button>` : ""); };
-  return `<div class="panel"><h3>회원 관리</h3>
+  return statsPanel() + `<div class="panel"><h3>회원 관리</h3>
    <div class="adm-top"><span class="cnt2">회원 <b>${ok}</b>명 · 대기 ${n("대기")}명 · 보류 ${n("보류")}명${ok < 10 ? ` · 연구회 기준 10명까지 <b>${10 - ok}</b>명` : ""}</span><span class="sp"></span><button class="btn mini ok" onclick="copyList()">명단 복사 (승인 회원)</button></div>
    ${rows.length ? `<div class="tbl-wrap"><table class="adm"><tr><th>상태</th><th>역할</th><th>이름</th><th>소속</th><th>학교급</th><th>직위</th><th>교과·분야</th><th>휴대전화</th><th>다른 공동체</th><th>신청일</th><th></th></tr>
    ${rows.map(r => `<tr><td>${statusPill(r.status, r)}</td><td>${roleCell(r)}</td><td>${esc(r.name)}</td><td>${esc(r.school)}</td><td>${esc(r.level)}</td><td>${esc(r.pos)}</td><td>${esc(r.subject)}</td><td>${esc(r.phone)}</td><td${r.others === "2개 이상" ? ' class="warn" title="JACE까지 3개를 넘는지 확인"' : ""}>${esc(r.others)}</td><td>${esc(new Date(r.t).toLocaleDateString("ko-KR"))}</td><td>${btns(r)}</td></tr>`).join("")}</table></div>` : '<p style="color:var(--sub)">아직 가입 신청이 없습니다.</p>'}
    <div class="sheetnote">승인된 회원의 역할을 부회장, 총무, 임원으로 바꾸면 그 선생님도 운영진 관리를 할 수 있습니다. 명단 복사는 승인된 회원을 "순, 역할, 소속, 직위, 성명, 교과" 순서로 복사합니다.${AD && AD.sheetUrl ? ` 자료·일정 기록은 <a href="${esc(AD.sheetUrl)}" target="_blank" rel="noopener">관리 시트</a>에서 볼 수 있어요.` : ""}</div></div>
    <div class="panel"><h3>내려받기 기록 (최근 30건)</h3>${AD && AD.log.length ? `<table class="rt"><tr><th>일시</th><th>선생님</th><th>자료</th></tr>${AD.log.map(l => `<tr><td>${esc(l.at)}</td><td>${esc(l.n)}</td><td>${esc(l.t)}</td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 기록이 없습니다.</p>'}</div>
    <div class="panel"><h3>자료 관리</h3><p style="margin:0;font-size:14px;color:var(--sub)">운영진은 모든 자료를 고치거나, 내려받기 범위를 바꾸거나, 목록에서 내릴 수 있어요. 분류 목록(학교급·교과·자료 종류)과 책자 제목은 관리 시트 "설정" 탭에서 고칩니다.</p>
-   <div style="overflow-x:auto;margin-top:10px"><table class="rt"><tr><th>자료</th><th>올린 선생님</th><th>내려받기</th><th></th></tr>${(MD ? MD.items : []).slice().sort((a, b) => b.dt.localeCompare(a.dt)).map(i => `<tr><td>${esc(i.t)}</td><td>${esc(i.by)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td style="text-align:right;white-space:nowrap"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> <button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table></div></div>`;
+   <div style="overflow-x:auto;margin-top:10px"><table class="rt"><tr><th>자료</th><th>올린 선생님</th><th>내려받기</th><th></th></tr>${(MD ? MD.items : []).slice().sort((a, b) => b.dt.localeCompare(a.dt)).map(i => `<tr><td>${esc(i.t)}</td><td>${esc(i.by)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td style="text-align:right;white-space:nowrap"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> <button class="btn mini" onclick='openOwner(${JSON.stringify(i.id)})'>올린이 바꾸기</button> <button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table></div></div>`;
 }
 async function setSt(uid, st) {
   try { await firebase.database().ref("members/" + uid + "/status").set(st); ALL[uid].status = st; render(); toast(ALL[uid].name + " 선생님: " + st); }
@@ -1792,13 +2011,13 @@ function guideView() {
 /* ===== 시작 ===== */
 function route() {
   const h = location.hash.replace("#", "");
-  view = ["about", "public", "members", "mine", "admin", "guide"].includes(h) ? h : "about";
+  view = ["about", "public", "ideas", "members", "mine", "admin", "guide"].includes(h) ? h : "about";
   render();
 }
 window.addEventListener("hashchange", route);
 $("#ver").textContent = "· 판 " + APP_VERSION;
 if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
-loadPublic(false).then(route).then(openDeepLink);
+loadPublic(false).then(route).then(openDeepLink).then(() => Promise.all([loadUsedSc(), loadIdeas()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
 
 </script>
 </body>

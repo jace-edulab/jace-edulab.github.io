@@ -11,7 +11,7 @@
  * 서버는 로그인한 선생님의 토큰으로 그 선생님 회원 기록만 읽어 회원·운영진인지 확인합니다.
  */
 
-var APP_VERSION = '2.1.0';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
+var APP_VERSION = '2.3.0';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
 var FIREBASE_API_KEY = 'AIzaSyD_t8_g2A21ELTB91s6X0xwCd_3CCZ3Sms';
 var FIREBASE_DB_URL = 'https://jace-edulab-default-rtdb.asia-southeast1.firebasedatabase.app';
 var ADMIN_EMAILS = ['jace.edulab@gmail.com'];       // 대표 계정: 가입 없이 운영진
@@ -197,6 +197,7 @@ function doPost(e) {
       case 'addComment': needMember_(u); r = addComment_(u, req); break;
       case 'delComment': needMember_(u); r = delComment_(u, req); break;
       case 'adminData': needAdmin_(u); r = adminData_(); break;
+      case 'setOwner': needAdmin_(u); r = setOwner_(req); break;
       default: throw new Error('알 수 없는 요청: ' + a);
     }
     r.ok = true;
@@ -342,6 +343,17 @@ function addFile_(u, req) {
 }
 
 function canEdit_(u, r) { return u.admin || r['올린이메일'] === u.email; }
+
+// 운영진: 자료의 올린 선생님 바꾸기 (다른 계정으로 잘못 올렸을 때)
+function setOwner_(req) {
+  var r = find_('자료', 'id', req.id);
+  if (!r) throw new Error('자료를 찾지 못했습니다.');
+  var em = String(req.email || '').trim().toLowerCase();
+  if (!em || !req.name) throw new Error('바꿀 선생님을 골라 주세요.');
+  update_('자료', r, { '올린이메일': em, '올린이': String(req.name).slice(0, 40), '소속': String(req.school || '').slice(0, 60) });
+  refreshSite_();
+  return {};
+}
 
 function updateItem_(u, req) {
   var r = find_('자료', 'id', req.id);
