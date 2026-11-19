@@ -7,7 +7,7 @@ window.JACE_FIREBASE = {
   appId: "1:26042094593:web:82ffff662db66e5e805c00"
 };
 // 자료실 서버(Apps Script 웹 앱) 주소. 설치 안내 2단계에서 받은 주소를 따옴표 안에 넣습니다.
-window.JACE_API_URL = "";
+window.JACE_API_URL = "https://script.google.com/macros/s/AKfycbyHMrR7QdDeEdC27aEjSve-rk3TikSHZTTkNu2e8g3vjDEz2JyejwPOiZjaC3TVNa7hqA/exec";
 // 대표 계정: 가입 신청 없이 운영진으로 쓰고, 회원 명단에서는 빠집니다.
 window.JACE_ADMINS = ["jace.edulab@gmail.com"];
 // 회장 계정: 회원으로 가입하되(명단에 "회장"으로 들어감) 운영진 권한도 가집니다.
