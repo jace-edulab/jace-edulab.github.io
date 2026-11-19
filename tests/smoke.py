@@ -106,6 +106,26 @@ async def run(b, vp, tag):
     check(f"{tag} 회장: 관리 표에 회장 표시", await pg.locator("table.adm .pill", has_text="회장").count() == 1)
     check(f"{tag} 회장: 명단 맨 위에 회장", clip.splitlines()[1].startswith("1\t회장\t봄초등학교"), clip)
     check(f"{tag} 회장 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
+    # 4-3 임원 지정과 임원의 회원 관리
+    db3 = json.loads(json.dumps(db)); db3["members"]["m1"]["role"] = "회원"
+    pg, errs = await page({"uid": "ad", "email": "admin@x.kr"}, db=db3)
+    await pg.locator("#hright").get_by_role("button", name="회원 관리").click(); await pg.wait_for_timeout(150)
+    await pg.locator("table.adm tr", has_text="가교사").locator("select").select_option("총무"); await pg.wait_for_timeout(150)
+    check(f"{tag} 임원 지정 저장", await pg.evaluate("window.__DB.members.m1.role") == "총무")
+    check(f"{tag} 임원 지정 표시", await pg.locator("table.adm .pill", has_text="총무").count() == 1)
+    db4 = await pg.evaluate("window.__DB"); await pg.close()
+    pg, errs = await page({"uid": "m1", "email": "m1@x.kr"}, db=db4)
+    check(f"{tag} 총무: 회원 관리 단추", await pg.locator("#hright").get_by_role("button", name="회원 관리").count() == 1)
+    await pg.locator("#hright").get_by_role("button", name="회원 관리").click(); await pg.wait_for_timeout(150)
+    check(f"{tag} 총무: 명단 열림", await pg.locator("table.adm tr").count() >= 2)
+    await pg.keyboard.press("Escape"); await pg.get_by_role("button", name="내 정보 고치기").click()
+    await pg.fill("#jsub", "체육·정보"); await pg.check("#jelig"); await pg.check("#jpriv"); await pg.check("#jreg"); await pg.select_option("#jo", "없음")
+    await pg.get_by_role("button", name="고친 내용 보내기").click(); await pg.wait_for_timeout(150)
+    m1 = await pg.evaluate("window.__DB.members.m1")
+    check(f"{tag} 총무: 내 정보 고쳐도 역할·승인 유지", m1["role"] == "총무" and m1["status"] == "승인" and m1["subject"] == "체육·정보", json.dumps(m1, ensure_ascii=False))
+    check(f"{tag} 임원 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
+    pg, errs = await page({"uid": "w1", "email": "w1@x.kr"}, db=db4)
+    check(f"{tag} 대기 회원: 회원 관리 없음", await pg.get_by_role("button", name="회원 관리").count() == 0); await pg.close()
     # 5 기존 화면
     pg, errs = await page(None)
     for sec in ["about", "topic", "tracks", "plan", "join"]:
