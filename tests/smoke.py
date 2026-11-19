@@ -59,7 +59,7 @@ def build(user, db=None, api=True):
     stub = f"""<script>
 window.JACE_FIREBASE={{apiKey:"k",authDomain:"a",databaseURL:"",projectId:"p",appId:"x"}};
 window.JACE_API_URL={json.dumps("https://api.invalid/exec" if api else "")};window.JACE_ADMINS=["jace.edulab@gmail.com"];window.JACE_MANAGERS=["boss@x.kr"];
-window.__RT_TEST=true;window.__NOCONFIRM=true;window.__CALLS=[];window.__DB={json.dumps(db or {}, ensure_ascii=False)};
+window.__RT_TEST=true;window.__NORECRUIT=true;window.__NOCONFIRM=true;window.__CALLS=[];window.__DB={json.dumps(db or {}, ensure_ascii=False)};
 let __U={json.dumps(user)};if(__U)__U.getIdToken=async()=>"tok";let __cb=null;
 const __A={{get currentUser(){{return __U}},setPersistence(){{return Promise.resolve()}},onAuthStateChanged(cb){{__cb=cb;setTimeout(()=>cb(__U),20)}},signInWithPopup(){{__U={{uid:"new",email:"new@x.kr",displayName:"새교사",getIdToken:async()=>"tok"}};setTimeout(()=>__cb(__U),10);return Promise.resolve()}},signOut(){{__U=null;setTimeout(()=>__cb(null),10);return Promise.resolve()}}}};
 function __get(p){{return p.split("/").reduce((o,k)=>o==null?undefined:o[k],window.__DB)}}
@@ -140,6 +140,14 @@ async def guest(b, width):
     check(f"{tag} 회원 공간은 잠김", await pg.locator(".gate").count() == 1)
     w = await pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
     check(f"{tag} 가로 넘침 없음", w)
+    await pg.evaluate("closeM();localStorage.removeItem('jace_recruit_hide');window.__NORECRUIT=false;recruitCheck()"); await pg.wait_for_timeout(150)
+    check(f"{tag} 창립 회원 모집 팝업", await pg.locator("#ov.show .recruit").count() == 1)
+    await pg.locator(".recruit").get_by_role("button", name="닫기").click(); await pg.wait_for_timeout(100)
+    await pg.evaluate("recruitCheck()"); await pg.wait_for_timeout(100)
+    check(f"{tag} 그냥 닫으면 다시 뜸", await pg.locator("#ov.show .recruit").count() == 1)
+    await pg.check("#rhide"); await pg.locator(".recruit").get_by_role("button", name="닫기").click(); await pg.wait_for_timeout(100)
+    await pg.evaluate("recruitCheck()"); await pg.wait_for_timeout(100)
+    check(f"{tag} 오늘 하루 열지 않기", await pg.locator("#ov.show").count() == 0)
     check(f"{tag} 손님 오류 없음", not errs, "; ".join(errs)); await pg.close()
 
 
@@ -198,6 +206,8 @@ async def member(b, width):
     check(f"{tag} 아이디어: 남기기", len(nw) == 1 and nw[0]["n"] == "가교사" and await pg.locator(".idea").count() == 3, str(nw))
     await pg.evaluate("closeM();go('members');msub='book';render()"); await pg.wait_for_timeout(150)
     check(f"{tag} 책자 탭 원고 양식", await pg.locator(".msguide a[href$='ms-template.hwpx']").count() == 1)
+    await pg.evaluate("closeM();localStorage.removeItem('jace_recruit_hide');window.__NORECRUIT=false;recruitCheck()"); await pg.wait_for_timeout(100)
+    check(f"{tag} 회원에게는 모집 팝업 없음", await pg.locator("#ov.show").count() == 0)
     check(f"{tag} 회원 오류 없음", not errs, "; ".join(errs)); await pg.close()
 
 

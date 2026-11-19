@@ -468,6 +468,11 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}.kpi{background:var(--bg);border-radius:12px;padding:12px 14px}.kpi span{display:block;font-size:12px;color:var(--sub)}.kpi b{display:block;font-size:22px;color:var(--navy);font-weight:900}.kpi small{display:block;font-size:12px;color:var(--sub);margin-top:2px}
 .sp{flex:1}
 .newsprev{margin:12px 0 4px;background:var(--bg);border-radius:12px;padding:10px;text-align:center}.newsprev img{max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 4px 14px rgba(23,50,92,.12)}
+.recruit{text-align:center;padding:4px 4px 0;word-break:keep-all}.recruit .eyebrow{margin:0;font-size:13px;font-weight:700;color:var(--green);letter-spacing:.5px}.recruit .rwm .wm{font-size:56px;letter-spacing:-2px;display:inline-block;margin:10px 0 4px}
+.recruit h2{margin:4px 0 10px;font-size:24px;color:var(--navy)}.recruit>p{margin:0 auto;max-width:440px;line-height:1.7;color:#475467}
+.recruit dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;text-align:left;background:var(--bg);border-radius:12px;padding:14px 16px;margin:16px 0}.recruit dt{font-weight:700;color:var(--navy);font-size:14px}.recruit dd{margin:0;font-size:14px}
+.recruit .racts{display:flex;gap:8px;justify-content:center}.recruit .racts .btn{padding:10px 20px;font-size:15px}
+.recruit .rfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.rchk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub);cursor:pointer}.rchk input{width:18px;height:18px;margin:0}
 </style>
 </head>
 <body>
@@ -492,7 +497,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.4.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.5.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 
 /* ===== 설정 (config.js) ===== */
 const FIREBASE_CONFIG = window.JACE_FIREBASE || {};
@@ -2115,6 +2120,25 @@ function guideView() {
    <p style="text-align:center;font-size:13px;color:var(--sub)">더 궁금한 점은 회원 공간 대화방이나 운영진에게 물어봐 주세요.</p></div>`;
 }
 
+
+/* ===== 창립 회원 모집 팝업 (처음 들어온 손님에게) ===== */
+const RECRUIT_POPUP = true;   // 모집이 끝나면 false 로
+const RKEY = "jace_recruit_hide";
+function recruitCheck() {
+  if (!RECRUIT_POPUP || window.__NORECRUIT) return;
+  try { if (new URLSearchParams(location.search).get("i")) return; if (localStorage.getItem(RKEY) === TODAY) return; } catch (e) {}
+  if (ov.classList.contains("show")) return;
+  if (ME && (ME.member || ME.rep || ME.status === "대기" || ME.status === "보류")) return;
+  openM(`<div class="recruit"><p class="eyebrow">2027 전북 교육학습공동체</p><div class="rwm">${wmHTML()}</div>
+   <h2>창립 회원을 모집합니다</h2>
+   <p>교사가 직접 만든 AI 수업 도구로 수업과 평가를 바꾸는 교과별 실천 연구 모임입니다. 코딩을 몰라도 괜찮아요. 우리 교실에서 불편했던 것을 함께 도구로 만들어 갑니다.</p>
+   <dl><dt>누가</dt><dd>전북 초·중·고 선생님 누구나 (학교급·교과 상관없이)</dd><dt>무엇을</dt><dd>월 1회 모임에서 도구 만들기와 수업 적용 나눔</dd><dt>그 뒤에</dt><dd>만든 도구는 JACE 자료실에 올려 함께 씁니다</dd></dl>
+   <div class="racts"><button class="btn primary" onclick="recruitSave();closeM();openJoin()">가입 신청</button><button class="btn" onclick="recruitSave();closeM();go('about');asub='join';render()">자세히 보기</button></div>
+   <div class="rfoot"><label class="rchk"><input type="checkbox" id="rhide"> 오늘 하루 열지 않기</label><button class="btn" onclick="recruitClose()">닫기</button></div></div>`);
+}
+function recruitSave() { const c = $("#rhide"); if (c && c.checked) { try { localStorage.setItem(RKEY, TODAY); } catch (e) {} } }
+function recruitClose() { recruitSave(); closeM(); }
+
 /* ===== 시작 ===== */
 function route() {
   const h = location.hash.replace("#", "");
@@ -2124,7 +2148,7 @@ function route() {
 window.addEventListener("hashchange", route);
 $("#ver").textContent = "· 판 " + APP_VERSION;
 if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
-loadPublic(false).then(route).then(openDeepLink).then(() => Promise.all([loadUsedSc(), loadIdeas()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
+loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
 
 </script>
 </body>
