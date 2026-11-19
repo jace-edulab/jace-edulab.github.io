@@ -134,8 +134,18 @@ async def guest(b, width):
     check(f"{tag} 아이디어함 2개", await pg.locator(".idea").count() == 2 and await pg.locator(".idea.done").count() == 1)
     check(f"{tag} 아이디어함: 손님은 맡기 단추 없음", await pg.get_by_role("button", name="제가 만들어 볼게요").count() == 0)
     check(f"{tag} 완성 아이디어에 자료 보기", await pg.locator(".idea.done").get_by_role("button", name="자료 보기").count() == 1)
-    await pg.evaluate("closeM();location.hash='#guide'"); await pg.wait_for_timeout(250)
-    check(f"{tag} 사용 안내", await pg.locator(".guide .panel").count() >= 5)
+    await pg.evaluate("closeM()")
+    hb = pg.locator("nav .hlp-btn")
+    check(f"{tag} 사용 안내 단추: 메뉴 맨 앞·높이 44 이상", await pg.evaluate("document.querySelector('nav .nwrap').firstElementChild.classList.contains('hlp-btn')") and (await hb.bounding_box())["height"] >= 44)
+    await hb.click(); await pg.wait_for_timeout(150)
+    check(f"{tag} 사용 안내 창: 제목과 8개 항목", await pg.locator("#ov.show h2", has_text="JACE 간략 사용법").count() == 1 and await pg.locator(".hlp-list > li").count() == 8)
+    check(f"{tag} 사용 안내 창: 미리보기 링크", (await pg.get_attribute(".hlp a.btn", "href") or "").endswith("?demo"))
+    await pg.keyboard.press("Escape"); await pg.wait_for_timeout(100)
+    check(f"{tag} 사용 안내 창: Esc로 닫힘", await pg.locator("#ov.show").count() == 0)
+    await pg.evaluate("location.hash='#guide'"); await pg.wait_for_timeout(250)
+    check(f"{tag} 옛 #guide 주소도 사용 안내 창", await pg.locator("#ov.show .hlp").count() == 1)
+    await pg.get_by_role("button", name="확인").click(); await pg.wait_for_timeout(100)
+    check(f"{tag} 사용 안내 창: 확인으로 닫힘", await pg.locator("#ov.show").count() == 0)
     await pg.evaluate("location.hash='#members'"); await pg.wait_for_timeout(200)
     check(f"{tag} 회원 공간은 잠김", await pg.locator(".gate").count() == 1)
     w = await pg.evaluate("document.documentElement.scrollWidth <= window.innerWidth + 1")
@@ -245,6 +255,7 @@ async def rep_admin(b, width):
     check(f"{tag} 회원 자료 내려받기", sv and sv["n"] > 700 and sv["name"].endswith(".pdf"), str(sv))
     # 운영진 관리
     await pg.evaluate("location.hash='#admin'"); await pg.wait_for_timeout(500)
+    check(f"{tag} 운영진 화면에도 사용 안내 단추", await pg.locator("nav .hlp-btn").is_visible())
     check(f"{tag} 운영진: 명단 3줄", await pg.locator("table.adm tr").count() == 4)
     check(f"{tag} 운영진: 회장 맨 위", "박회장" in await pg.locator("table.adm tr >> nth=1").inner_text())
     check(f"{tag} 운영진: 3개 초과 경고", await pg.locator("td.warn").count() == 1)
@@ -282,6 +293,21 @@ async def rep_admin(b, width):
     check(f"{tag} 총무 오류 없음", not errs, "; ".join(errs)); await pg.close()
 
 
+async def demo(b, width):
+    tag = "휴대폰" if width < 500 else "PC"
+    pg, errs = await newpage(b, width, {"uid": "m1", "email": "m1@x.kr"}, db=json.loads(json.dumps(DB0)), hash="?demo")
+    check(f"{tag} 미리보기: 안내 줄", "미리보기" in await pg.inner_text("#setupBar") and "로그인 확인" not in await pg.inner_text("#hright"))
+    await pg.evaluate("go('public');render()"); await pg.wait_for_timeout(200)
+    check(f"{tag} 미리보기: 지어낸 자료 5개", await pg.locator(".card.app").count() == 5 and "3개 학교 사용" in await pg.locator(".card.app", has_text="모둠 차례 타이머").inner_text())
+    await pg.evaluate("location.hash='#ideas'"); await pg.wait_for_timeout(200)
+    check(f"{tag} 미리보기: 아이디어 3개", await pg.locator(".idea").count() == 3)
+    await pg.locator("nav .hlp-btn").click(); await pg.wait_for_timeout(100)
+    check(f"{tag} 미리보기 안에서는 미리보기 링크 숨김", await pg.locator(".hlp a.btn").count() == 0)
+    await pg.evaluate("closeM();login()"); await pg.wait_for_timeout(100)
+    check(f"{tag} 미리보기: 로그인 막음", "둘러보기만" in await pg.inner_text("#toast"))
+    check(f"{tag} 미리보기 오류 없음", not errs, "; ".join(errs)); await pg.close()
+
+
 async def no_server(b):
     pg, errs = await newpage(b, 1280, {"uid": "m1", "email": "m1@x.kr"}, db=json.loads(json.dumps(DB0)), api=False)
     check("서버 없을 때: 준비 중 안내", await pg.locator("#setupBar").is_visible())
@@ -295,7 +321,7 @@ async def main():
     async with async_playwright() as p:
         b = await p.chromium.launch()
         for w in (1280, 390):
-            await guest(b, w); await join_flow(b, w); await member(b, w); await rep_admin(b, w)
+            await guest(b, w); await join_flow(b, w); await member(b, w); await rep_admin(b, w); await demo(b, w)
         await no_server(b)
         await b.close()
     TMP.unlink(missing_ok=True)

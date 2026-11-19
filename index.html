@@ -473,6 +473,13 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .recruit dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;text-align:left;background:var(--bg);border-radius:12px;padding:14px 16px;margin:16px 0}.recruit dt{font-weight:700;color:var(--navy);font-size:14px}.recruit dd{margin:0;font-size:14px}
 .recruit .racts{display:flex;gap:8px;justify-content:center}.recruit .racts .btn{padding:10px 20px;font-size:15px}
 .recruit .rfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.rchk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub);cursor:pointer}.rchk input{width:18px;height:18px;margin:0}
+.hlp-btn{display:flex;align-items:center;gap:7px;min-height:44px;padding:0 12px 0 2px;border:0;background:none;color:var(--text);font-size:15px;font-weight:500;white-space:nowrap;cursor:pointer;flex:0 0 auto}.hlp-btn:hover{text-decoration:underline}
+.hlp-q{width:20px;height:20px;border-radius:50%;background:#111;color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center;text-decoration:none}
+#modal{max-height:88vh;overflow-y:auto}
+.hlp h2{margin:0 0 12px}.hlp-list{list-style:none;margin:0;padding:0}.hlp-list>li{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.hlp-list>li:first-child{border-top:0;padding-top:4px}
+.hlp-n{flex:0 0 24px;height:24px;border-radius:6px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.hlp-list b{display:block;color:var(--navy);font-size:15px}.hlp-list ul{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.65;color:#475467;word-break:keep-all}
+.hlp .mfoot a.btn{text-decoration:none}
 </style>
 </head>
 <body>
@@ -483,13 +490,13 @@ table.adm td.warn{color:#b42318;font-weight:700}
   <div class="hright" id="hright"></div>
 </div></header>
 <nav><div class="nwrap">
+  <button type="button" class="hlp-btn" onclick="openHelp()"><span class="hlp-q" aria-hidden="true">?</span>사용 안내</button>
   <a href="#about" data-v="about">JACE 소개</a>
   <a href="#public" data-v="public">자료실</a>
   <a href="#ideas" data-v="ideas">아이디어함</a>
   <a href="#members" data-v="members">회원 공간<span class="lock" id="lockTag">회원</span></a>
   <a href="#mine" data-v="mine" id="navMine">내가 올린 자료</a>
   <a href="#admin" data-v="admin" id="navAdmin">운영진 관리</a>
-  <a href="#guide" data-v="guide" class="nguide"><span class="qi" aria-hidden="true">?</span>사용 안내</a>
 </div></nav>
 <main id="main"><div class="loading">자료를 불러오는 중입니다…</div></main>
 <footer><span class="flogo" id="footLogo"><span class="wm"><i>J</i>ACE</span></span>전북AI융합교육연구회 · 자료 이용 시 출처를 밝혀 주세요 · 학생 개인정보가 담긴 자료는 올리지 않습니다 <span class="ver" id="ver"></span></footer>
@@ -497,7 +504,8 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.5.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.6.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
 const FIREBASE_CONFIG = window.JACE_FIREBASE || {};
@@ -560,6 +568,7 @@ if (INAPP) {
   if (IS_KAKAO && !tried) openOutside();
 }
 async function login() {
+  if (DEMO) return demoNo();
   if (INAPP) { inappHelp(); return; }
   try { await AUTH.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
   catch (e) { if (e.code !== "auth/popup-closed-by-user") toast("로그인하지 못했어요: " + (e.message || e.code)); }
@@ -593,6 +602,7 @@ async function apiStream(action, data, onBytes) {
 }
 const mb = n => (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + "MB";
 async function loadPublic(fresh) {
+  if (DEMO) { CFG = DEMO_CFG; PUB = DEMO_ITEMS; bookTitle = DEMO_CFG.bookTitle; return; }
   let j = null;
   if (!fresh) { try { const r = await fetch("data/public.json?t=" + Date.now()); if (r.ok) j = await r.json(); } catch (e) {} }
   if ((!j || !j.ok) && apiReady()) { try { j = await (await fetch(API_URL + "?action=publicList")).json(); } catch (e) {} }
@@ -641,6 +651,7 @@ async function refreshMe() {
   saveCache(AUTH.currentUser.uid); render();
 }
 AUTH.onAuthStateChanged(async user => {
+  if (DEMO) { authReady = true; ME = null; render(); return; }
   authReady = true;
   if (!user) { chatStop(); ME = null; MD = null; MINE = null; render(); return; }
   const c = readCache(user.uid);
@@ -758,7 +769,6 @@ function render() {
     const mine = MD ? MD.items.filter(i => i.own) : [];
     m.innerHTML = `<div class="panel"><h3>내가 올린 자료 (${mine.length})</h3>${mine.length ? `<table class="rt"><tr><th>자료</th><th>내려받기</th><th>올린 날</th><th>조회</th><th></th></tr>${mine.map(i => `<tr><td>${esc(i.t)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td>${esc(i.dt)}</td><td>${i.v}</td><td style="text-align:right"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> ${isAdmin() ? `<button class="btn mini" onclick='openOwner(${JSON.stringify(i.id)})'>올린이 바꾸기</button> ` : ""}<button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 올린 자료가 없습니다.</p>'}</div>`;
   }
-  else if (view === "guide") { m.innerHTML = guideView(); }
   else if (view === "ideas") { m.innerHTML = ideasView(); }
   else if (view === "admin") {
     if (!isAdmin()) { go("public"); return render(); }
@@ -880,6 +890,7 @@ const filesOf = it => it.files && it.files.length ? it.files : (it.hasFile ? [it
 const extOf = n => { const m = /\.([A-Za-z0-9]{1,5})$/.exec(n || ""); return m ? m[1].toUpperCase() : "FILE"; };
 const b64ToBytes = b64 => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 async function getFile(id, fi = 0) {
+  if (DEMO) return demoNo();
   const it = allItems().find(x => x.id === id); if (!it) return;
   if (!it.hasFile && linksOf(it).length) { window.open(linksOf(it)[0].url, "_blank", "noopener"); return; }
   if (!ME) { const u = (it.urls && it.urls[fi]) || it.url; if (u) window.open(u, "_blank", "noopener"); return; }
@@ -938,6 +949,7 @@ const optHTML = (list, cur) => '<option value="">고르기</option>' + list.map(
 const validPhone = v => /^01[016789]\d{7,8}$/.test(String(v || "").replace(/\D/g, ""));
 const fmtPhone = p => { const d = String(p).replace(/\D/g, ""); return d.length === 11 ? d.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); };
 async function openJoin() {
+  if (DEMO) return demoNo();
   if (!ME) { if (!AUTH.currentUser) { await login(); return; } }
   if (ME && ME.rep) { go("admin"); render(); return; }
   if (ME && ME.member && !isAdmin()) { toast("이미 회원으로 등록되어 있습니다"); return; }
@@ -1104,14 +1116,14 @@ async function flip(id) {
 }
 
 /* ===== 실시간 DB 공통 (써 봤어요 · 아이디어함) ===== */
-const rtOK = () => !!(firebase.database && (FIREBASE_CONFIG.databaseURL || window.__RT_TEST));
+const rtOK = () => DEMO || !!(firebase.database && (FIREBASE_CONFIG.databaseURL || window.__RT_TEST));
 const rtRef = p => firebase.database().ref(p);
 const newKey = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const myUid = () => AUTH.currentUser ? AUTH.currentUser.uid : "";
 
 /* ===== 우리 반에서 써 봤어요 ===== */
 let USC = {}, USED = {}, USEDALL = {}, REVA = [];
-async function loadUsedSc() { if (!rtOK()) return; try { USC = (await rtRef("usedSc").get()).val() || {}; } catch (e) {} }
+async function loadUsedSc() { if (DEMO) { USC = DEMO_USC; return; } if (!rtOK()) return; try { USC = (await rtRef("usedSc").get()).val() || {}; } catch (e) {} }
 const usedSchools = id => [...new Set(Object.values(USC[id] || {}).filter(Boolean).map(x => String(x).trim()))];
 async function usedFill(id) {
   const box = $("#usedBox"); if (!box || !rtOK()) return;
@@ -1156,6 +1168,7 @@ async function delUsed(id) {
 /* ===== 도구 아이디어함 ===== */
 let IDEAS = null, ILK = {}, IDF = "all";
 async function loadIdeas() {
+  if (DEMO) { IDEAS = IDEAS || JSON.parse(JSON.stringify(DEMO_IDEAS)); ILK = DEMO_LIKES; return; }
   if (!rtOK()) { IDEAS = IDEAS || {}; return; }
   try { const [a, b] = await Promise.all([rtRef("ideas").get(), rtRef("ideaLikes").get()]); IDEAS = a.val() || {}; ILK = b.val() || {}; } catch (e) { IDEAS = IDEAS || {}; }
 }
@@ -1187,6 +1200,7 @@ function ideaCard(d) {
    <div class="ifoot"><button class="like${liked ? " on" : ""}" onclick='likeIdea(${J})' aria-pressed="${liked}">${liked ? "♥" : "♡"} 저도 필요해요 ${n || ""}</button><span class="sp"></span>${acts.join("")}</div></article>`;
 }
 async function openIdea() {
+  if (DEMO) return demoNo();
   if (!AUTH.currentUser) { try { await login(); } catch (e) {} if (!AUTH.currentUser) return; }
   const nm = (ME && ME.name) || AUTH.currentUser.displayName || "", sc = (ME && ME.school) || "";
   openM(`<h2>도구 아이디어 남기기</h2><div class="form">
@@ -2073,59 +2087,47 @@ function aboutView() {
   return tabs + body;
 }
 
-/* ===== 사용 안내 ===== */
-function guideView() {
-  const S = [
-    ["g1", "자료실 둘러보기", `<ul>
-      <li>로그인하지 않아도 모든 자료의 <b>제목과 설명</b>을 볼 수 있어요.</li>
-      <li>위쪽 검색칸에 낱말을 넣거나, <b>학교급·교과·자료 종류</b>를 눌러 골라 볼 수 있어요. 여러 개를 함께 고를 수도 있어요.</li>
-      <li>프로그램 카드의 <b>바로 열기</b>를 누르면 그 프로그램이 새 창으로 열려요.</li>
-      <li><b>누구나 받기</b> 자료는 로그인 없이 내려받을 수 있고, <b>회원만 받기</b> 자료는 회원이 로그인해야 내려받을 수 있어요.</li>
-      <li>자료를 누르면 파일과 링크, 올린 선생님, 출처 표기가 나와요. 자료를 쓰실 때는 <b>출처 복사</b>를 눌러 출처를 꼭 밝혀 주세요.</li></ul>`],
-    ["g2", "회원 가입", `<ol>
-      <li><b>가입 신청</b>을 누르고 구글 계정으로 로그인합니다.</li>
-      <li>이름, 휴대전화(숫자만), 소속, 학교급, 직위, 담당 교과를 적고 보냅니다.</li>
-      <li>운영진이 확인하면 회원이 됩니다.</li></ol>
-      <div class="gtip">교육학습공동체 신청 때 회원 명단에 들어가므로, 명단 제출 동의가 꼭 필요해요. 전화번호는 운영진만 봅니다.</div>`],
-    ["g3", "자료 올리기와 고치기", `<ol>
-      <li>회원으로 로그인한 뒤 오른쪽 위 <b>자료 올리기</b>를 누릅니다.</li>
-      <li>자료 이름, 설명을 적고 <b>썸네일 그림</b>(화면 캡처 등)을 고른 뒤 학교급, 교과, 자료 종류를 고릅니다.</li>
-      <li>파일과 링크를 넣습니다. 파일은 여러 개를 함께 고를 수 있고(하나에 20MB까지), 둘 중 하나만 있어도 되고, 링크는 <b>+ 링크 추가</b>로 여러 개 넣을 수 있어요. 링크마다 설명을 달면 보는 선생님이 알아보기 쉬워요.</li>
-      <li><b>누구나 받기</b>와 <b>회원만 받기</b> 가운데 하나를 고르고 올립니다.</li></ol>
-      <ul><li>올린 자료는 <b>내가 올린 자료</b>에서 고치거나, 받기 범위를 바꾸거나, 목록에서 내릴 수 있어요.</li>
-      <li>영상은 파일 대신 유튜브 링크로 올려 주세요.</li></ul>
-      <div class="gtip">학생 얼굴이 알아보이는 사진·영상, 학생 실명, 교과서·출판사 자료 원본은 올리지 말아 주세요. PDF 자료는 내려받을 때 받은 선생님 이름과 날짜가 쪽마다 작게 찍혀요.</div>`],
-    ["g4", "회원 공간", `<ul>
-      <li><b>대화</b>: 지금 접속한 회원이 초록 점으로 보여요. 이름을 누르면 1:1 쪽지, <b>전체 대화방</b>은 회원 모두가 함께 보는 방이에요. 접속하지 않은 선생님께 남긴 쪽지는 다음에 접속하면 볼 수 있어요.</li>
-      <li><b>화상 회의</b>: 연구회 회의실(구글 미트)에 바로 들어갈 수 있어요. 지금 몇 명이 회의 중인지도 보여요. 3명 이상 회의는 60분이 지나면 끊기니, 같은 링크로 다시 들어오면 돼요.</li>
-      <li><b>모임 일정</b>: 달력에서 일정을 눌러 <b>참석하기</b>를 누르면 참석 명단에 들어가요. 화상 회의가 연결된 일정은 거기서 바로 들어갈 수 있어요.</li>
-      <li><b>연수 후기</b>: 모임이 끝나면 운영진이 진행 내용과 사진을 올려요. 회원은 사진을 크게 넘겨 보고 공감을 누를 수 있어요. 일정 달력에서 지난 모임을 눌러도 볼 수 있어요.</li>
-      <li><b>공지</b>: 운영진 공지를 보고 댓글을 달 수 있어요.</li>
-      <li><b>산출물 책자</b>: 연말에 내 자료를 골라 책자에 넣고, 원고 PDF를 올리면 한 권으로 묶여요. 책자 탭에서 <b>원고 양식(한글)</b>과 <b>예시 원고</b>를 받을 수 있어요.</li></ul>`],
-    ["g5", "휴대폰에서 쓰기", `<ul>
-      <li>한 번 로그인하면 같은 기기에서는 로그인이 유지돼요. 공용 기기에서는 다 쓰신 뒤 <b>로그아웃</b>해 주세요.</li>
-      <li>휴대폰 브라우저 메뉴의 <b>홈 화면에 추가</b>를 누르면 앱처럼 바로 열 수 있어요.</li>
-      <li>카카오톡·밴드 같은 앱 안에서 열면 구글이 로그인을 막아요. 카카오톡에서는 자동으로 기본 브라우저로 넘어가고, 넘어가지 않으면 로그인을 누를 때 여는 방법이 안내돼요.</li></ul>`]
-  ];
-  if (isAdmin()) S.push(["g6", "운영진 안내", `<ul>
-      <li><b>운영진 관리</b>에서 가입 신청을 승인·보류하고, 회원의 역할(부회장·총무·임원)을 정할 수 있어요. <b>명단 복사</b>로 서식 2 순서대로 한 번에 복사해요.</li>
-      <li>모든 자료를 고치거나 내릴 수 있고, 내려받기 기록을 볼 수 있어요.</li>
-      <li>모임이 끝나면 <b>연수 후기</b> 탭(또는 일정 달력의 지난 모임)에서 <b>후기 올리기</b>로 진행 내용과 사진을 올려 주세요.</li>
-      <li><b>화상 회의</b> 탭에서 대표 계정으로 만든 구글 미트 링크를 연구회 회의실로 연결해 두면, 회원 누구나 바로 들어갈 수 있어요.</li>
-      <li>회원 공간 탭 오른쪽 <b>⇅ 순서</b>로 탭 순서를 바꾸면 모든 회원에게 같은 순서로 보여요.</li>
-      <li>학교급·교과·자료 종류 목록과 책자 제목은 관리 시트 <b>설정</b> 탭에서 고칩니다.</li></ul>`]);
-  return `<div class="guide"><div class="panel"><h3>JACE 자료실 사용 안내</h3><p style="margin:0;font-size:14.5px;color:var(--sub)">JACE 선생님들이 함께 만들고 나누는 수업 도구와 수업 사례 모음이에요. 궁금한 곳을 눌러 바로 보세요.</p>
-   <div class="gtoc" style="margin-top:12px">${S.map(([id, t]) => `<a href="#guide" onclick="event.preventDefault();document.getElementById('${id}').scrollIntoView({behavior:'smooth',block:'start'})">${t}</a>`).join("")}</div></div>
-   ${S.map(([id, t, b], i) => `<div class="panel" id="${id}" style="scroll-margin-top:70px"><h3><span class="gn">${i + 1}</span>${t}</h3>${b}</div>`).join("")}
-   <p style="text-align:center;font-size:13px;color:var(--sub)">더 궁금한 점은 회원 공간 대화방이나 운영진에게 물어봐 주세요.</p></div>`;
+/* ===== 사용 안내 (간략 사용법 창) ===== */
+const HELP = [
+  ["자료실 둘러보기 (누구나)", ["위쪽 '자료실'을 누르고, 왼쪽에서 학교급·교과·자료 종류를 고릅니다.", "카드를 누르면 설명이, '바로 열기'를 누르면 프로그램이 열려요.", "로그인하지 않아도 둘러보는 건 막지 않아요."]],
+  ["가입 신청하기 (누구나)", ["'가입 신청'을 누르고 구글 계정으로 로그인한 뒤 신청서를 씁니다.", "휴대전화는 숫자만 적으면 돼요.", "운영진이 확인하면 회원이 되고, '회원만 받기' 자료가 열려요."]],
+  ["자료 올리기 (회원)", ["위쪽 '자료 올리기'를 누르고 자료 이름, 설명, 썸네일 그림을 넣습니다.", "파일은 여러 개 올릴 수 있고, 프로그램 주소(링크)만 넣어도 돼요.", "'누구나 받기'와 '회원만 받기' 중 하나를 고르고, 고칠 때는 '내가 올린 자료'에서 '고치기'를 눌러요."]],
+  ["써 본 기록 남기기 (회원)", ["자료 창 아래 '써 봤어요 남기기'를 눌러 학교급, 학년·교과, 한 줄 소감을 적어요.", "소감은 회원만 보고, 자료실 카드에는 '○개 학교 사용'만 보여요."]],
+  ["아이디어함 (누구나·회원)", ["'아이디어 남기기'로 있으면 좋을 도구를 적어요. 회원이 아니어도 로그인만 하면 돼요.", "같은 생각이면 '저도 필요해요'를 눌러요.", "회원은 '제가 만들어 볼게요'로 맡고, 다 만들면 '완성했어요'로 자료와 이어요."]],
+  ["회원 공간 (회원)", ["'대화', '화상 회의', '모임 일정', '연수 후기', '공지', '산출물 책자' 탭이 있어요.", "모임 일정에서 '참석하기'를 누르면 참석 명단에 들어가요.", "쪽지는 대화 탭에서 선생님 이름을 눌러 보내요."]],
+  ["운영진 관리 (운영진)", ["가입 신청을 '승인'하고, 역할을 부회장·총무·임원으로 바꿀 수 있어요.", "'명단 복사 (승인 회원)'는 교육청에 낼 명단을 표로 복사해요.", "'실적 복사'와 '이달 소식 카드'로 보고서와 카톡 소식을 만들어요."]],
+  ["이럴 땐 이렇게", ["비밀번호는 따로 없어요. 가입할 때 쓴 구글 계정으로 로그인하면 돼요.", "다른 계정으로 자료를 올렸다면 운영진이 '올린이 바꾸기'로 고쳐 드려요.", "카톡 안에서 열면 로그인이 막혀요. 크롬이나 사파리로 열어 주세요."]],
+];
+function openHelp() {
+  const demoUrl = location.origin + location.pathname + "?demo";
+  openM(`<div class="hlp"><h2>JACE 간략 사용법</h2><ol class="hlp-list">${HELP.map(([t, L], i) => `<li><span class="hlp-n">${i + 1}</span><div><b>${esc(t)}</b><ul>${L.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div></li>`).join("")}</ol>
+   <div class="mfoot">${DEMO ? "" : `<a class="btn" href="${esc(demoUrl)}" target="_blank" rel="noopener">지어낸 자료로 미리 눌러 보기</a>`}<span class="sp"></span><button class="btn primary" onclick="closeM()">확인</button></div></div>`);
 }
 
+/* ===== 미리보기 (?demo): 지어낸 자료로 둘러보기, 아무것도 저장하지 않음 ===== */
+const DEMO_CFG = { grades: ["초등학교", "중학교", "고등학교", "공통"], areas: ["초등교과전반", "체육", "보건", "국어", "수학", "정보"].map(n => ({ n, s: [] })),
+  types: ["프로그램", "수업 사례", "수업 자료", "활동지", "영상", "평가 자료"], bookTitle: "미리보기 자료집" };
+const DEMO_ITEMS = [
+  { id: "d1", t: "모둠 차례 타이머", d: "모둠 이름을 넣으면 차례와 남은 시간을 큰 화면에 보여 줘요.", g: ["초등학교"], a: ["초등교과전반"], ty: "프로그램", m: false, by: "김햇살", sc: "햇살초등학교", dt: "2026-11-12", v: 41, link: "타이머 | https://example.org/timer" },
+  { id: "d2", t: "카메라로 세는 줄넘기 판정기", d: "카메라가 줄넘기 횟수를 세고 기록을 쌓아요.", g: ["공통"], a: ["체육", "정보"], ty: "프로그램", m: false, by: "이바람", sc: "바람중학교", dt: "2026-11-05", v: 87, link: "판정기 | https://example.org/jump" },
+  { id: "d3", t: "보건 퀴즈 실시간 설문 수업", d: "QR로 들어와 답하면 결과가 큰 화면에 올라오는 보건 수업 사례입니다.", g: ["중학교"], a: ["보건"], ty: "수업 사례", m: true, by: "박구름", sc: "구름중학교", dt: "2026-10-28", v: 19, hasFile: true, fname: "수업안.pdf", files: ["수업안.pdf"] },
+  { id: "d4", t: "독서 기록 책탑 쌓기", d: "읽은 책이 탑처럼 쌓이는 학급 독서 기록장이에요.", g: ["초등학교"], a: ["국어"], ty: "프로그램", m: false, by: "최별빛", sc: "별빛초등학교", dt: "2026-10-20", v: 33, link: "책탑 | https://example.org/books" },
+  { id: "d5", t: "오답 다시 풀기 활동지", d: "틀린 문제를 비슷한 문제로 다시 풀어 보는 활동지입니다.", g: ["고등학교"], a: ["수학"], ty: "활동지", m: false, by: "정하늘", sc: "하늘고등학교", dt: "2026-10-02", v: 12, hasFile: true, fname: "활동지.hwpx", files: ["활동지.hwpx"] },
+];
+const DEMO_USC = { d1: { a: "햇살초등학교", b: "달빛초등학교", c: "별빛초등학교" }, d2: { a: "바람중학교", b: "하늘고등학교" } };
+const DEMO_IDEAS = {
+  x1: { uid: "x", n: "한소리", sc: "소리초등학교", g: "초등학교", a: "음악", x: "리코더 운지를 카메라로 보고 맞는지 알려 주는 도구가 있으면 좋겠어요.", t: 1763000000000 },
+  x2: { uid: "y", n: "윤나무", g: "중학교", a: "체육", x: "스포츠클럽 리그전 대진표를 자동으로 짜 주는 도구", t: 1762000000000, claim: { uid: "z", n: "이바람", t: 1762500000000 } },
+  x3: { uid: "w", n: "강들판", x: "모둠 활동 때 차례와 남은 시간을 보여 주는 타이머", t: 1760000000000, claim: { uid: "q", n: "김햇살", t: 1 }, done: { id: "d1", t: 1762800000000 } },
+};
+const DEMO_LIKES = { x1: { a: true, b: true, c: true }, x2: { a: true } };
+const demoNo = () => toast("미리보기에서는 둘러보기만 할 수 있어요");
 
 /* ===== 창립 회원 모집 팝업 (처음 들어온 손님에게) ===== */
 const RECRUIT_POPUP = true;   // 모집이 끝나면 false 로
 const RKEY = "jace_recruit_hide";
 function recruitCheck() {
-  if (!RECRUIT_POPUP || window.__NORECRUIT) return;
+  if (!RECRUIT_POPUP || window.__NORECRUIT || DEMO) return;
   try { if (new URLSearchParams(location.search).get("i")) return; if (localStorage.getItem(RKEY) === TODAY) return; } catch (e) {}
   if (ov.classList.contains("show")) return;
   if (ME && (ME.member || ME.rep || ME.status === "대기" || ME.status === "보류")) return;
@@ -2142,12 +2144,14 @@ function recruitClose() { recruitSave(); closeM(); }
 /* ===== 시작 ===== */
 function route() {
   const h = location.hash.replace("#", "");
-  view = ["about", "public", "ideas", "members", "mine", "admin", "guide"].includes(h) ? h : "about";
+  if (h === "guide") { view = "about"; render(); openHelp(); return; }
+  view = ["about", "public", "ideas", "members", "mine", "admin"].includes(h) ? h : "about";
   render();
 }
 window.addEventListener("hashchange", route);
 $("#ver").textContent = "· 판 " + APP_VERSION;
-if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
+if (DEMO) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "미리보기: 지어낸 자료로 둘러보는 화면이에요. 로그인, 올리기, 내려받기는 되지 않고 아무것도 저장되지 않아요."; }
+else if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
 loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
 
 </script>
