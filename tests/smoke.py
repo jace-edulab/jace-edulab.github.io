@@ -98,10 +98,12 @@ async def run(b, vp, tag):
     await pg.get_by_role("button", name="신청서 보내기").click(); await pg.wait_for_timeout(150)
     check(f"{tag} 회장: 신청하면 바로 승인", await pg.evaluate("window.__DB.members.bs.status") == "승인")
     check(f"{tag} 회장: 내 정보 고치기 가능", await pg.get_by_role("button", name="내 정보 고치기").count() == 1)
+    check(f"{tag} 회장: 머리말에 회장 표시", "회장" in await pg.locator("#hright").inner_text())
     await pg.locator("#hright").get_by_role("button", name="회원 관리").click(); await pg.wait_for_timeout(150)
     await pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
     await pg.get_by_role("button", name="명단 복사 (승인 회원)").click(); await pg.wait_for_timeout(150)
     clip = await pg.evaluate("navigator.clipboard.readText()")
+    check(f"{tag} 회장: 관리 표에 회장 표시", await pg.locator("table.adm .pill", has_text="회장").count() == 1)
     check(f"{tag} 회장: 명단 맨 위에 회장", clip.splitlines()[1].startswith("1\t회장\t봄초등학교"), clip)
     check(f"{tag} 회장 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
     # 5 기존 화면
