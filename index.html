@@ -224,7 +224,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast" role="status"></div>
 <footer>전북AI융합교육연구회 JACE · Jeonbuk AI Convergence Education</footer>
 <script>
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "1.1.1";
 const ADMINS = (window.JACE_ADMINS || []).map(e => String(e).toLowerCase());
 const LEVELS = ["초등학교", "중학교", "고등학교", "특수학교", "교육기관"];
 const POSITIONS = ["교사", "수석교사", "교감", "교장", "교육전문직"];
@@ -294,9 +294,14 @@ async function login() {
   if (!AUTH) return;
   try { await AUTH.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
   catch (e) {
-    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) { try { await AUTH.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (e2) { toast("로그인하지 못했습니다. 잠시 뒤 다시 해 주세요"); } }
-    else if (!(e && e.code === "auth/popup-closed-by-user")) toast("로그인하지 못했습니다. 잠시 뒤 다시 해 주세요");
+    if (e && (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment")) { try { await AUTH.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (e2) { loginFail(e2); } }
+    else if (!(e && (e.code === "auth/popup-closed-by-user" || e.code === "auth/cancelled-popup-request"))) loginFail(e);
   }
+}
+function loginFail(e) {
+  const c = (e && e.code) || "unknown";
+  const why = { "auth/unauthorized-domain": "파이어베이스 승인된 도메인에 이 주소가 없습니다", "auth/operation-not-allowed": "파이어베이스에서 Google 로그인이 꺼져 있습니다", "auth/configuration-not-found": "파이어베이스에서 Google 로그인이 꺼져 있습니다", "auth/network-request-failed": "인터넷 연결을 확인해 주세요", "auth/invalid-api-key": "설정값(apiKey)이 맞지 않습니다" }[c];
+  openM('<h2 id="mtitle">로그인하지 못했습니다</h2><p style="margin:6px 0 0">' + esc(why || "잠시 뒤 다시 해 주세요.") + '</p><p style="color:var(--sub);font-size:13px;margin:10px 0 0">오류 코드: ' + esc(c) + '</p><div class="mfoot"><button class="btn primary" onclick="closeM()">닫기</button></div>');
 }
 async function logout() { if (AUTH) { await AUTH.signOut(); toast("로그아웃했습니다"); } }
 
