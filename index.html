@@ -467,6 +467,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .ifoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}.kpi{background:var(--bg);border-radius:12px;padding:12px 14px}.kpi span{display:block;font-size:12px;color:var(--sub)}.kpi b{display:block;font-size:22px;color:var(--navy);font-weight:900}.kpi small{display:block;font-size:12px;color:var(--sub);margin-top:2px}
 .sp{flex:1}
+.newsprev{margin:12px 0 4px;background:var(--bg);border-radius:12px;padding:10px;text-align:center}.newsprev img{max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 4px 14px rgba(23,50,92,.12)}
 </style>
 </head>
 <body>
@@ -491,7 +492,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.3.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.4.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 
 /* ===== 설정 (config.js) ===== */
 const FIREBASE_CONFIG = window.JACE_FIREBASE || {};
@@ -1267,10 +1268,116 @@ function statsText(S) {
 function statsPanel() {
   const S = actStats(SY), years = [...new Set([TODAY.slice(0, 4), String(+TODAY.slice(0, 4) - 1), SY])].sort().reverse();
   const k = (t, v, sub) => `<div class="kpi"><span>${t}</span><b>${v}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>`;
-  return `<div class="panel"><div class="adm-top"><h3 style="margin:0">활동 실적</h3><select id="sy" onchange="SY=this.value;render()" aria-label="연도">${years.map(y => `<option${y === SY ? " selected" : ""}>${y}</option>`).join("")}</select><span class="sp"></span><button class="btn mini ok" onclick="copyText(statsText(actStats(SY)),'활동 실적을 복사했습니다. 보고서에 붙여 넣으세요')">실적 복사</button></div>
+  return `<div class="panel"><div class="adm-top"><h3 style="margin:0">활동 실적</h3><select id="sy" onchange="SY=this.value;render()" aria-label="연도">${years.map(y => `<option${y === SY ? " selected" : ""}>${y}</option>`).join("")}</select><span class="sp"></span><button class="btn mini" onclick="openNews()">이달 소식 카드</button><button class="btn mini ok" onclick="copyText(statsText(actStats(SY)),'활동 실적을 복사했습니다. 보고서에 붙여 넣으세요')">실적 복사</button></div>
    <div class="kpis">${k("회원", S.mem + "명", kv(S.lv))}${k("자료실", S.items + "개", `올린 선생님 ${S.makers}명`)}${k("모임", S.evs + "회", `참석 연인원 ${S.att}명`)}${k("연수 후기", S.revs + "건")}${k("써 봤어요", S.used + "건", `${S.usedSch}개 학교`)}${k("도구 아이디어", S.ideas + "건", `완성 ${S.ideaDone} · 만드는 중 ${S.ideaDoing}`)}</div>
    ${S.months.length ? `<div style="overflow-x:auto;margin-top:12px"><table class="rt kpit"><tr><th>월</th><th>새 자료</th><th>모임</th><th>참석</th><th>써 봤어요</th><th>아이디어</th></tr>${S.months.map(r => `<tr><td>${r.m}월</td><td>${r.items}</td><td>${r.evs}</td><td>${r.att}</td><td>${r.used}</td><td>${r.ideas}</td></tr>`).join("")}</table></div>` : `<p style="color:var(--sub);margin:10px 0 0">${SY}년 기록이 아직 없어요.</p>`}
-   <div class="sheetnote">중간보고회와 활동 보고서에 쓸 수 있게 자동으로 모았어요. [실적 복사]를 누르면 월별 표까지 한글·엑셀에 붙여 넣을 수 있게 복사됩니다.</div></div>`;
+   <div class="sheetnote">중간보고회와 활동 보고서에 쓸 수 있게 자동으로 모았어요. [실적 복사]를 누르면 월별 표까지 한글·엑셀에 붙여 넣을 수 있게 복사되고, [이달 소식 카드]는 카톡에 올릴 그림 한 장을 만들어 줍니다.</div></div>`;
+}
+
+
+/* ===== 운영진: 이달 소식 카드 (카톡 공유용 그림) ===== */
+let NEWSM = TODAY.slice(0, 7);
+const SITE = "jace-edulab.github.io";
+function newsData(ym) {
+  const inM = t => String(t || "").startsWith(ym), ymOf = t => { const d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+  const items = (MD ? MD.items : []).filter(i => inM(i.dt)).sort((a, b) => b.dt.localeCompare(a.dt));
+  const evs = (MD ? MD.schedules : []).slice().sort((a, b) => a.d.localeCompare(b.d));
+  const next = evs.filter(e => e.d >= TODAY).slice(0, 2), held = evs.filter(e => inM(e.d) && e.d <= TODAY);
+  let used = 0; Object.values(USEDALL || {}).forEach(o => Object.values(o || {}).forEach(r => { if (r && ymOf(r.t) === ym) used++; }));
+  const ideas = ideaList(), newIdeas = ideas.filter(d => ymOf(d.t) === ym).length;
+  const hot = ideas.filter(d => !d.done && !d.claim).sort((a, b) => ideaLikes(b.id) - ideaLikes(a.id) || (b.t || 0) - (a.t || 0))[0] || null;
+  const done = ideas.filter(d => d.done && ymOf(d.done.t) === ym).length;
+  return { ym, items, next, held, used, newIdeas, hot, done };
+}
+function wrapLines(g, text, w, max) {
+  const out = []; let cur = "";
+  for (const ch of String(text).replace(/\s+/g, " ")) { const t = cur + ch; if (g.measureText(t).width > w && cur) { out.push(cur); cur = ch.trim() ? ch : ""; } else cur = t; }
+  if (cur) out.push(cur);
+  if (out.length > max) { out.length = max; out[max - 1] = out[max - 1].replace(/.{0,2}$/, "…"); }
+  return out;
+}
+async function newsCanvas(ym) {
+  try { await document.fonts.ready; } catch (e) {}
+  const D = newsData(ym), W = 1080, H = 1500, P = 72, c = document.createElement("canvas"), g = c.getContext("2d");
+  c.width = W; c.height = H;
+  const KR = "'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif", EN = "'Montserrat'," + KR;
+  const NAVY = "#16307A", OR = "#E2560B", SUB = "#667085", TXT = "#1f2633";
+  const [yy, mm] = ym.split("-");
+  g.fillStyle = "#f4f6fa"; g.fillRect(0, 0, W, H);
+  // 머리
+  g.fillStyle = NAVY; g.fillRect(0, 0, W, 250);
+  g.textBaseline = "alphabetic"; g.font = `800 92px ${EN}`; g.fillStyle = "#fff"; g.fillText("J", P, 140);
+  const jw = g.measureText("J").width; g.fillStyle = "#FF8A3D"; g.fillText("ACE", P + jw, 140);
+  g.fillStyle = "rgba(255,255,255,.85)"; g.font = `500 30px ${KR}`; g.fillText("전북AI융합교육연구회", P, 196);
+  g.textAlign = "right"; g.fillStyle = "#fff"; g.font = `900 64px ${KR}`; g.fillText(`${+mm}월 소식`, W - P, 140);
+  g.font = `500 28px ${KR}`; g.fillStyle = "rgba(255,255,255,.75)"; g.fillText(yy + "년", W - P, 190); g.textAlign = "left";
+  let y = 290;
+  const box = (h) => { g.fillStyle = "#fff"; g.beginPath(); g.roundRect ? g.roundRect(P - 24, y, W - 2 * P + 48, h, 28) : g.rect(P - 24, y, W - 2 * P + 48, h); g.fill(); };
+  const head = (t) => { g.fillStyle = OR; g.font = `700 26px ${KR}`; g.fillText(t, P + 8, y + 52); };
+  // 숫자 네 칸
+  const nums = [["새 자료", D.items.length + "개"], ["모임", D.held.length + "회"], ["써 봤어요", D.used + "건"], ["새 아이디어", D.newIdeas + "건"]];
+  box(150); const cw = (W - 2 * P) / 4;
+  nums.forEach(([t, v], i) => { const x = P + cw * i + cw / 2; g.textAlign = "center"; g.fillStyle = SUB; g.font = `500 26px ${KR}`; g.fillText(t, x, y + 55); g.fillStyle = NAVY; g.font = `900 50px ${KR}`; g.fillText(v, x, y + 116); });
+  g.textAlign = "left"; y += 174;
+  // 이달의 새 도구
+  const N = Math.min(D.items.length, 3), ih = 92 + Math.max(N, 1) * 66;
+  box(ih); head("이달의 새 도구"); let yy2 = y + 108;
+  if (D.items.length > 3) { g.textAlign = "right"; g.fillStyle = SUB; g.font = `500 24px ${KR}`; g.fillText(`모두 ${D.items.length}개 중 3개`, W - P - 8, y + 52); g.textAlign = "left"; }
+  if (!N) { g.fillStyle = SUB; g.font = `400 30px ${KR}`; g.fillText("이번 달은 새로 올라온 자료가 없어요.", P + 8, yy2); }
+  D.items.slice(0, 3).forEach(it => {
+    g.fillStyle = TXT; g.font = `700 34px ${KR}`; const t = wrapLines(g, it.t, W - 2 * P - 230, 1)[0]; g.fillText(t, P + 8, yy2);
+    g.textAlign = "right"; g.fillStyle = SUB; g.font = `400 26px ${KR}`; g.fillText(`${it.ty} · ${it.by}`, W - P - 8, yy2); g.textAlign = "left"; yy2 += 66;
+  });
+  y += ih + 24;
+  // 다가오는 모임
+  const eh = 92 + Math.max(D.next.length, 1) * 80; box(eh); head("다가오는 모임"); yy2 = y + 108;
+  if (!D.next.length) { g.fillStyle = SUB; g.font = `400 30px ${KR}`; g.fillText("일정이 정해지면 알려 드릴게요.", P + 8, yy2); }
+  D.next.forEach(e => {
+    const dd = new Date(e.d + "T00:00:00"), wd = "일월화수목금토"[dd.getDay()];
+    g.fillStyle = NAVY; g.font = `900 34px ${KR}`; const ds = `${dd.getMonth() + 1}. ${dd.getDate()}.(${wd})`; g.fillText(ds, P + 8, yy2);
+    const dw = g.measureText("12. 30.(수)").width + 28;
+    g.fillStyle = TXT; g.font = `700 34px ${KR}`; g.fillText(wrapLines(g, e.t, W - 2 * P - dw - 16, 1)[0], P + 8 + dw, yy2);
+    g.fillStyle = SUB; g.font = `400 26px ${KR}`; g.fillText([e.tm, e.p].filter(Boolean).join(" · "), P + 8 + dw, yy2 + 36); yy2 += 80;
+  });
+  y += eh + 24;
+  // 이런 도구가 필요해요 (남은 높이 안에서)
+  const qrS = 170, footY = H - qrS - 70;
+  if (D.hot && y + 136 <= footY) {
+    g.font = `500 32px ${KR}`; const L = wrapLines(g, D.hot.x, W - 2 * P - 16, Math.max(1, Math.min(3, Math.floor((footY - y - 90) / 46))));
+    const hh = 90 + L.length * 46; box(hh); head("이런 도구가 필요해요");
+    g.fillStyle = TXT; g.font = `500 32px ${KR}`; L.forEach((l, i) => g.fillText(l, P + 8, y + 108 + i * 46));
+    const lk = ideaLikes(D.hot.id); if (lk) { g.textAlign = "right"; g.fillStyle = "#d93a3f"; g.font = `700 24px ${KR}`; g.fillText(`${lk}명이 필요해요`, W - P - 8, y + 52); g.textAlign = "left"; }
+  }
+  // 바닥: QR 하나 + 주소
+  try { await loadQR(); const q = qrCanvas("https://" + SITE + "/", qrS * 2); g.drawImage(q, W - P - qrS, H - qrS - 50, qrS, qrS); } catch (e) {}
+  g.fillStyle = NAVY; g.font = `700 34px ${KR}`; g.fillText("자료실 · 아이디어함 · 회원 가입", P, H - 150);
+  g.fillStyle = SUB; g.font = `500 30px ${EN}`; g.fillText(SITE, P, H - 100);
+  return c;
+}
+async function openNews() {
+  const months = [0, 1, 2].map(k => { const d = new Date(+TODAY.slice(0, 4), +TODAY.slice(5, 7) - 1 - k, 1); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); });
+  openM(`<h2>이달 소식 카드</h2><div class="form"><label for="nm">어느 달 소식인가요?</label><select id="nm" onchange="NEWSM=this.value;newsPreview()">${months.map(m => `<option value="${m}"${m === NEWSM ? " selected" : ""}>${m.replace("-", "년 ")}월</option>`).join("")}</select></div>
+   <div class="newsprev" id="newsPrev"><div class="loading">그리는 중…</div></div>
+   <div class="sheetnote">새 자료, 다가오는 모임, 가장 많이 원하는 도구 아이디어를 자동으로 넣어요. 카톡 단톡방에 그림 한 장으로 올리기 좋게 세로로 길게 만들었습니다.</div>
+   <div class="mfoot"><button class="btn" onclick="closeM()">닫기</button><span class="sp"></span><button class="btn" onclick="newsSave()">내려받기</button><button class="btn" onclick="newsCopy()">그림 복사</button>${navigator.share ? `<button class="btn primary" onclick="newsShare()">카톡 등으로 보내기</button>` : ""}</div>`);
+  newsPreview();
+}
+let NEWSC = null;
+async function newsPreview() {
+  const c = await newsCanvas(NEWSM); NEWSC = c; const box = $("#newsPrev"); if (!box) return;
+  box.innerHTML = ""; const img = new Image(); img.src = c.toDataURL("image/png"); img.alt = "이달 소식 카드 미리보기"; box.appendChild(img);
+}
+const newsName = () => `JACE_${NEWSM.replace("-", "년_")}월_소식.png`;
+const newsBlob = async () => { const c = NEWSC || await newsCanvas(NEWSM); return new Promise(r => c.toBlob(r, "image/png")); };
+async function newsSave() { const b = await newsBlob(), a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = newsName(); document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+async function newsCopy() {
+  try { if (!window.ClipboardItem || !navigator.clipboard || !navigator.clipboard.write) throw 0; await navigator.clipboard.write([new ClipboardItem({ "image/png": await newsBlob() })]); toast("그림을 복사했어요. 카톡 PC판 대화창에 붙여 넣으세요"); }
+  catch (e) { toast("이 브라우저는 그림 복사가 안 돼서 내려받기로 대신할게요"); newsSave(); }
+}
+async function newsShare() {
+  try { const f = new File([await newsBlob()], newsName(), { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) await navigator.share({ files: [f], title: "JACE 소식" }); else { toast("이 기기는 그림 보내기가 안 돼서 내려받기로 대신할게요"); newsSave(); } }
+  catch (e) { if (e && e.name !== "AbortError") newsSave(); }
 }
 
 /* 운영진: 올린 선생님 바꾸기 */

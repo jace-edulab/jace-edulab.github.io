@@ -258,6 +258,10 @@ async def rep_admin(b, width):
     await pg.get_by_role("button", name="실적 복사").click(); await pg.wait_for_timeout(200)
     st = await pg.evaluate("navigator.clipboard.readText()")
     check(f"{tag} 활동 실적 복사", st.startswith("[JACE 활동 실적]") and "도구 아이디어: 2건 (완성 1" in st and "모임: 1회, 참석 연인원 1명" in st, st[:300])
+    await pg.get_by_role("button", name="이달 소식 카드").click(); await pg.wait_for_timeout(1200)
+    sz = await pg.evaluate("(() => { const i = document.querySelector('#newsPrev img'); return i ? [i.naturalWidth, i.naturalHeight] : null; })()")
+    check(f"{tag} 이달 소식 카드 그림", sz == [1080, 1500], str(sz))
+    await pg.evaluate("closeM()")
     check(f"{tag} 대표 오류 없음", not errs, "; ".join(errs))
     db2 = await pg.evaluate("window.__DB"); await pg.close()
     # 총무가 된 회원은 운영진 관리 가능
