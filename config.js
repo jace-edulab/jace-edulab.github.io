@@ -2,9 +2,9 @@
 // 비어 있으면 가입 신청 단추가 "준비 중"으로 보입니다.
 window.JACE_FIREBASE = {
   apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
+  authDomain: "jace-edulab.firebaseapp.com",
+  databaseURL: "https://jace-edulab-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jace-edulab",
   appId: ""
 };
 // 회원 관리(승인·명단 복사)를 할 수 있는 운영진 구글 계정. 데이터베이스 규칙의 이메일과 같아야 합니다.
