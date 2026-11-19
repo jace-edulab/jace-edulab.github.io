@@ -7,5 +7,8 @@ window.JACE_FIREBASE = {
   projectId: "jace-edulab",
   appId: "1:26042094593:web:82ffff662db66e5e805c00"
 };
-// 회원 관리(승인·명단 복사)를 할 수 있는 운영진 구글 계정. 데이터베이스 규칙의 이메일과 같아야 합니다.
+// 대표 계정: 가입 신청 없이 운영진으로 쓰고, 회원 명단에서는 빠집니다.
 window.JACE_ADMINS = ["jace.edulab@gmail.com"];
+// 회장 계정: 회원으로 가입하되(명단에 "회장"으로 들어감) 회원 관리 권한도 가집니다.
+// 두 목록의 이메일은 데이터베이스 규칙의 이메일과 같아야 합니다.
+window.JACE_MANAGERS = ["mistetbaram@gmail.com"];

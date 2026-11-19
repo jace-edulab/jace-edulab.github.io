@@ -11,7 +11,7 @@ TMP = ROOT / "tests" / "_smoke.html"
 def build(user, configured=True, db=None):
     cfg = '{apiKey:"k",authDomain:"a",databaseURL:"d",projectId:"p",appId:"x"}' if configured else '{apiKey:""}'
     stub = f"""<script>
-window.JACE_FIREBASE={cfg};window.JACE_ADMINS=["admin@x.kr"];
+window.JACE_FIREBASE={cfg};window.JACE_ADMINS=["admin@x.kr"];window.JACE_MANAGERS=["boss@x.kr"];
 window.__DB={json.dumps(db or {}, ensure_ascii=False)};window.__W=[];
 let __U={json.dumps(user)};let __cb=null;
 const __A={{onAuthStateChanged(cb){{__cb=cb;setTimeout(()=>cb(__U),20)}},signInWithPopup(){{__U={{uid:"new",email:"new@x.kr",displayName:"새교사"}};setTimeout(()=>__cb(__U),10);return Promise.resolve()}},signOut(){{__U=null;setTimeout(()=>__cb(null),10);return Promise.resolve()}}}};
@@ -85,8 +85,23 @@ async def run(b, vp, tag):
     await pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
     await pg.get_by_role("button", name="명단 복사 (승인 회원)").click(); await pg.wait_for_timeout(150)
     clip = await pg.evaluate("navigator.clipboard.readText()")
-    check(f"{tag} 운영진: 명단 복사", clip.splitlines()[0] == "순\t소속\t직위\t성명\t교과" and len(clip.splitlines()) == 3 and "나교사" in clip, clip)
+    check(f"{tag} 운영진: 명단 복사", clip.splitlines()[0] == "순\t역할\t소속\t직위\t성명\t교과" and len(clip.splitlines()) == 3 and "나교사" in clip, clip)
     check(f"{tag} 운영진 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
+    # 4-2 회장(회원 + 관리)
+    pg, errs = await page({"uid": "bs", "email": "boss@x.kr", "displayName": "회장님"}, db=json.loads(json.dumps(db)))
+    check(f"{tag} 회장: 가입 전엔 신청서 단추와 회원 관리 둘 다", await pg.get_by_role("button", name="가입 신청서 쓰기").count() == 1 and await pg.locator("#joinActs").get_by_role("button", name="회원 관리").count() == 1)
+    await pg.get_by_role("button", name="가입 신청서 쓰기").click()
+    await pg.fill("#jp", "010-5555-6666"); await pg.fill("#js", "봄초등학교"); await pg.select_option("#jl", "초등학교"); await pg.select_option("#jpos", "교사")
+    await pg.fill("#jsub", "초등교과전반"); await pg.select_option("#jo", "없음"); await pg.check("#jelig"); await pg.check("#jpriv"); await pg.check("#jreg")
+    await pg.get_by_role("button", name="신청서 보내기").click(); await pg.wait_for_timeout(150)
+    check(f"{tag} 회장: 신청하면 바로 승인", await pg.evaluate("window.__DB.members.bs.status") == "승인")
+    check(f"{tag} 회장: 내 정보 고치기 가능", await pg.get_by_role("button", name="내 정보 고치기").count() == 1)
+    await pg.locator("#hright").get_by_role("button", name="회원 관리").click(); await pg.wait_for_timeout(150)
+    await pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
+    await pg.get_by_role("button", name="명단 복사 (승인 회원)").click(); await pg.wait_for_timeout(150)
+    clip = await pg.evaluate("navigator.clipboard.readText()")
+    check(f"{tag} 회장: 명단 맨 위에 회장", clip.splitlines()[1].startswith("1\t회장\t봄초등학교"), clip)
+    check(f"{tag} 회장 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
     # 5 기존 화면
     pg, errs = await page(None)
     for sec in ["about", "topic", "tracks", "plan", "join"]:
