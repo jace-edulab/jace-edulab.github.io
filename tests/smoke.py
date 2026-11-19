@@ -160,10 +160,10 @@ async def member(b, width):
     check(f"{tag} 회원: 운영진 메뉴 없음", await pg.locator("#navAdmin").is_hidden())
     await pg.evaluate("go('public');render()"); await pg.wait_for_timeout(200)
     check(f"{tag} 회원: 회원만 자료도 바로 열기 칸 판단", await pg.locator(".card.app").count() == 4)
-    for k in ["chat", "cal", "notice", "book"]:
+    for k in ["chat", "meet", "cal", "review", "notice", "book"]:
         await pg.evaluate(f"go('members');msub='{k}';msubPicked=true;render()"); await pg.wait_for_timeout(150)
         check(f"{tag} 회원 공간 '{k}' 탭", await pg.locator(".subtabs").count() == 1 and await pg.locator(".gate").count() == 0)
-    check(f"{tag} 회원 공간 탭은 4개", await pg.locator(".subtabs button:not(.tabedit)").count() == 4)
+    check(f"{tag} 회원 공간 탭은 6개", await pg.locator(".subtabs button:not(.tabedit)").count() == 6)
     await pg.evaluate("go('members');msub='cal';render();openEv('s1')"); await pg.wait_for_timeout(150)
     check(f"{tag} 일정 창", await pg.locator("#ov", has_text="참석").count() >= 1)
     await pg.evaluate("closeM();go('members');msub='book';render()"); await pg.wait_for_timeout(150)

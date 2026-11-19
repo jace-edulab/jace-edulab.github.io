@@ -479,7 +479,7 @@ table.adm td.warn{color:#b42318;font-weight:700}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.0.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.1.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 
 /* ===== 설정 (config.js) ===== */
 const FIREBASE_CONFIG = window.JACE_FIREBASE || {};
@@ -728,7 +728,7 @@ function render() {
   }
   else if (view === "members") {
     if (!isMember()) m.innerHTML = memberTabs() + `<div class="gate"><div class="gicon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b5651d" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h2>회원만 볼 수 있어요</h2><p>회원 대화방·쪽지, 모임 일정, 공지, 산출물 책자는 승인된 회원에게만 열립니다.</p>${ME ? "" : `<button class="btn primary" onclick="login()">구글 계정으로 로그인</button> `}<button class="btn" onclick="openJoin()">가입 신청</button></div>`;
-    else m.innerHTML = memberTabs() + (!apiReady() && msub !== "chat" ? `<div class="empty">공지·일정·책자는 운영진이 자료실 서버를 설치하면 열립니다.</div>` : !MD && msub !== "chat" ? `<div class="loading">불러오는 중…</div>` : msub === "chat" ? chatView() : msub === "cal" ? calView() : msub === "notice" ? noticeView() : bookView());
+    else m.innerHTML = memberTabs() + (!apiReady() && msub !== "chat" && msub !== "meet" ? `<div class="empty">공지·일정·책자는 운영진이 자료실 서버를 설치하면 열립니다.</div>` : !MD && msub !== "chat" && msub !== "meet" ? `<div class="loading">불러오는 중…</div>` : msub === "chat" ? chatView() : msub === "meet" ? meetView() : msub === "cal" ? calView() : msub === "notice" ? noticeView() : msub === "review" ? reviewView() : bookView());
   }
   else if (view === "mine") {
     if (!isMember()) { go("public"); return render(); }
@@ -1082,7 +1082,7 @@ async function hideItem(id) {
 }
 
 /* ===== 회원 공간 탭 ===== */
-const MTABS = { chat: "대화", cal: "모임 일정", notice: "공지", book: "산출물 책자" };
+const MTABS = { chat: "대화", meet: "화상 회의", cal: "모임 일정", review: "연수 후기", notice: "공지", book: "산출물 책자" };
 let msubPicked = false;
 function tabOrder() {
   const saved = (MEET.cfg && Array.isArray(MEET.cfg.tabs)) ? MEET.cfg.tabs.filter(k => MTABS[k]) : [];
@@ -1125,7 +1125,9 @@ async function toggleAtt(id) { try { await api("attend", { id }); await loadMemb
 function openEv(id) {
   const e = MD.schedules.find(s => s.id === id), d = new Date(e.d);
   openM(`<h2>${esc(e.t)}</h2><dl class="meta"><dt>날짜</dt><dd>${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일 ${esc(e.tm)}</dd><dt>장소</dt><dd>${esc(e.p)}</dd><dt>참석 예정</dt><dd>${e.att.length ? e.att.map(esc).join(", ") : "아직 없음"}</dd>${evMeetUrl(id) ? `<dt>화상 회의</dt><dd><button class="btn mini ok" onclick='joinMeet(${JSON.stringify(evMeetUrl(id))},${JSON.stringify(e.t)})'>구글 미트 입장</button></dd>` : ""}</dl>
-  <div class="mfoot">${isAdmin() ? `<button class="btn" onclick='delEv(${JSON.stringify(id)})'>일정 삭제</button>` : ""}<button class="btn primary" onclick='closeM();toggleAtt(${JSON.stringify(id)})'>${e.me ? "참석 취소" : "참석하기"}</button></div>`);
+  ${isAdmin() && chatReady() ? `<div class="form" style="margin:0"><label for="evmu">화상 회의 연결 (운영진)</label><input type="text" id="evmu" value="${esc(MEET.ev[id] || "")}" placeholder="구글 미트 링크, 또는 room (연구회 회의실 사용), 비우면 연결 안 함"></div><div class="err" id="evmerr"></div>` : ""}
+  ${e.d <= TODAY && chatReady() ? `<div class="evrev"><span>이 모임 후기 ${revOf(id).length}개</span><button class="btn mini" onclick='closeM();REVF=${JSON.stringify(id)};pickTab("review")'>후기 보기</button>${isAdmin() ? `<button class="btn mini ok" onclick='closeM();openRevForm(null,${JSON.stringify(id)})'>후기 올리기</button>` : ""}</div>` : ""}
+  <div class="mfoot">${isAdmin() ? `<button class="btn" onclick='delEv(${JSON.stringify(id)})'>일정 삭제</button>${chatReady() ? `<button class="btn" onclick='saveEvMeet(${JSON.stringify(id)})'>화상 회의 저장</button>` : ""}` : ""}<button class="btn primary" onclick='closeM();toggleAtt(${JSON.stringify(id)})'>${e.me ? "참석 취소" : "참석하기"}</button></div>`);
 }
 async function delEv(id) { try { busy(true); await api("delSchedule", { id }); closeM(); await loadMember(); render(); } catch (e) { toast(e.message); } finally { busy(false); } }
 function openEvForm() {
@@ -1764,7 +1766,9 @@ function guideView() {
       <div class="gtip">학생 얼굴이 알아보이는 사진·영상, 학생 실명, 교과서·출판사 자료 원본은 올리지 말아 주세요. PDF 자료는 내려받을 때 받은 선생님 이름과 날짜가 쪽마다 작게 찍혀요.</div>`],
     ["g4", "회원 공간", `<ul>
       <li><b>대화</b>: 지금 접속한 회원이 초록 점으로 보여요. 이름을 누르면 1:1 쪽지, <b>전체 대화방</b>은 회원 모두가 함께 보는 방이에요. 접속하지 않은 선생님께 남긴 쪽지는 다음에 접속하면 볼 수 있어요.</li>
-      <li><b>모임 일정</b>: 달력에서 일정을 눌러 <b>참석하기</b>를 누르면 참석 명단에 들어가요.</li>
+      <li><b>화상 회의</b>: 연구회 회의실(구글 미트)에 바로 들어갈 수 있어요. 지금 몇 명이 회의 중인지도 보여요. 3명 이상 회의는 60분이 지나면 끊기니, 같은 링크로 다시 들어오면 돼요.</li>
+      <li><b>모임 일정</b>: 달력에서 일정을 눌러 <b>참석하기</b>를 누르면 참석 명단에 들어가요. 화상 회의가 연결된 일정은 거기서 바로 들어갈 수 있어요.</li>
+      <li><b>연수 후기</b>: 모임이 끝나면 운영진이 진행 내용과 사진을 올려요. 회원은 사진을 크게 넘겨 보고 공감을 누를 수 있어요. 일정 달력에서 지난 모임을 눌러도 볼 수 있어요.</li>
       <li><b>공지</b>: 운영진 공지를 보고 댓글을 달 수 있어요.</li>
       <li><b>산출물 책자</b>: 연말에 내 자료를 골라 책자에 넣고, 원고 PDF를 올리면 한 권으로 묶여요. 책자 탭에서 <b>원고 양식(한글)</b>과 <b>예시 원고</b>를 받을 수 있어요.</li></ul>`],
     ["g5", "휴대폰에서 쓰기", `<ul>
@@ -1775,6 +1779,8 @@ function guideView() {
   if (isAdmin()) S.push(["g6", "운영진 안내", `<ul>
       <li><b>운영진 관리</b>에서 가입 신청을 승인·보류하고, 회원의 역할(부회장·총무·임원)을 정할 수 있어요. <b>명단 복사</b>로 서식 2 순서대로 한 번에 복사해요.</li>
       <li>모든 자료를 고치거나 내릴 수 있고, 내려받기 기록을 볼 수 있어요.</li>
+      <li>모임이 끝나면 <b>연수 후기</b> 탭(또는 일정 달력의 지난 모임)에서 <b>후기 올리기</b>로 진행 내용과 사진을 올려 주세요.</li>
+      <li><b>화상 회의</b> 탭에서 대표 계정으로 만든 구글 미트 링크를 연구회 회의실로 연결해 두면, 회원 누구나 바로 들어갈 수 있어요.</li>
       <li>회원 공간 탭 오른쪽 <b>⇅ 순서</b>로 탭 순서를 바꾸면 모든 회원에게 같은 순서로 보여요.</li>
       <li>학교급·교과·자료 종류 목록과 책자 제목은 관리 시트 <b>설정</b> 탭에서 고칩니다.</li></ul>`]);
   return `<div class="guide"><div class="panel"><h3>JACE 자료실 사용 안내</h3><p style="margin:0;font-size:14.5px;color:var(--sub)">JACE 선생님들이 함께 만들고 나누는 수업 도구와 수업 사례 모음이에요. 궁금한 곳을 눌러 바로 보세요.</p>
