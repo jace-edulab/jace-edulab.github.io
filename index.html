@@ -543,7 +543,7 @@ a.btn{text-decoration:none}
 .mz-grid .cfoot{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--sub)}
 /* 소개 */
 .mz-cover{display:flex;gap:40px;flex-wrap:wrap;align-items:stretch;padding:36px 0 0}
-.mz-cl{flex:999 1 540px;min-width:0}.mz-kick{margin:0 0 12px;font:700 13px Montserrat,sans-serif;letter-spacing:2px;color:var(--sub)}
+.mz-cl{flex:999 1 540px;min-width:0}.mz-ai{color:var(--green);font-weight:800}.mz-kick{margin:0 0 12px;font:700 13px Montserrat,sans-serif;letter-spacing:2px;color:var(--sub)}
 .mz-cr{flex:1 1 320px;min-height:400px;background:var(--navy);border-radius:6px;padding:26px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}
 .mz-crt{display:flex;justify-content:space-between;align-items:flex-start;font:700 12px Montserrat,sans-serif;letter-spacing:2px;color:#B6C2E0}
 .mz-tagr{font:700 13px "Noto Sans KR",sans-serif;letter-spacing:0;color:#fff;background:var(--green);padding:6px 12px;border-radius:4px}
@@ -613,7 +613,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.7.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.7.1";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -2253,7 +2253,7 @@ function aboutView() {
   const toc = (no, t, d) => `<li><span class="mz-tn">${no}</span><a href="#a${no}" onclick="event.preventDefault();document.getElementById('a${no}').scrollIntoView({behavior:'smooth'})"><b>${t}</b><span>${d}</span></a></li>`;
   const col = (n, t, d) => `<div class="mz-col"><span class="mz-mono">${n}</span><h3>${t}</h3><p>${d}</p></div>`;
   return `${issueBar("창간 준비호 · " + TODAY.slice(0, 4) + ". " + (+TODAY.slice(5, 7)) + ".")}
-  <section class="mz-cover ahero"><div class="mz-cl"><p class="mz-kick">JEONBUK AI CONVERGENCE EDUCATION</p>
+  <section class="mz-cover ahero"><div class="mz-cl"><p class="mz-kick">JEONBUK <b class="mz-ai">AI</b> CONVERGENCE EDUCATION</p>
     <h1 class="mz-h1 big">우리 교실의 불편함을,<br>우리 손으로 풉니다</h1>
     <p class="mz-lead">JACE(제이스)는 전북의 교사들이 수업에 필요한 도구를 AI로 직접 만들고, 교실에서 써 보고, 그 과정을 함께 나누는 연구회입니다. AI를 배우기만 하는 모임이 아니라, 배운 것으로 내 수업을 바꾸는 모임입니다.</p>
     <div class="mz-acts"><button class="btn primary" onclick="document.getElementById('a04').scrollIntoView({behavior:'smooth'})">창립 회원 되기</button><button class="btn" onclick="go('public');render()">자료실 둘러보기</button></div></div>
