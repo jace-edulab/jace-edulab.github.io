@@ -11,7 +11,7 @@
  * 서버는 로그인한 선생님의 토큰으로 그 선생님 회원 기록만 읽어 회원·운영진인지 확인합니다.
  */
 
-var APP_VERSION = '2.6.2';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
+var APP_VERSION = '2.7.0';   // 판 번호: index.html 의 APP_VERSION 과 늘 같게
 var FIREBASE_API_KEY = 'AIzaSyD_t8_g2A21ELTB91s6X0xwCd_3CCZ3Sms';
 var FIREBASE_DB_URL = 'https://jace-edulab-default-rtdb.asia-southeast1.firebasedatabase.app';
 var ADMIN_EMAILS = ['jace.edulab@gmail.com'];       // 대표 계정: 가입 없이 운영진
@@ -20,7 +20,7 @@ var OFFICER_ROLES = ['회장', '부회장', '총무', '임원'];
 var MAX_UPLOAD_MB = 20;
 
 var SHEETS = {
-  '자료': ['id','제목','설명','학교급','교과','종류','공개범위','파일ID','파일이름','링크','참고자료','올린이메일','올린이','소속','등록일','조회','상태','원고파일ID','원고쪽수','원고상태','원고제출일','썸네일ID'],
+  '자료': ['id','제목','설명','학교급','교과','종류','공개범위','파일ID','파일이름','링크','참고자료','올린이메일','올린이','소속','등록일','조회','상태','원고파일ID','원고쪽수','원고상태','원고제출일','썸네일ID','판','왜만듦'],
   '일정': ['id','날짜','시간','제목','장소','큰행사','참석'],
   '공지': ['id','제목','내용','작성자','작성일','고정'],
   '댓글': ['id','공지id','작성자이메일','작성자','내용','작성일'],
@@ -238,7 +238,7 @@ function itemOut_(r, full) {
     g: r['학교급'] ? r['학교급'].split(',') : [], a: r['교과'] ? r['교과'].split(',') : [],
     th: r['썸네일ID'] ? 'https://drive.google.com/thumbnail?id=' + r['썸네일ID'] + '&sz=w800' : '',
     ty: r['종류'], m: r['공개범위'] === '회원', by: r['올린이'], sc: r['소속'], dt: r['등록일'],
-    v: Number(r['조회'] || 0), src: r['참고자료']
+    v: Number(r['조회'] || 0), src: r['참고자료'], ver: r['판'] || '', why: r['왜만듦'] || ''
   };
   var fl = files_(r);
   o.hasFile = fl.length > 0; o.fname = fl.length ? fl[0].name : '';
@@ -315,6 +315,7 @@ function decode_(b64, mime, name) {
 function upload_(u, req) {
   var it = req.item || {};
   if (!it.t) throw new Error('자료 이름을 적어 주세요.');
+  ensureHeaders_('자료');
   var mem = it.scope === '회원';
   var id = uid_(), fl = [];
   if (req.b64) fl.push(saveFile_(mem, req));
@@ -324,7 +325,8 @@ function upload_(u, req) {
   append_('자료', {
     id: id, '제목': it.t, '설명': it.d || '', '학교급': (it.g || []).join(','), '교과': (it.a || []).join(','), '종류': it.ty || '', '썸네일ID': thId,
     '공개범위': mem ? '회원' : '공개', '파일ID': fp['파일ID'], '파일이름': fp['파일이름'], '링크': it.link || '', '참고자료': it.src || '',
-    '올린이메일': u.email, '올린이': u.name, '소속': u.school, '등록일': today_(), '조회': 0, '상태': '게시'
+    '올린이메일': u.email, '올린이': u.name, '소속': u.school, '등록일': today_(), '조회': 0, '상태': '게시',
+    '판': String(it.ver || '').slice(0, 12), '왜만듦': String(it.why || '').slice(0, 60)
   });
   if (!(req.more > 0)) refreshSite_();
   return { id: id };
@@ -377,7 +379,9 @@ function updateItem_(u, req) {
     patch['제목'] = e.t; patch['설명'] = e.d || ''; patch['학교급'] = (e.g || []).join(','); patch['교과'] = (e.a || []).join(',');
     if (e.thumbRemove || req.thumb) { if (r['썸네일ID']) { try { DriveApp.getFileById(r['썸네일ID']).setTrashed(true); } catch (err) {} } patch['썸네일ID'] = ''; }
     if (req.thumb) patch['썸네일ID'] = saveThumb_(req.thumb);
+    ensureHeaders_('자료');
     patch['종류'] = e.ty || ''; patch['참고자료'] = e.src || ''; patch['링크'] = e.link || '';
+    patch['판'] = String(e.ver || '').slice(0, 12); patch['왜만듦'] = String(e.why || '').slice(0, 60);
     var fl = files_(r), rm = e.removeIdx || [];
     if (e.removeFile && !rm.length) rm = fl.map(function (_, i) { return i; });   // 예전 화면(파일 하나 빼기)과도 맞게
     var keep = fl.filter(function (_, i) { return rm.indexOf(i) < 0; });

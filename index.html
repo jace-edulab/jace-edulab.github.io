@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316307A'/%3E%3Ctext x='50' y='72' font-family='Arial,sans-serif' font-weight='900' font-size='64' text-anchor='middle' fill='%23FF8A3D'%3EJ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -480,6 +480,115 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .hlp-n{flex:0 0 24px;height:24px;border-radius:6px;background:var(--navy);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:1px}
 .hlp-list b{display:block;color:var(--navy);font-size:15px}.hlp-list ul{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.65;color:#475467;word-break:keep-all}
 .hlp .mfoot a.btn{text-decoration:none}
+/* ===== 매거진 디자인 (2.7) ===== */
+body{background:#fff}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.big{min-height:50px;padding:0 24px;font-size:16px;font-weight:700}
+.mz-issue{display:flex;justify-content:flex-end;border-bottom:3px solid var(--navy);padding:0 0 8px;margin:4px 0 0}
+.mz-issue span{font:700 13px Montserrat,"Noto Sans KR",sans-serif;color:var(--sub)}
+.mz-h1{margin:0;font-size:clamp(30px,5vw,56px);line-height:1.15;font-weight:900;color:var(--navy);letter-spacing:-2px;word-break:keep-all}
+.mz-h1.big{font-size:clamp(32px,5.4vw,64px)}
+.mz-lead{margin:14px 0 0;font-size:17px;line-height:1.8;color:#475467;max-width:680px;word-break:keep-all}
+.mz-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.mz-acts .btn{min-height:46px;padding:0 20px;font-size:15px;font-weight:700;display:inline-flex;align-items:center}
+.mz-mono{font:500 12px "JetBrains Mono",ui-monospace,Menlo,monospace;color:var(--sub)}
+.mz-ver{font:500 12px "JetBrains Mono",ui-monospace,Menlo,monospace;color:var(--navy);background:var(--tint);padding:3px 8px;border-radius:4px;vertical-align:middle;white-space:nowrap}
+.mz-th{background:#e9eef8 center/cover no-repeat}
+.mz-th.ph{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 22px;background:var(--c,#16307A)}
+.mz-th.ph b{color:#fff;font-size:22px;font-weight:900;line-height:1.3;word-break:keep-all}
+/* 자료실 위쪽 */
+.mz-hero{display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start;padding:30px 0 0}
+.mz-hl{flex:999 1 600px;min-width:0}.mz-hl.solo{padding:30px 0 0}
+.mz-feat{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:24px}
+.mz-fth{flex:0 1 400px;min-width:240px;aspect-ratio:16/9;border-radius:6px;box-shadow:0 6px 20px rgba(22,48,122,.18)}
+.mz-ftx{flex:1 1 240px;display:flex;flex-direction:column;gap:6px}
+.mz-ftx h2{margin:0;font-size:26px;font-weight:900;color:var(--navy);line-height:1.3;word-break:keep-all}
+.mz-new{margin:0;font:800 13px Montserrat,sans-serif;color:var(--green)}
+.mz-fd{margin:0;font-size:16px;line-height:1.7;color:var(--text)}.mz-by{margin:0;font-size:13px;color:var(--sub)}
+.mz-pager{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}
+.mz-pager span{font-size:14px;color:var(--sub);margin-right:6px}
+.mz-pager button{width:44px;height:44px;border-radius:6px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);font:800 16px Montserrat,sans-serif}
+.mz-pager button.on{background:var(--navy);color:#fff}
+.mz-side,.mz-mside{background:none;border:0;border-radius:0;box-shadow:none;position:static;padding:0}
+.mz-side{flex:1 1 300px;min-width:0;border-left:1px solid var(--line);padding-left:28px}
+a.btn{text-decoration:none}
+.mz-side h2{margin:0;font-size:20px;font-weight:900;color:var(--navy)}.mz-sub{margin:4px 0 14px;font-size:13px;color:var(--sub);line-height:1.6}
+.mz-rec{background:#FFF3EA;border-radius:6px;overflow:hidden;cursor:pointer}.mz-rth{aspect-ratio:16/9}
+.mz-rtx{padding:14px 16px;display:flex;flex-direction:column;gap:6px}.mz-rtx h3{margin:0;font-size:17px;font-weight:900;color:var(--navy)}.mz-rtx p{margin:0;font-size:14px;line-height:1.6}.mz-rtx small{font-size:12px;color:var(--sub)}
+.mz-wait{background:var(--tint);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}.mz-wait p{margin:0;font-size:17px;font-weight:700;line-height:1.6}.mz-wait small{font-size:13px;color:var(--sub)}
+/* 구역 */
+.mz-sec{padding:48px 0 0}.mz-sec.plain{padding-top:28px}
+.mz-sh{border-top:3px solid var(--navy);padding-top:14px}.mz-sh h2{margin:0;font-size:24px;font-weight:900;color:var(--navy)}.mz-sh p{margin:4px 0 0;font-size:14px;color:var(--sub)}
+.mz-sh.num{display:flex;align-items:baseline;gap:14px}.mz-sh.num h2{font-size:28px}.mz-no{font:800 15px Montserrat,sans-serif;color:var(--green)}
+.mz-small{margin:0 0 6px;font-size:15px;font-weight:900;color:var(--green)}
+.mz-bench{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-top:18px;border:1.5px solid var(--navy);border-radius:6px;overflow:hidden}
+.mz-cell,.mz-bench.tabs button{padding:16px 20px;border:0;border-right:1px solid var(--line);background:#fff;text-align:left;font-family:inherit;display:flex;flex-direction:column;gap:2px}
+.mz-cell:last-child,.mz-bench.tabs button:last-child{border-right:0}
+.mz-cell b,.mz-bench.tabs b{font:800 32px Montserrat,sans-serif;color:var(--navy)}.mz-cell b.hi,.mz-bench.tabs b.hi{color:var(--green)}.mz-cell small{font-size:13px;color:var(--sub)}
+.mz-bench.tabs button{cursor:pointer;min-height:44px}.mz-bench.tabs button.on{background:var(--navy)}.mz-bench.tabs button.on b,.mz-bench.tabs button.on .mz-mono{color:#fff}
+.mz-fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:24px}
+.mz-seg{display:flex;gap:6px;flex-wrap:wrap}.mz-seg button{min-height:44px;padding:0 14px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);border-radius:6px;font-size:14px;font-weight:500}.mz-seg button.on{background:var(--navy);color:#fff;font-weight:700}
+.mz-lab{font-size:13px;color:var(--sub);margin-left:8px}
+.mz-fbar select{min-height:44px;border:1.5px solid var(--line);border-radius:6px;padding:0 10px;background:#fff;font:inherit;font-size:14px}
+.mz-fbar .search{flex:1 1 220px;min-height:44px;border:1.5px solid var(--line);border-radius:6px;padding:0 14px;font:inherit;font-size:14px;margin-left:auto;max-width:340px}
+.mz-count{margin:16px 0 10px;font-size:14px;color:var(--sub)}
+.mz-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.mz-grid .card.app{border:1.5px solid var(--line);border-radius:6px;box-shadow:none}
+.mz-grid .card.app:hover{border-color:var(--navy);transform:translateY(-2px)}
+.mz-cth{position:relative}.mz-cth .thumb{border-bottom:1px solid var(--line)}
+.card.app .thumb.ph.mz-th{background:var(--c,#16307A);justify-content:center;align-items:center}
+.mz-newb{position:absolute;top:10px;left:10px;background:#fff;color:var(--green);font:800 11px Montserrat,sans-serif;padding:3px 8px;border-radius:4px}
+.mz-ct{display:flex;align-items:baseline;gap:10px}.mz-ct h3{flex:1;min-width:0;margin:0;font-size:19px;font-weight:900;color:var(--navy)}
+.mz-why{margin:0;font-size:14px;line-height:1.6;color:#475467}.mz-why b{color:#B5470A;margin-right:4px}
+.tag.lockt{background:#fff1e6;color:#b5651d}
+.mz-grid .cfoot{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--sub)}
+/* 소개 */
+.mz-cover{display:flex;gap:40px;flex-wrap:wrap;align-items:stretch;padding:36px 0 0}
+.mz-cl{flex:999 1 540px;min-width:0}.mz-kick{margin:0 0 12px;font:700 13px Montserrat,sans-serif;letter-spacing:2px;color:var(--sub)}
+.mz-cr{flex:1 1 320px;min-height:400px;background:var(--navy);border-radius:6px;padding:26px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}
+.mz-crt{display:flex;justify-content:space-between;align-items:flex-start;font:700 12px Montserrat,sans-serif;letter-spacing:2px;color:#B6C2E0}
+.mz-tagr{font:700 13px "Noto Sans KR",sans-serif;letter-spacing:0;color:#fff;background:var(--green);padding:6px 12px;border-radius:4px}
+.mz-bigwm{font-family:Montserrat,sans-serif;font-weight:800;line-height:.9;letter-spacing:-6px;font-size:clamp(84px,10vw,128px);color:var(--orange)}.mz-bigwm i{font-style:normal;color:#fff}
+.mz-cr p{margin:0;font-size:15px;line-height:1.6;color:#D5DDF2}
+.mz-toc{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));column-gap:40px}
+.mz-toc li{display:flex;gap:18px;align-items:baseline;padding:14px 0;border-top:1px solid var(--line)}
+.mz-tn{font:800 26px Montserrat,sans-serif;color:var(--navy);width:42px;flex:0 0 42px}
+.mz-toc a{text-decoration:none;color:var(--text)}.mz-toc a b{display:block;font-size:17px}.mz-toc a span{font-size:14px;color:var(--sub)}.mz-toc a:hover b{text-decoration:underline}
+.mz-quote{margin:22px 0 0;font-size:clamp(21px,2.6vw,32px);line-height:1.5;font-weight:900;color:var(--text);word-break:keep-all}
+.mz-body{margin:14px 0 0;font-size:16px;line-height:1.8;color:#475467;max-width:760px;word-break:keep-all}
+.mz-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;margin-top:24px}
+.mz-col{border-top:1px solid var(--line);padding-top:14px}.mz-col h3{margin:6px 0 0;font-size:20px;font-weight:900;color:var(--navy)}.mz-col p{margin:8px 0 0;font-size:15px;line-height:1.75;color:#475467}
+.mz-kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:22px}
+.mz-kinds>div{border-radius:6px;padding:20px}.mz-kinds .k1{background:var(--tint)}.mz-kinds .k2{background:#FFF3EA}.mz-kinds .k3{background:#E9F6F0}
+.mz-kinds h3{margin:0;font-size:19px;font-weight:900;color:var(--navy)}.mz-kinds p{margin:8px 0 0;font-size:15px;line-height:1.7;color:#475467}
+.mz-two{display:flex;gap:40px;flex-wrap:wrap;margin-top:22px}.mz-two>div{flex:1 1 380px}.mz-two ul{margin:6px 0 0;padding-left:20px;font-size:16px;line-height:2}
+.mz-join{margin-top:22px;background:var(--navy);color:#fff;border-radius:6px;padding:32px;display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+.mz-join>div:first-child{flex:1 1 480px}.mz-join h3{margin:0;font-size:clamp(23px,3vw,32px);font-weight:900}
+.mz-join p{margin:10px 0 0;font-size:16px;line-height:1.8;color:#D5DDF2}.mz-join .note{font-size:13px;color:#B6C2E0}
+.mz-join .state{margin-top:12px;background:rgba(255,255,255,.1);border-radius:6px;padding:10px 14px;font-size:14px}
+.mz-join .acts{display:flex;gap:8px;flex-wrap:wrap}.mz-join .acts .btn{min-height:54px;padding:0 28px;font-size:16px;font-weight:700}
+.mz-join .acts .btn:not(.primary){background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+/* 아이디어함 */
+.mz-introw{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end}.mz-introw .mz-lead{flex:1 1 420px}
+.idea{border:1.5px solid var(--line);border-radius:6px;padding:18px 20px}.idea .ix{font-size:17px;font-weight:700;line-height:1.6}
+.idea .ifoot{padding-top:12px;border-top:1px dashed var(--line)}
+/* 회원 공간 */
+.mz-hl.solo+.subtabs,.mz-hl.solo~.subtabs{margin-top:22px}
+.subtabs button{border:1.5px solid var(--navy);border-radius:6px;color:var(--navy);min-height:44px}
+.mz-mem{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}.mz-main{flex:999 1 560px;min-width:0}
+.mz-mside{flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.mz-ev{background:var(--navy);color:#fff;border-radius:6px;padding:18px 20px}.mz-k{margin:0;font-size:13px;font-weight:700;color:#FFB27D}
+.mz-evr{display:flex;gap:14px;align-items:center;margin-top:10px}
+.mz-cal{flex:0 0 66px;height:66px;border-radius:6px;background:#fff;color:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center}.mz-cal span{font:800 12px Montserrat,"Noto Sans KR",sans-serif}.mz-cal b{font:800 28px Montserrat,sans-serif;line-height:1}
+.mz-evt{margin:0;font-size:16px;font-weight:900}.mz-evs{margin:4px 0 0;font-size:13px;color:#D5DDF2}.mz-evn{margin:8px 0 0;font-size:14px;color:inherit;opacity:.8}
+.mz-evb{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:13px;color:#D5DDF2}.mz-evb .btn{min-height:44px}
+.mz-box{border:1.5px solid var(--line);border-radius:6px;padding:16px 18px}.mz-box.warm{background:#FFF3EA;border-color:#FFF3EA}
+.mz-box h2{margin:0;font-size:15px;font-weight:900;color:var(--navy)}.mz-box ul{list-style:none;margin:8px 0 0;padding:0}.mz-box li{border-top:1px solid #EEF0F4}
+.mz-box p{margin:6px 0 0;font-size:14px;color:#475467}
+.mz-lnk{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 0;font:inherit;color:var(--text);cursor:pointer;min-height:44px}.mz-lnk b{display:block;font-size:14px}.mz-lnk span{font-size:12px;color:var(--sub)}.mz-lnk:hover b{text-decoration:underline}
+.mz-lnk.strong{font-weight:700;color:var(--navy);font-size:14px;padding:8px 0 0}
+.mz-bar{margin-top:10px;height:10px;border-radius:999px;background:#fff;overflow:hidden}.mz-bar i{display:block;height:100%;background:var(--green)}
+footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
+@media (max-width:640px){.mz-bench{grid-template-columns:repeat(2,minmax(0,1fr))}.mz-cell,.mz-bench.tabs button{border-bottom:1px solid var(--line);padding:12px 14px}.mz-cell b,.mz-bench.tabs b{font-size:26px}.mz-side{border-left:0;padding-left:0}.mz-fbar .search{max-width:none;margin-left:0}.mz-lab{margin-left:0}.mz-cr{min-height:300px}}
 </style>
 </head>
 <body>
@@ -499,12 +608,12 @@ table.adm td.warn{color:#b42318;font-weight:700}
   <button type="button" class="hlp-btn" onclick="openHelp()"><span class="hlp-q" aria-hidden="true">?</span>사용 안내</button>
 </div></nav>
 <main id="main"><div class="loading">자료를 불러오는 중입니다…</div></main>
-<footer><span class="flogo" id="footLogo"><span class="wm"><i>J</i>ACE</span></span>전북AI융합교육연구회 · 자료 이용 시 출처를 밝혀 주세요 · 학생 개인정보가 담긴 자료는 올리지 않습니다 <span class="ver" id="ver"></span></footer>
+<footer><span class="flogo" id="footLogo"><span class="wm"><i>J</i>ACE</span></span>전북AI융합교육연구회 · 자료 이용 시 출처를 밝혀 주세요 · 학생 개인정보가 담긴 자료는 올리지 않습니다 <span class="ver" id="ver"></span><span class="pcnote">이 화면은 PC에 맞춰 만들었어요. 휴대폰에서는 일부가 좁게 보일 수 있어요.</span></footer>
 <div class="overlay" id="ov"><div class="modal" id="modal"></div></div>
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.6.2";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.7.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -725,29 +834,87 @@ function filters() {
    <h4>내려받기</h4><div class="chips">${chipRow(["누구나 받기", "회원만 받기"], "dl")}</div>
   </aside>`;
 }
+/* ===== 자료실 (매거진) ===== */
+const HOME_VIEW = "about";   // 첫 화면: 도구가 쌓이면 "public"(자료실)으로 바꾸기
+let FEATI = null, USR = {}, RECQ = {};
+const ymOf = d => String(d || "").slice(0, 7);
+const prevYM = () => { const d = new Date(+TODAY.slice(0, 4), +TODAY.slice(5, 7) - 2, 1); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+const issueLabel = () => `${TODAY.slice(0, 4)}. ${+TODAY.slice(5, 7)}월 호`;
+const issueBar = (t) => `<div class="mz-issue"><span>${t || issueLabel()}</span></div>`;
+function thumbBox(it, cls) {
+  const c = areaColor(mainsOf(it)[0] || "") || "#16307A";
+  return it.th ? `<div class="${cls} mz-th" style="background-image:url('${esc(it.th)}')" role="img" aria-label="${esc(it.t)} 화면"></div>` : `<div class="${cls} mz-th ph" style="--c:${c}"><b>${esc(it.t)}</b></div>`;
+}
+function monthPick(src) {
+  const cm = TODAY.slice(0, 7), A = src.filter(i => ymOf(i.dt) === cm);
+  if (A.length) return { L: A, h: "이번 달,<br>교실에서 태어난 도구", cap: `${+cm.slice(5)}월에 태어난 도구` };
+  const pm = prevYM(), B = src.filter(i => ymOf(i.dt) === pm);
+  if (B.length) return { L: B, h: "지난달,<br>교실에서 태어난 도구", cap: `${+pm.slice(5)}월에 태어난 도구` };
+  return { L: src.slice().sort((x, y) => y.dt.localeCompare(x.dt)).slice(0, 4), h: "최근,<br>교실에서 태어난 도구", cap: "최근 올라온 도구" };
+}
+function featHTML(src) {
+  if (!src.length) return `<div class="mz-hl"><h1 class="mz-h1">교실에서 태어날<br>첫 도구를 기다려요</h1><p class="mz-lead">아직 올라온 도구가 없어요. 회원이 되면 첫 도구를 올릴 수 있어요.</p></div>`;
+  const P = monthPick(src);
+  if (FEATI == null || FEATI >= P.L.length) FEATI = Math.floor(Math.random() * P.L.length);
+  const it = P.L[FEATI], L = linksOf(it), canOpen = L.length && !(it.m && !isMember()), J = JSON.stringify(it.id);
+  return `<div class="mz-hl"><h1 class="mz-h1">${P.h}</h1>
+   <div class="mz-feat">${thumbBox(it, "mz-fth")}<div class="mz-ftx"><p class="mz-new">NEW</p><h2>${esc(it.t)}${it.ver ? ` <span class="mz-ver">${esc(it.ver)}</span>` : ""}</h2><p class="mz-fd">${esc(it.d)}</p><p class="mz-by">${esc(it.by)} · ${esc(it.sc)}${it.a.length ? " · " + esc(it.a.join(", ")) : ""}</p>
+    <div class="mz-acts">${canOpen ? `<a class="btn navy" href="${esc(L[0].url)}" target="_blank" rel="noopener">바로 열기</a>` : ""}<button class="btn" onclick='openItem(${J})'>자세히 보기</button></div></div></div>
+   ${P.L.length > 1 ? `<div class="mz-pager"><span>${P.cap} ${P.L.length}개</span>${P.L.map((x, i) => `<button class="${i === FEATI ? "on" : ""}" aria-pressed="${i === FEATI}" aria-label="${esc(x.t)}" onclick="FEATI=${i};render()">${i + 1}</button>`).join("")}</div>` : ""}</div>`;
+}
+async function loadUsedRec() { if (DEMO) { USR = JSON.parse(JSON.stringify(DEMO_USR).replace(/@PM/g, prevYM())); return; } if (!rtOK()) return; try { USR = (await rtRef("usedRec").get()).val() || {}; } catch (e) {} }
+function recPick(src) {
+  const pm = prevYM(); let best = null, bn = 0;
+  src.forEach(it => { const n = Object.values(USR[it.id] || {}).filter(v => v === pm).length; if (n > bn) { bn = n; best = it; } });
+  return best;
+}
+function recHTML(src) {
+  const it = recPick(src);
+  if (!it) {
+    const hot = ideaList().filter(d => !d.done && !d.claim).sort((a, b) => ideaLikes(b.id) - ideaLikes(a.id) || (b.t || 0) - (a.t || 0))[0];
+    if (!hot) return "";
+    const n = ideaLikes(hot.id);
+    return `<aside class="mz-side"><h2>아이디어함에서 기다리는 도구</h2><p class="mz-sub">이런 도구가 있으면 좋겠다는 선생님이 있어요</p>
+     <div class="mz-wait"><p>"${esc(hot.x)}"</p><small>${n ? n + "명이 필요하다고 했어요 · " : ""}아직 맡은 선생님이 없어요</small><button class="btn primary" onclick="go('ideas');render()">아이디어함 가기</button></div></aside>`;
+  }
+  if (isMember() && rtOK() && RECQ[it.id] === undefined) {
+    RECQ[it.id] = null;
+    rtRef("used/" + it.id).get().then(sn => { const r = Object.values(sn.val() || {}).filter(x => x && x.r && x.x).sort((a, b) => (b.t || 0) - (a.t || 0))[0]; RECQ[it.id] = r ? { x: r.x, n: r.n } : false; if (view === "public") render(); }).catch(() => {});
+  }
+  const q = RECQ[it.id];
+  return `<aside class="mz-side"><h2>이달의 추천 도구</h2><p class="mz-sub">지난달 교실에서 써 본 선생님들이 가장 많이 추천한 도구예요</p>
+   <article class="mz-rec" onclick='openItem(${JSON.stringify(it.id)})'>${thumbBox(it, "mz-rth")}<div class="mz-rtx"><h3>${esc(it.t)}</h3>${q ? `<p>"${esc(q.x)}"</p><small>${esc(q.n)} 선생님의 추천 · 만든 사람 ${esc(it.by)}</small>` : `<p>${esc(it.d)}</p><small>만든 사람 ${esc(it.by)} · ${esc(it.sc)}</small>`}</div></article></aside>`;
+}
+function benchHTML(src) {
+  const I = ideaList(), sch = new Set();
+  Object.values(USC || {}).forEach(o => Object.values(o || {}).forEach(v => { if (v) sch.add(String(v).trim()); }));
+  const cell = (no, t, n, d, hi) => `<div class="mz-cell"><span class="mz-mono">${no} ${t}</span><b${hi ? ' class="hi"' : ""}>${n}</b><small>${d}</small></div>`;
+  return `<div class="mz-bench">${cell("01", "아이디어", I.filter(d => ideaSt(d) === "new").length, "선생님들이 남긴 바람")}${cell("02", "만드는 중", I.filter(d => ideaSt(d) === "doing").length, "회원이 맡아서 작업 중")}${cell("03", "완성", src.length, "자료실에 올라온 도구", 1)}${cell("04", "교실에서", sch.size, "써 본 학교")}</div>`;
+}
+function mzFilters() {
+  const areas = []; CFG.areas.forEach(A => { areas.push(A.n); A.s.forEach(x => areas.push(x)); });
+  const sel = (id, lab, list, cur, key) => `<label class="mz-lab" for="${id}">${lab}</label><select id="${id}" onchange="f.${key}=this.value?[this.value]:[];render()"><option value="">모두</option>${list.map(x => `<option${cur === x ? " selected" : ""}>${esc(x)}</option>`).join("")}</select>`;
+  return `<div class="mz-fbar"><div class="mz-seg" role="group" aria-label="학교급"><button class="${f.g.length ? "" : "on"}" onclick="f.g=[];render()">전체</button>${CFG.grades.map(g => `<button class="${f.g.includes(g) ? "on" : ""}" onclick='f.g=f.g.includes(${JSON.stringify(g)})?[]:[${JSON.stringify(g)}];render()'>${esc(g)}</button>`).join("")}</div>
+   ${sel("fa", "교과", areas, f.a[0], "a")}${sel("fty", "종류", CFG.types, f.ty[0], "ty")}
+   <input class="search" id="q" placeholder="도구 이름, 내용, 선생님 이름으로 찾기" aria-label="도구 찾기" value="${esc(f.q)}">
+   <select id="sort" aria-label="늘어놓는 순서"><option value="new" ${f.sort === "new" ? "selected" : ""}>최신순</option><option value="pop" ${f.sort === "pop" ? "selected" : ""}>많이 본 순</option></select></div>`;
+}
 function card(it) {
   const isNew = (new Date(TODAY) - new Date(it.dt)) / 864e5 < 7;
-  const c = areaColor(mainsOf(it)[0] || "") || "#16307A";
-  const L = linksOf(it), canOpen = L.length && !(it.m && !isMember());
-  const badges = `<div class="badges"><span class="type">${esc(it.ty)}</span><span class="csp"></span>${it.m ? `<span class="memb">${ic("lock", 11)}${isMember() ? "회원만" : "회원만 · 잠김"}</span>` : `<span class="free">누구나</span>`}${isNew ? '<span class="new">NEW</span>' : ""}</div>`;
-  const thumb = it.th ? `<div class="thumb" style="background-image:url('${esc(it.th)}')">${badges}` : `<div class="thumb ph" style="--c:${c}">${badges}<small>${esc(it.a.join(" · "))}</small><b>${esc(it.ty)}</b>`;
-  return `<div class="card app" onclick='openItem(${JSON.stringify(it.id)})'>${thumb}${canOpen ? `<a class="openbtn" href="${esc(L[0].url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.ty === "프로그램" ? "바로 열기" : "열기"}</a>` : ""}</div>
-   <div class="cbody"><h3>${esc(it.t)}</h3><p>${esc(it.d)}</p>
-   <div class="tags">${it.g.map(g => `<span class="tag">${esc(g)}</span>`).join("")}${it.a.map(a => { const cc = areaColor(a); return `<span class="tag${cc ? " tmain" : ""}"${cc ? ` style="--c:${cc}"` : ""}>${esc(a)}</span>`; }).join("")}</div>
-   <div class="cfoot"><span class="cby"><b>${esc(it.by)}</b> · ${esc(it.sc)}</span><span class="cmeta">${usedSchools(it.id).length ? `<span class="usedc">${usedSchools(it.id).length}개 학교 사용</span>` : ""}${esc((it.dt || "").slice(5).replace("-", "."))}<span>조회 ${it.v}</span></span></div></div></div>`;
+  const L = linksOf(it), canOpen = L.length && !(it.m && !isMember()), nU = usedSchools(it.id).length;
+  return `<div class="card app" onclick='openItem(${JSON.stringify(it.id)})'><div class="mz-cth">${thumbBox(it, "thumb")}${canOpen ? `<a class="openbtn" href="${esc(L[0].url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.ty === "프로그램" ? "바로 열기" : "열기"}</a>` : ""}${isNew ? '<span class="mz-newb">NEW</span>' : ""}</div>
+   <div class="cbody"><div class="mz-ct"><h3>${esc(it.t)}</h3>${it.ver ? `<span class="mz-ver">${esc(it.ver)}</span>` : ""}</div>
+   ${it.why ? `<p class="mz-why"><b>왜 만들었나</b> ${esc(it.why)}</p>` : `<p>${esc(it.d)}</p>`}
+   <div class="tags">${it.g.map(g => `<span class="tag">${esc(g)}</span>`).join("")}${it.a.map(a => `<span class="tag">${esc(a)}</span>`).join("")}<span class="tag">${esc(it.ty)}</span>${it.m ? `<span class="tag lockt">${ic("lock", 11)} ${isMember() ? "회원만" : "회원만 · 잠김"}</span>` : ""}</div>
+   <div class="cfoot"><span class="cby">${esc(it.by)} · ${esc(it.sc)}</span>${nU ? `<span class="usedc">${nU}개 학교 사용</span>` : ""}</div></div></div>`;
 }
-function listView(src, title, desc) {
+function listView(src) {
   let list = src.filter(match);
   list.sort(f.sort === "pop" ? (a, b) => b.v - a.v : (a, b) => b.dt.localeCompare(a.dt));
-  const prog = src.filter(i => i.ty === "프로그램").length, cases = src.filter(i => i.ty === "수업 사례").length;
-  return `<div class="hero"><div class="htxt"><div class="hlabel"><span>수업 도구 모음</span>${src.length ? `<small>최근 업데이트 ${esc(src.map(i => i.dt).sort().pop().replace(/-/g, "."))}</small>` : ""}</div><h2>${title}</h2><p>${desc}</p></div>
-   <div class="stats"><div class="stat s1"><span>전체 자료</span><b>${src.length}</b></div><div class="stat s2"><span>프로그램</span><b>${prog}</b></div><div class="stat s3"><span>수업 사례</span><b>${cases}</b></div></div></div>
-   <div class="layout">${filters()}<section>
-    <div class="toolbar"><div class="sbox"><input class="search" id="q" placeholder="자료 이름, 내용, 선생님 이름으로 찾기" value="${esc(f.q)}"></div>
-     <span class="count">총 <b>${list.length}개</b> 자료</span>
-     <select id="sort"><option value="new" ${f.sort === "new" ? "selected" : ""}>최신순</option><option value="pop" ${f.sort === "pop" ? "selected" : ""}>많이 본 순</option></select></div>
-    ${list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="empty">${src.length ? "조건에 맞는 자료가 없습니다. 필터를 줄여 보세요." : "아직 올라온 자료가 없습니다."}</div>`}
-   </section></div>`;
+  return `${issueBar()}<section class="mz-hero">${featHTML(src)}${recHTML(src)}</section>
+   <section class="mz-sec"><div class="mz-sh"><h2>JACE 작업대</h2><p>교실의 불편함이 아이디어로 들어와 도구가 되어 나가요</p></div>${benchHTML(src)}${mzFilters()}
+    <p class="mz-count">총 <b>${list.length}개</b> 도구</p>
+    ${list.length ? `<div class="grid mz-grid">${list.map(card).join("")}</div>` : `<div class="empty">${src.length ? "조건에 맞는 도구가 없어요. 고른 것을 줄여 보세요." : "아직 올라온 도구가 없어요."}</div>`}</section>`;
 }
 
 /* ===== 화면 그리기 ===== */
@@ -758,11 +925,12 @@ function render() {
   else if (view === "public") {
     const lockedN = allItems().filter(i => i.m).length;
     m.innerHTML = (!isMember() && lockedN ? `<div class="guestbar"><div><b>"회원만 받기" 자료 ${lockedN}개</b>는 JACE 회원이 되면 열 수 있어요. 목록과 설명은 누구나 볼 수 있습니다.</div>${ME ? "" : `<button class="btn" onclick="login()">로그인</button>`}${!ME || ME.status === "없음" ? `<button class="btn primary" onclick="openJoin()">가입 신청</button>` : `<span class="status-pill">${ME.status === "대기" ? "승인 대기 중" : "가입 " + esc(ME.status)}</span>`}</div>` : "")
-      + listView(allItems(), "자료실", "JACE 선생님들이 직접 만든 수업 도구와 수업 사례입니다. 카드를 누르면 자세한 설명이, [바로 열기]를 누르면 프로그램이 열려요.");
+      + listView(allItems());
   }
   else if (view === "members") {
-    if (!isMember()) m.innerHTML = memberTabs() + `<div class="gate"><div class="gicon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b5651d" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h2>회원만 볼 수 있어요</h2><p>회원 대화방·쪽지, 모임 일정, 공지, 산출물 책자는 승인된 회원에게만 열립니다.</p>${ME ? "" : `<button class="btn primary" onclick="login()">구글 계정으로 로그인</button> `}<button class="btn" onclick="openJoin()">가입 신청</button></div>`;
-    else m.innerHTML = memberTabs() + (!apiReady() && msub !== "chat" && msub !== "meet" ? `<div class="empty">공지·일정·책자는 운영진이 자료실 서버를 설치하면 열립니다.</div>` : !MD && msub !== "chat" && msub !== "meet" ? `<div class="loading">불러오는 중…</div>` : msub === "chat" ? chatView() : msub === "meet" ? meetView() : msub === "cal" ? calView() : msub === "notice" ? noticeView() : msub === "review" ? reviewView() : bookView());
+    const mhead = `${issueBar()}<section class="mz-hl solo"><h1 class="mz-h1">회원 공간</h1>${isMember() ? `<p class="mz-lead">${ME.rep ? "JACE 운영진" : esc(ME.name || "") + " 선생님"}, 반가워요.</p>` : ""}</section>`;
+    if (!isMember()) m.innerHTML = mhead + memberTabs() + `<div class="gate"><div class="gicon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b5651d" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h2>회원만 볼 수 있어요</h2><p>회원 대화방·쪽지, 모임 일정, 공지, 산출물 책자는 승인된 회원에게만 열립니다.</p>${ME ? "" : `<button class="btn primary" onclick="login()">구글 계정으로 로그인</button> `}<button class="btn" onclick="openJoin()">가입 신청</button></div>`;
+    else m.innerHTML = mhead + memberTabs() + `<div class="mz-mem"><div class="mz-main">` + (!apiReady() && msub !== "chat" && msub !== "meet" ? `<div class="empty">공지·일정·책자는 운영진이 자료실 서버를 설치하면 열립니다.</div>` : !MD && msub !== "chat" && msub !== "meet" ? `<div class="loading">불러오는 중…</div>` : msub === "chat" ? chatView() : msub === "meet" ? meetView() : msub === "cal" ? calView() : msub === "notice" ? noticeView() : msub === "review" ? reviewView() : bookView()) + `</div>${memSide()}</div>`;
   }
   else if (view === "mine") {
     if (!isMember()) { go("public"); return render(); }
@@ -1036,8 +1204,10 @@ function openUpload(editId) {
     <label>썸네일 그림 (자료실 카드에 보여요, 없으면 색 카드로)</label><div class="thpick"><div class="tp" id="tprev" style="${E && E.th ? `background-image:url('${esc(E.th)}')` : ""}">${E && E.th ? "" : "16:9 그림"}</div><div><input type="file" id="uth" accept="image/*" onchange="pickThumb(this)"><div class="sheetnote" style="margin:4px 0 0">화면 캡처나 대표 사진을 고르면 가로 16:9로 알아서 줄여 올려요.</div>${E && E.th ? `<label class="check" style="margin-top:4px"><input type="checkbox" id="uthrm"> 지금 썸네일 빼기</label>` : ""}</div></div>
     <label>학교급 (여러 개 선택)</label><div class="pick" id="ug">${pick(CFG.grades, "g")}</div>
     <label>교과 (여러 개 선택)</label><div class="pick" id="ua">${CFG.areas.map(A => `<button type="button" class="chip main${on(E && E.a, A.n)}" ${areaStyle(A.n)} data-a="${esc(A.n)}" onclick="this.classList.toggle('on')">${esc(A.n)}</button>` + pick(A.s, "a")).join("")}</div>
+    <label for="uwhy">왜 만들었나요? (한 줄, 카드에 보여요)</label><input type="text" id="uwhy" maxlength="60" placeholder="예: 줄넘기 횟수를 세느라 수업 절반이 지나가서" value="${E ? esc(E.why || "") : ""}">
     <label for="usrc">참고한 자료 (있으면)</label><input type="text" id="usrc" placeholder="예: OO 출판사 지도서, 유튜브 'OO 채널' 영상" value="${E ? esc(E.src || "") : ""}">
-    <label for="uty">자료 종류</label><select id="uty">${CFG.types.map(t => `<option${E && E.ty === t ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>
+    <div class="r2"><div><label for="uty">자료 종류</label><select id="uty">${CFG.types.map(t => `<option${E && E.ty === t ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+    <div><label for="uver">판 번호 (적고 싶을 때만)</label><input type="text" id="uver" maxlength="12" placeholder="예: v1.2" value="${E ? esc(E.ver || "") : ""}"></div></div>
     <label>파일과 링크 (둘 중 하나, 또는 둘 다)</label><div class="drop">${E && filesOf(E).length ? `<div class="curf"><b>지금 파일 ${filesOf(E).length}개</b> (뺄 파일에 체크)${filesOf(E).map((fn, i) => `<label class="check urm"><input type="checkbox" data-i="${i}"> ${esc(fn)}</label>`).join("")}</div>` : ""}<input type="file" id="uf" multiple onchange="pickFiles(this)"><div class="uflist" id="uflist"></div><div class="sheetnote" style="margin:4px 0 0">파일은 여러 개 고를 수 있어요(하나에 20MB까지). 다시 고르면 목록에 더해져요.</div><div style="margin-top:8px">링크 (웹 프로그램·유튜브 주소 등, 첫 링크가 카드의 [바로 열기]가 돼요)</div><div id="ulinks">${LK.length ? LK.map(l => linkInRow(l)).join("") : linkInRow()}</div><button type="button" class="btn mini" style="margin-top:6px" onclick="addLinkRow()">+ 링크 추가</button></div>
     <label>누가 내려받을 수 있나요?</label><div class="radio">
      <label><input type="radio" name="sc" value="공개"${E && E.m ? "" : " checked"}>누구나 받기<small>로그인 없이 누구나 내려받아요</small></label>
@@ -1082,7 +1252,7 @@ async function sendUpload() {
   try {
     const N = files.length, step = i => busy(true, N > 1 ? `파일 올리는 중… ${i} / ${N}` : "올리는 중… 파일이 크면 조금 걸려요");
     const fileBody = async f => ({ b64: await fileToB64(f), name: f.name, mime: f.type });
-    const item = { t, d, g, a, ty: $("#uty").value, src: $("#usrc").value.trim(), link, scope };
+    const item = { t, d, g, a, ty: $("#uty").value, src: $("#usrc").value.trim(), why: $("#uwhy").value.trim().slice(0, 60), ver: $("#uver").value.trim().slice(0, 12), link, scope };
     let id, rest;
     if (EDIT) {
       step(0); busy(true, "고치는 중…");
@@ -1146,22 +1316,25 @@ function openUsed(id) {
   openM(`<h2>우리 반에서 써 봤어요</h2><p style="margin:0 0 6px;color:var(--sub)">「${esc(it.t)}」</p><div class="form">
    <div class="r2"><div><label for="usg">학교급</label><select id="usg">${CFG.grades.map(g => `<option${R && R.g === g ? " selected" : ""}>${esc(g)}</option>`).join("")}</select></div>
    <div><label for="usa">학년·교과</label><input type="text" id="usa" maxlength="30" value="${esc(R ? R.a || "" : "")}" placeholder="예: 5학년 체육"></div></div>
+   <label class="check" style="margin-top:4px"><input type="checkbox" id="usr"${R && R.r ? " checked" : ""}> 다른 선생님께도 추천해요</label>
    <label for="usx">한 줄 소감 (120자까지)</label><textarea id="usx" maxlength="120" style="min-height:80px" placeholder="예: 모둠별로 돌아가며 써 보니 기다리는 시간이 줄었어요.">${esc(R ? R.x || "" : "")}</textarea>
-   <div class="sheetnote" style="margin-top:6px">소감과 이름은 회원에게만 보이고, 자료실 카드에는 "○개 학교 사용"처럼 학교 수만 보여요.</div></div>
+   <div class="sheetnote" style="margin-top:6px">소감과 이름은 회원에게만 보이고, 자료실 카드에는 "○개 학교 사용"처럼 학교 수만 보여요. 추천이 많은 도구는 다음 달 자료실에 "이달의 추천 도구"로 올라가요.</div></div>
    <div class="mfoot">${R ? `<button class="btn" onclick='delUsed(${JSON.stringify(id)})'>기록 지우기</button><span class="sp"></span>` : ""}<button class="btn" onclick='openItem(${JSON.stringify(id)})'>취소</button><button class="btn primary" onclick='sendUsed(${JSON.stringify(id)})'>남기기</button></div>`);
 }
 async function sendUsed(id) {
   const u = myUid(); if (!u) return;
-  const rec = { n: ME.name || "", sc: ME.school || "", g: $("#usg").value, a: $("#usa").value.trim().slice(0, 30), x: $("#usx").value.trim().slice(0, 120), t: Date.now() };
+  const rec = { n: ME.name || "", sc: ME.school || "", g: $("#usg").value, a: $("#usa").value.trim().slice(0, 30), x: $("#usx").value.trim().slice(0, 120), r: $("#usr").checked, t: Date.now() };
   try {
     await rtRef(`used/${id}/${u}`).set(rec); await rtRef(`usedSc/${id}/${u}`).set(rec.sc || rec.n);
+    const prevR = (USR[id] || {})[u]; const rv = rec.r ? (prevR || TODAY.slice(0, 7)) : null;
+    await rtRef(`usedRec/${id}/${u}`).set(rv); USR[id] = USR[id] || {}; if (rv) USR[id][u] = rv; else delete USR[id][u]; RECQ = {};
     (USED[id] = USED[id] || {})[u] = rec; (USC[id] = USC[id] || {})[u] = rec.sc || rec.n;
     toast("기록을 남겼어요. 고맙습니다"); render(); openItem(id);
   } catch (e) { toast("남기지 못했어요: " + e.message); }
 }
 async function delUsed(id) {
   const u = myUid();
-  try { await rtRef(`used/${id}/${u}`).set(null); await rtRef(`usedSc/${id}/${u}`).set(null); if (USED[id]) delete USED[id][u]; if (USC[id]) delete USC[id][u]; toast("기록을 지웠어요"); render(); openItem(id); }
+  try { await rtRef(`used/${id}/${u}`).set(null); await rtRef(`usedSc/${id}/${u}`).set(null); await rtRef(`usedRec/${id}/${u}`).set(null); if (USR[id]) delete USR[id][u]; if (USED[id]) delete USED[id][u]; if (USC[id]) delete USC[id][u]; toast("기록을 지웠어요"); render(); openItem(id); }
   catch (e) { toast("지우지 못했어요"); }
 }
 
@@ -1181,10 +1354,11 @@ function ideasView() {
   const all = ideaList(), ord = { new: 0, doing: 1, done: 2 }, n = st => all.filter(d => ideaSt(d) === st).length;
   const list = all.filter(d => IDF === "all" || ideaSt(d) === IDF).sort((a, b) => ord[ideaSt(a)] - ord[ideaSt(b)] || ideaLikes(b.id) - ideaLikes(a.id) || (b.t || 0) - (a.t || 0));
   const tab = (k, t) => `<button class="${IDF === k ? "on" : ""}" onclick="IDF='${k}';render()">${t}</button>`;
-  return `<div class="hero"><div class="htxt"><div class="hlabel"><span>도구 아이디어함</span></div><h2>이런 도구가 있으면 좋겠어요</h2><p>수업하다가 떠오른 도구 아이디어를 남겨 주세요. JACE 회원이 맡아서 만들고, 완성되면 자료실에 올려 드립니다. 회원이 아니어도 구글 로그인만 하면 남길 수 있어요.</p></div>
-   <div class="stats"><div class="stat s1"><span>새 아이디어</span><b>${n("new")}</b></div><div class="stat s2"><span>만드는 중</span><b>${n("doing")}</b></div><div class="stat s3"><span>완성</span><b>${n("done")}</b></div></div></div>
-   <div class="revbar"><div class="itabs">${tab("all", "모두")}${tab("new", "새 아이디어")}${tab("doing", "만드는 중")}${tab("done", "완성")}</div><span class="sp"></span><button class="btn primary" onclick="openIdea()">아이디어 남기기</button></div>
-   ${list.length ? `<div class="idlist">${list.map(ideaCard).join("")}</div>` : `<div class="empty">${all.length ? "이 칸에 해당하는 아이디어가 없어요." : "아직 남겨진 아이디어가 없어요. 첫 아이디어를 남겨 주세요."}</div>`}`;
+  const strip = (k, no, t, nn, hi) => `<button role="tab" aria-selected="${IDF === k}" class="${IDF === k ? "on" : ""}" onclick="IDF='${k}';render()"><span class="mz-mono">${no}${t}</span><b${hi ? ' class="hi"' : ""}>${nn}</b></button>`;
+  return `${issueBar()}<section class="mz-hl solo"><h1 class="mz-h1">이런 도구가<br>있으면 좋겠어요</h1>
+   <div class="mz-introw"><p class="mz-lead">수업하다가 떠오른 도구를 남겨 주세요. JACE 회원이 맡아서 만들고, 완성되면 자료실에 올려 드려요. 회원이 아니어도 구글 로그인만 하면 남길 수 있어요.</p><button class="btn primary big" onclick="openIdea()">아이디어 남기기</button></div></section>
+   <section class="mz-sec plain"><div class="mz-bench tabs" role="tablist" aria-label="아이디어 단계">${strip("all", "", "모두", all.length)}${strip("new", "01 ", "새 아이디어", n("new"))}${strip("doing", "02 ", "만드는 중", n("doing"))}${strip("done", "03 ", "완성", n("done"), 1)}</div>
+   ${list.length ? `<div class="idlist">${list.map(ideaCard).join("")}</div>` : `<div class="empty">${all.length ? "이 칸에 해당하는 아이디어가 없어요." : "아직 남겨진 아이디어가 없어요. 첫 아이디어를 남겨 주세요."}</div>`}</section>`;
 }
 function ideaCard(d) {
   const me = myUid(), st = ideaSt(d), n = ideaLikes(d.id), liked = !!(me && ILK[d.id] && ILK[d.id][me]), J = JSON.stringify(d.id);
@@ -1193,9 +1367,9 @@ function ideaCard(d) {
   const acts = [];
   if (st === "new" && isMember()) acts.push(`<button class="btn mini primary" onclick='claimIdea(${J})'>제가 만들어 볼게요</button>`);
   if (st === "doing" && (d.claim.uid === me || isAdmin())) acts.push(`<button class="btn mini primary" onclick='openIdeaDone(${J})'>완성했어요</button>`, `<button class="btn mini" onclick='unclaimIdea(${J})'>맡기 그만두기</button>`);
-  if (st === "done" && item) acts.push(`<button class="btn mini primary" onclick='openItem(${JSON.stringify(item.id)})'>자료 보기</button>`);
+  if (st === "done" && item) acts.push(`<button class="btn mini primary" onclick='openItem(${JSON.stringify(item.id)})'>완성된 도구 보기</button>`);
   if (d.uid === me || isAdmin()) acts.push(`<button class="btn mini" onclick='delIdea(${J})'>지우기</button>`);
-  return `<article class="idea ${st}"><div class="ihead">${pill}<span class="sp"></span><span class="iby">${esc(d.n)}${d.sc ? " · " + esc(d.sc) : ""} · ${esc(new Date(d.t).toLocaleDateString("ko-KR"))}</span></div>
+  return `<article class="idea ${st === "new" ? "fresh" : st}"><div class="ihead">${pill}<span class="sp"></span><span class="iby">${esc(d.n)}${d.sc ? " · " + esc(d.sc) : ""} · ${esc(new Date(d.t).toLocaleDateString("ko-KR"))}</span></div>
    <p class="ix">${esc(d.x)}</p>${d.g || d.a ? `<div class="tags">${d.g ? `<span class="tag">${esc(d.g)}</span>` : ""}${d.a ? `<span class="tag">${esc(d.a)}</span>` : ""}</div>` : ""}
    <div class="ifoot"><button class="like${liked ? " on" : ""}" onclick='likeIdea(${J})' aria-pressed="${liked}">${liked ? "♥" : "♡"} 저도 필요해요 ${n || ""}</button><span class="sp"></span>${acts.join("")}</div></article>`;
 }
@@ -1434,6 +1608,22 @@ function tabOrder() {
   return [...new Set([...saved, ...Object.keys(MTABS)])];
 }
 function pickTab(k) { msub = k; msubPicked = true; render(); }
+
+/* 회원 공간 오른쪽 칸: 다가오는 모임 · 새 공지 · 산출물 책자 */
+function memSide() {
+  if (!MD) return "";
+  const e = MD.schedules.filter(x => x.d >= TODAY).sort((a, b) => a.d.localeCompare(b.d))[0];
+  const ns = MD.notices.slice().sort((a, b) => (b.pin - a.pin) || b.dt.localeCompare(a.dt)).slice(0, 2);
+  const all = MD.items.length, sub = MD.items.filter(i => i.ms).length;
+  let ev = `<div class="mz-ev"><p class="mz-k">다가오는 모임</p><p class="mz-evn">아직 잡힌 모임이 없어요</p></div>`;
+  if (e) { const d = new Date(e.d + "T00:00:00"), wd = "일월화수목금토"[d.getDay()];
+    ev = `<div class="mz-ev"><p class="mz-k">다가오는 모임</p><div class="mz-evr"><div class="mz-cal"><span>${d.getMonth() + 1}월</span><b>${d.getDate()}</b></div><div><p class="mz-evt">${esc(e.t)}</p><p class="mz-evs">${wd}요일${e.tm ? " " + esc(e.tm) : ""}${e.p ? " · " + esc(e.p) : ""}</p></div></div>
+     <div class="mz-evb"><button class="btn ${e.me ? "" : "primary"}" onclick='toggleAtt(${JSON.stringify(e.id)})'>${e.me ? "참석 취소" : "참석하기"}</button><span>${e.att.length}명 참석 예정</span></div></div>`; }
+  return `<aside class="mz-mside">${ev}
+   <div class="mz-box"><h2>새 공지</h2>${ns.length ? `<ul>${ns.map(n => `<li><button class="mz-lnk" onclick="pickTab('notice')"><b>${esc(n.t)}</b><span>${esc(n.by)} · ${esc((n.dt || "").slice(5).replace("-", ". "))}.</span></button></li>`).join("")}</ul>` : `<p class="mz-evn">새 공지가 없어요</p>`}</div>
+   <div class="mz-box warm"><h2>산출물 책자</h2><p>원고를 낸 자료 ${sub}개 / ${all}개</p><div class="mz-bar" role="img" aria-label="자료 ${all}개 중 ${sub}개 원고 제출"><i style="width:${all ? Math.round(sub / all * 100) : 0}%"></i></div><button class="mz-lnk strong" onclick="pickTab('book')">원고 올리러 가기</button></div></aside>`;
+}
+
 function memberTabs() {
   return `<div class="subtabs">${tabOrder().map(k => `<button class="${msub === k ? "on" : ""}" onclick="pickTab('${k}')">${MTABS[k]}${k === "notice" && MD && MD.notices.length ? `<span class="cnt">${MD.notices.length}</span>` : ""}${k === "chat" && unreadN() ? `<span class="cnt">${unreadN()}</span>` : ""}${k === "meet" && inRoomList().length ? `<span class="cnt live">${inRoomList().length}</span>` : ""}</button>`).join("")}${isAdmin() && isMember() && chatReady() ? `<button class="tabedit" onclick="openTabOrder()" title="탭 순서 바꾸기">⇅ 순서</button>` : ""}</div>`;
 }
@@ -2048,7 +2238,7 @@ async function doDelRev(id) {
 
 /* ===== JACE 소개 ===== */
 const ATABS = { intro: "소개", topic: "연구 주제", tools: "만드는 도구", plan: "활동", join: "함께하기" };
-function pickA(k) { asub = k; render(); }
+function pickA(k) { const n = { intro: null, topic: '01', tools: '02', plan: '03', join: '04' }[k]; go('about'); render(); if (n) setTimeout(() => { const el = document.getElementById('a' + n); if (el) el.scrollIntoView(); }, 0); }
 function joinState() {
   if (!ME) return { btn: `<button class="btn primary" onclick="openJoin()">가입 신청</button>`, st: "" };
   if (ME.rep) return { btn: `<button class="btn primary" onclick="go('admin');render()">운영진 관리</button>`, st: "<b>대표 계정으로 로그인했습니다.</b> 대표 계정은 가입 신청 없이 운영진으로 쓰고, 회원 명단에는 들어가지 않습니다." };
@@ -2058,33 +2248,31 @@ function joinState() {
   return { btn: `<button class="btn" onclick="openJoin()">신청 내용 고치기</button>`, st: "<b>가입 신청이 접수되었습니다.</b> 운영진이 확인하면 회원으로 등록됩니다." };
 }
 function aboutView() {
-  const tabs = `<div class="atabs" role="tablist">${Object.entries(ATABS).map(([k, t]) => `<button role="tab" aria-selected="${asub === k}" class="${asub === k ? "on" : ""}" onclick="pickA('${k}')">${t}</button>`).join("")}</div>`;
-  let body = "";
-  if (asub === "intro") body = `<section class="apanel ahero"><div>${wmHTML()}<p class="en">JEONBUK AI CONVERGENCE EDUCATION</p><p class="kn">전북AI융합교육연구회</p></div>
-    <div><h2>AI를 배우기만 하는 모임이 아니라,<br><em>우리 교실의 불편함을 직접 푸는</em> 모임입니다.</h2>
-    <p>JACE(제이스)는 전북의 교사들이 수업에 필요한 도구를 AI로 직접 만들고, 교실에서 써 보고, 그 과정을 함께 나누는 연구회입니다. 전북의 ACE라는 뜻을 이름에 담았습니다.</p>
-    <div class="acts"><button class="btn primary" onclick="go('public');render()">자료실 둘러보기</button><button class="btn" onclick="pickA('join')">함께하기</button></div></div></section>`;
-  else if (asub === "topic") body = `<section class="apanel"><p class="eyebrow">연구 주제</p><h3>무엇을 연구하나요</h3>
-    <p class="lead">교사가 직접 만든 AI 수업 도구로 수업과 평가를 바꾸는 교과별 실천 연구</p>
-    <p class="asub">완성된 서비스를 가져다 쓰는 데서 그치지 않고, 내 수업에 꼭 맞는 도구를 스스로 만들어 적용합니다. 만든 도구와 수업 기록은 다른 교실에서도 쓸 수 있게 정리해 나눕니다.</p>
-    <div class="grid3"><div class="cell"><span class="no">01</span><b>만들기</b><p>수업에서 느낀 불편함을 AI와 함께 도구로 만듭니다. 코딩 경험이 없어도 시작할 수 있습니다.</p></div>
-    <div class="cell"><span class="no">02</span><b>적용하기</b><p>만든 도구를 실제 수업과 평가에 써 보고, 학생의 변화와 고칠 점을 기록합니다.</p></div>
-    <div class="cell"><span class="no">03</span><b>나누기</b><p>도구와 수업 자료, 적용 사례를 모아 다른 선생님이 바로 쓸 수 있게 공유합니다.</p></div></div></section>`;
-  else if (asub === "tools") body = `<section class="apanel"><p class="eyebrow">만드는 도구</p><h3>이런 도구를 만듭니다</h3>
-    <p class="asub">어느 교과, 어느 학교급 선생님이든 함께할 수 있습니다. 교과로 나누지 않고, 수업에서 어떤 쓰임새가 필요한지에서 출발합니다.</p>
-    <div class="grid3"><div class="cell"><b>기록하고 쌓는 도구</b><p>운동 기록, 독서 기록, 건강 기록처럼 학생의 활동이 쌓여 성장을 보여 주고 평가의 근거가 되는 도구</p></div>
-    <div class="cell"><b>묻고 나누는 도구</b><p>실시간 설문, 교우관계 조사처럼 학생의 생각을 모으고 함께 살펴보는 도구</p></div>
-    <div class="cell"><b>운영을 돕는 도구</b><p>리그전 진행, 체험학습 준비, 학급 운영처럼 교사의 일을 덜어 주는 도구</p></div></div>
-    <div class="acts" style="margin-top:16px"><button class="btn primary" onclick="go('public');render()">만든 도구 보러 가기</button></div></section>`;
-  else if (asub === "plan") body = `<div class="two"><section class="apanel"><p class="eyebrow">활동</p><h3>이런 활동을 합니다</h3><ul class="plain">
-    <li>월 1회 모임: 수업 도구 만들기 실습과 적용 사례 나눔</li><li>수업 적용: 각자의 교과와 수업에서 실천하고 기록</li><li>만든 도구와 수업 자료 공유</li><li>연말 사례집 발간</li></ul></section>
-    <section class="apanel"><p class="eyebrow">대상</p><h3>이런 분을 기다립니다</h3><ul class="plain">
-    <li>코딩 경험이 없어도 수업에 쓸 도구를 직접 만들어 보고 싶은 분</li><li>이미 나온 도구를 내 수업에 적용하고 기록해 보고 싶은 분</li><li>초등, 중등 구분 없이 전북의 교원 누구나</li></ul></section></div>`;
-  else { const J = joinState(); body = `<section class="apanel ajoin"><p class="eyebrow">함께하기</p><h3>창립 회원을 모집합니다</h3>
-    <p>JACE는 2027학년도 활동을 목표로 준비하고 있습니다. 줄넘기 기록, 독서 기록, 실시간 설문, 스포츠클럽 리그전 등 현장에서 쓰이고 있는 도구를 만든 경험을 바탕으로 처음부터 함께 안내합니다.</p>
-    ${J.btn ? `<div class="acts" style="margin-top:14px">${J.btn}</div>` : ""}${J.st ? `<div class="state">${J.st}</div>` : ""}
-    <p class="note">구글 계정으로 로그인한 뒤 신청서를 내면, 운영진 확인 후 회원으로 등록됩니다. 교육학습공동체 신청 때 회원 명단에 들어갈 정보를 함께 받습니다.</p></section>`; }
-  return tabs + body;
+  const J = joinState();
+  const H2 = (no, t) => `<div class="mz-sh num"><span class="mz-no">${no}</span><h2>${t}</h2></div>`;
+  const toc = (no, t, d) => `<li><span class="mz-tn">${no}</span><a href="#a${no}" onclick="event.preventDefault();document.getElementById('a${no}').scrollIntoView({behavior:'smooth'})"><b>${t}</b><span>${d}</span></a></li>`;
+  const col = (n, t, d) => `<div class="mz-col"><span class="mz-mono">${n}</span><h3>${t}</h3><p>${d}</p></div>`;
+  return `${issueBar("창간 준비호 · " + TODAY.slice(0, 4) + ". " + (+TODAY.slice(5, 7)) + ".")}
+  <section class="mz-cover ahero"><div class="mz-cl"><p class="mz-kick">JEONBUK AI CONVERGENCE EDUCATION</p>
+    <h1 class="mz-h1 big">우리 교실의 불편함을,<br>우리 손으로 풉니다</h1>
+    <p class="mz-lead">JACE(제이스)는 전북의 교사들이 수업에 필요한 도구를 AI로 직접 만들고, 교실에서 써 보고, 그 과정을 함께 나누는 연구회입니다. AI를 배우기만 하는 모임이 아니라, 배운 것으로 내 수업을 바꾸는 모임입니다.</p>
+    <div class="mz-acts"><button class="btn primary" onclick="document.getElementById('a04').scrollIntoView({behavior:'smooth'})">창립 회원 되기</button><button class="btn" onclick="go('public');render()">자료실 둘러보기</button></div></div>
+   <div class="mz-cr"><div class="mz-crt"><span>VOL. 00</span><span class="mz-tagr">창립 회원 모집 중</span></div><div class="mz-bigwm"><div><i>J</i>A</div><div>CE</div></div><p>전북의 ACE들이 만드는<br>교실 도구 이야기</p></div></section>
+  <section class="mz-sec"><h2 class="mz-small">이번 호 차례</h2><ol class="mz-toc">${toc("01", "무엇을 연구하나", "교사가 직접 만든 AI 수업 도구로 수업과 평가 바꾸기")}${toc("02", "어떤 도구를 만드나", "기록하고 쌓는, 묻고 나누는, 운영을 돕는 도구")}${toc("03", "어떻게 모이나", "월 1회 모임, 수업 적용, 연말 사례집")}${toc("04", "함께하기", "창립 회원을 모집합니다")}</ol></section>
+  <section class="mz-sec" id="a01">${H2("01", "무엇을 연구하나")}
+   <p class="mz-quote">"교사가 직접 만든 AI 수업 도구로<br>수업과 평가를 바꾸는 교과별 실천 연구"</p>
+   <p class="mz-body">완성된 서비스를 가져다 쓰는 데서 그치지 않고, 내 수업에 꼭 맞는 도구를 스스로 만들어 적용합니다. 만든 도구와 수업 기록은 다른 교실에서도 쓸 수 있게 정리해 나눕니다.</p>
+   <div class="mz-cols">${col("01 만들기", "불편함을 도구로", "수업에서 느낀 불편함을 AI와 함께 도구로 만듭니다. 코딩 경험이 없어도 시작할 수 있습니다.")}${col("02 적용하기", "교실에서 써 보기", "만든 도구를 실제 수업과 평가에 써 보고, 학생의 변화와 고칠 점을 기록합니다.")}${col("03 나누기", "다른 교실로", "도구와 수업 자료, 적용 사례를 모아 다른 선생님이 바로 쓸 수 있게 공유합니다.")}</div></section>
+  <section class="mz-sec" id="a02">${H2("02", "어떤 도구를 만드나")}
+   <p class="mz-body">어느 교과, 어느 학교급 선생님이든 함께할 수 있습니다. 교과로 나누지 않고, 수업에서 어떤 쓰임새가 필요한지에서 출발합니다.</p>
+   <div class="mz-kinds"><div class="k1"><h3>기록하고 쌓는 도구</h3><p>운동 기록, 독서 기록, 건강 기록처럼 학생의 활동이 쌓여 성장을 보여 주고 평가의 근거가 되는 도구</p></div><div class="k2"><h3>묻고 나누는 도구</h3><p>실시간 설문, 교우관계 조사처럼 학생의 생각을 모으고 함께 살펴보는 도구</p></div><div class="k3"><h3>운영을 돕는 도구</h3><p>리그전 진행, 체험학습 준비, 학급 운영처럼 교사의 일을 덜어 주는 도구</p></div></div>
+   <button class="btn" style="margin-top:16px" onclick="go('public');render()">만든 도구 보러 가기</button></section>
+  <section class="mz-sec" id="a03">${H2("03", "어떻게 모이나")}
+   <div class="mz-two"><div><h3 class="mz-small">이런 활동을 합니다</h3><ul><li>월 1회 모임: 수업 도구 만들기 실습과 적용 사례 나눔</li><li>수업 적용: 각자의 교과와 수업에서 실천하고 기록</li><li>만든 도구와 수업 자료 공유</li><li>연말 사례집 발간</li></ul></div>
+   <div><h3 class="mz-small">이런 분을 기다립니다</h3><ul><li>코딩 경험이 없어도 수업에 쓸 도구를 직접 만들어 보고 싶은 분</li><li>이미 나온 도구를 내 수업에 적용하고 기록해 보고 싶은 분</li><li>초등, 중등 구분 없이 전북의 교원 누구나</li></ul></div></div></section>
+  <section class="mz-sec" id="a04">${H2("04", "함께하기")}
+   <div class="mz-join ajoin"><div><h3>창립 회원을 모집합니다</h3><p>JACE는 2027학년도 활동을 목표로 준비하고 있습니다. 줄넘기 기록, 독서 기록, 실시간 설문, 스포츠클럽 리그전 등 현장에서 쓰이고 있는 도구를 만든 경험을 바탕으로 처음부터 함께 안내합니다.</p>
+    ${J.st ? `<div class="state">${J.st}</div>` : ""}<p class="note">구글 계정으로 로그인한 뒤 신청서를 내면, 운영진 확인 후 회원으로 등록됩니다. 교육학습공동체 신청 때 회원 명단에 들어갈 정보를 함께 받습니다.</p></div>${J.btn ? `<div class="acts">${J.btn}</div>` : ""}</div></section>`;
 }
 
 /* ===== 사용 안내 (간략 사용법 창) ===== */
@@ -2108,8 +2296,8 @@ function openHelp() {
 const DEMO_CFG = { grades: ["초등학교", "중학교", "고등학교", "공통"], areas: ["초등교과전반", "체육", "보건", "국어", "수학", "정보"].map(n => ({ n, s: [] })),
   types: ["프로그램", "수업 사례", "수업 자료", "활동지", "영상", "평가 자료"], bookTitle: "미리보기 자료집" };
 const DEMO_ITEMS = [
-  { id: "d1", t: "모둠 차례 타이머", d: "모둠 이름을 넣으면 차례와 남은 시간을 큰 화면에 보여 줘요.", g: ["초등학교"], a: ["초등교과전반"], ty: "프로그램", m: false, by: "김햇살", sc: "햇살초등학교", dt: "2026-11-12", v: 41, link: "타이머 | https://example.org/timer" },
-  { id: "d2", t: "카메라로 세는 줄넘기 판정기", d: "카메라가 줄넘기 횟수를 세고 기록을 쌓아요.", g: ["공통"], a: ["체육", "정보"], ty: "프로그램", m: false, by: "이바람", sc: "바람중학교", dt: "2026-11-05", v: 87, link: "판정기 | https://example.org/jump" },
+  { id: "d1", t: "모둠 차례 타이머", ver: "v1.4", why: "모둠 활동 때마다 순서 다툼이 생겨서", d: "모둠 이름을 넣으면 차례와 남은 시간을 큰 화면에 보여 줘요.", g: ["초등학교"], a: ["초등교과전반"], ty: "프로그램", m: false, by: "김햇살", sc: "햇살초등학교", dt: "2026-11-12", v: 41, link: "타이머 | https://example.org/timer" },
+  { id: "d2", t: "카메라로 세는 줄넘기 판정기", ver: "v2.1", why: "줄넘기 횟수를 세느라 수업 절반이 지나가서", d: "카메라가 줄넘기 횟수를 세고 기록을 쌓아요.", g: ["공통"], a: ["체육", "정보"], ty: "프로그램", m: false, by: "이바람", sc: "바람중학교", dt: "2026-11-05", v: 87, link: "판정기 | https://example.org/jump" },
   { id: "d3", t: "보건 퀴즈 실시간 설문 수업", d: "QR로 들어와 답하면 결과가 큰 화면에 올라오는 보건 수업 사례입니다.", g: ["중학교"], a: ["보건"], ty: "수업 사례", m: true, by: "박구름", sc: "구름중학교", dt: "2026-10-28", v: 19, hasFile: true, fname: "수업안.pdf", files: ["수업안.pdf"] },
   { id: "d4", t: "독서 기록 책탑 쌓기", d: "읽은 책이 탑처럼 쌓이는 학급 독서 기록장이에요.", g: ["초등학교"], a: ["국어"], ty: "프로그램", m: false, by: "최별빛", sc: "별빛초등학교", dt: "2026-10-20", v: 33, link: "책탑 | https://example.org/books" },
   { id: "d5", t: "오답 다시 풀기 활동지", d: "틀린 문제를 비슷한 문제로 다시 풀어 보는 활동지입니다.", g: ["고등학교"], a: ["수학"], ty: "활동지", m: false, by: "정하늘", sc: "하늘고등학교", dt: "2026-10-02", v: 12, hasFile: true, fname: "활동지.hwpx", files: ["활동지.hwpx"] },
@@ -2120,6 +2308,7 @@ const DEMO_IDEAS = {
   x2: { uid: "y", n: "윤나무", g: "중학교", a: "체육", x: "스포츠클럽 리그전 대진표를 자동으로 짜 주는 도구", t: 1762000000000, claim: { uid: "z", n: "이바람", t: 1762500000000 } },
   x3: { uid: "w", n: "강들판", x: "모둠 활동 때 차례와 남은 시간을 보여 주는 타이머", t: 1760000000000, claim: { uid: "q", n: "김햇살", t: 1 }, done: { id: "d1", t: 1762800000000 } },
 };
+const DEMO_USR = { d2: { a: "@PM", b: "@PM", c: "@PM" }, d4: { a: "@PM" } };
 const DEMO_LIKES = { x1: { a: true, b: true, c: true }, x2: { a: true } };
 const demoNo = () => toast("미리보기에서는 둘러보기만 할 수 있어요");
 
@@ -2145,14 +2334,14 @@ function recruitClose() { recruitSave(); closeM(); }
 function route() {
   const h = location.hash.replace("#", "");
   if (h === "guide") { view = "about"; render(); openHelp(); return; }
-  view = ["about", "public", "ideas", "members", "mine", "admin"].includes(h) ? h : "about";
+  view = ["about", "public", "ideas", "members", "mine", "admin"].includes(h) ? h : HOME_VIEW;
   render();
 }
 window.addEventListener("hashchange", route);
 $("#ver").textContent = "· 판 " + APP_VERSION;
 if (DEMO) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "미리보기: 지어낸 자료로 둘러보는 화면이에요. 로그인, 올리기, 내려받기는 되지 않고 아무것도 저장되지 않아요."; }
 else if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
-loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
+loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas(), loadUsedRec()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
 
 </script>
 </body>
