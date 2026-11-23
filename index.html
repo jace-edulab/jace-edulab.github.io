@@ -613,7 +613,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.7.1";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.8.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -1113,6 +1113,17 @@ async function watermark(bytes, onPage) {
 const LEVELS = ["초등학교", "중학교", "고등학교", "특수학교", "교육기관"];
 const POSITIONS = ["교사", "수석교사", "교감", "교장", "교육전문직"];
 const OTHERS = ["없음", "1개", "2개 이상"];
+const SUBJ_E = ["초등교과전반", "체육", "음악", "미술", "영어", "과학", "정보", "보건", "특수"];
+const SUBJ_S = ["국어", "영어", "수학", "사회", "역사", "도덕", "과학", "정보", "체육", "음악", "미술", "기술·가정", "보건", "진로", "특수"];
+const SUBJ_ETC = "기타 (직접 입력)";
+function subjList(lv) { return lv === "초등학교" ? SUBJ_E : (lv === "중학교" || lv === "고등학교") ? SUBJ_S : [...new Set(SUBJ_E.concat(SUBJ_S))]; }
+function subjOpts(lv, cur) {
+  const L = subjList(lv), etc = cur && !L.includes(cur);
+  return '<option value="">고르기</option>' + L.map(x => `<option${x === cur ? " selected" : ""}>${esc(x)}</option>`).join("") + `<option${etc ? " selected" : ""}>${SUBJ_ETC}</option>`;
+}
+function subjSync() { const o = $("#jsubx"); if (o) o.style.display = $("#jsub").value === SUBJ_ETC ? "" : "none"; }
+function subjRelist() { const cur = $("#jsub").value === SUBJ_ETC ? ($("#jsubx").value.trim() || SUBJ_ETC) : $("#jsub").value; $("#jsub").innerHTML = subjOpts($("#jl").value, cur === SUBJ_ETC ? "\u0000" : cur); subjSync(); }
+const subjVal = () => $("#jsub").value === SUBJ_ETC ? $("#jsubx").value.trim() : $("#jsub").value;
 const optHTML = (list, cur) => '<option value="">고르기</option>' + list.map(x => '<option' + (x === cur ? " selected" : "") + '>' + esc(x) + '</option>').join("");
 const validPhone = v => /^01[016789]\d{7,8}$/.test(String(v || "").replace(/\D/g, ""));
 const fmtPhone = p => { const d = String(p).replace(/\D/g, ""); return d.length === 11 ? d.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); };
@@ -1127,9 +1138,10 @@ async function openJoin() {
    <div class="row2"><div><label for="jn">이름</label><input type="text" id="jn" maxlength="20" autocomplete="name" value="${esc(m.name || AUTH.currentUser.displayName || "")}"></div>
    <div><label for="jp">휴대전화</label><input type="tel" id="jp" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" oninput="this.value=this.value.replace(/\\D/g,'')" value="${esc(String(m.phone || "").replace(/\D/g, ""))}"></div></div>
    <label for="js">소속 학교(기관)</label><input type="text" id="js" maxlength="40" placeholder="예: 햇살초등학교" value="${esc(m.school || "")}">
-   <div class="row2"><div><label for="jl">학교급</label><select id="jl">${optHTML(LEVELS, m.level)}</select></div>
+   <div class="row2"><div><label for="jl">학교급</label><select id="jl" onchange="subjRelist()">${optHTML(LEVELS, m.level)}</select></div>
    <div><label for="jpos">직위</label><select id="jpos">${optHTML(POSITIONS, m.pos)}</select></div></div>
-   <label for="jsub">담당 교과·분야</label><input type="text" id="jsub" maxlength="30" placeholder="예: 초등교과전반, 체육, 보건, 정보" value="${esc(m.subject || "")}">
+   <label for="jsub">담당 교과·분야</label><select id="jsub" onchange="subjSync()">${subjOpts(m.level, m.subject || "")}</select>
+   <input type="text" id="jsubx" maxlength="30" aria-label="담당 교과·분야 직접 입력" placeholder="예: 중등체육 및 운동부, 영양, 상담" value="${esc(m.subject && !subjList(m.level).includes(m.subject) ? m.subject : "")}" style="margin-top:6px${m.subject && !subjList(m.level).includes(m.subject) ? "" : ";display:none"}">
    <label for="jo">JACE 말고 내년에 신청할 교육학습공동체 수</label><select id="jo">${optHTML(OTHERS, m.others)}</select>
    <div class="box3">교육학습공동체는 한 사람이 <b>3개까지</b> 신청할 수 있고, <b>3월 1일 기준</b> 휴직 예정자, 학습연구년제 교원, 학위 취득 파견 교원은 회원이 될 수 없습니다.</div>
    <label class="check"><input type="checkbox" id="jelig"${m.eligible ? " checked" : ""}> <span><b>(필수)</b> 내년 3월 1일에 휴직, 학습연구년제, 학위 취득 파견 예정이 아닙니다.</span></label>
@@ -1148,7 +1160,7 @@ async function openJoin() {
 }
 async function sendJoin() {
   const v = id => $("#" + id).value.trim(), err = t => { $("#jerr").textContent = t; };
-  const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: v("jsub"), others: v("jo"),
+  const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: subjVal(), others: v("jo"),
     eligible: $("#jelig").checked, agreePrivacy: $("#jpriv").checked, agreeList: $("#jreg").checked, book: $("#jbook").checked, agreeUse: $("#jc").checked };
   if (!body.name) return err("이름을 적어 주세요.");
   if (!validPhone(body.phone)) return err("휴대전화 번호를 숫자만 11자리로 적어 주세요. (예: 01012345678)");
