@@ -15,6 +15,11 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#16307A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JACE">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2316307A'/%3E%3Ctext x='50' y='72' font-family='Arial,sans-serif' font-weight='900' font-size='64' text-anchor='middle' fill='%23FF8A3D'%3EJ%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@500&display=swap">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -473,6 +478,8 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .recruit dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;text-align:left;background:var(--bg);border-radius:12px;padding:14px 16px;margin:16px 0}.recruit dt{font-weight:700;color:var(--navy);font-size:14px}.recruit dd{margin:0;font-size:14px}
 .recruit .racts{display:flex;gap:8px;justify-content:center}.recruit .racts .btn{padding:10px 20px;font-size:15px}
 .recruit .rfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.rchk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub);cursor:pointer}.rchk input{width:18px;height:18px;margin:0}
+.inst-btn{margin-left:auto;min-height:36px;align-self:center;padding:0 12px;border:1.5px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;flex:0 0 auto}.inst-btn[hidden]{display:none}.inst-btn:not([hidden])+.hlp-btn{margin-left:4px}
+.inst-steps{margin:0;padding-left:22px;font-size:15px;line-height:2}
 .hlp-btn{margin-left:auto;display:flex;align-items:center;gap:7px;min-height:44px;padding:0 4px 0 12px;border:0;background:none;color:var(--text);font-size:15px;font-weight:500;white-space:nowrap;cursor:pointer;flex:0 0 auto}.hlp-btn:hover{text-decoration:underline}
 .hlp-q{width:20px;height:20px;border-radius:50%;background:#111;color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center}
 #modal{max-height:88vh;overflow-y:auto}
@@ -589,6 +596,11 @@ a.btn{text-decoration:none}
 .mz-bar{margin-top:10px;height:10px;border-radius:999px;background:#fff;overflow:hidden}.mz-bar i{display:block;height:100%;background:var(--green)}
 footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 @media (max-width:640px){.mz-bench{grid-template-columns:repeat(2,minmax(0,1fr))}.mz-cell,.mz-bench.tabs button{border-bottom:1px solid var(--line);padding:12px 14px}.mz-cell b,.mz-bench.tabs b{font-size:26px}.mz-side{border-left:0;padding-left:0}.mz-fbar .search{max-width:none;margin-left:0}.mz-lab{margin-left:0}.mz-cr{min-height:300px}}
+#liveAlert{position:fixed;right:20px;bottom:20px;z-index:60;max-width:420px;background:#fff;border:2px solid var(--navy);border-radius:10px;box-shadow:0 12px 32px rgba(16,24,40,.22);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#liveAlert .la-t{flex:1 1 200px;display:flex;flex-direction:column;gap:2px}#liveAlert .la-t b{color:var(--navy);font-size:15px}#liveAlert .la-t span{font-size:14px}
+#liveAlert .la-x{border:0;background:none;font-size:22px;color:var(--sub);width:44px;height:44px;cursor:pointer}
+@media (max-width:640px){#liveAlert{left:12px;right:12px;bottom:12px;max-width:none}}
+.notibar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--tint);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:14px}.notibar span{flex:1 1 280px}
 </style>
 </head>
 <body>
@@ -605,6 +617,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
   <a href="#members" data-v="members">회원 공간<span class="lock" id="lockTag">회원</span></a>
   <a href="#mine" data-v="mine" id="navMine">내가 올린 자료</a>
   <a href="#admin" data-v="admin" id="navAdmin">운영진 관리</a>
+  <button type="button" class="inst-btn" id="instBtn" onclick="installApp()" hidden>앱으로 설치</button>
   <button type="button" class="hlp-btn" onclick="openHelp()"><span class="hlp-q" aria-hidden="true">?</span>사용 안내</button>
 </div></nav>
 <main id="main"><div class="loading">자료를 불러오는 중입니다…</div></main>
@@ -613,7 +626,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.8.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.9.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -680,7 +693,10 @@ async function login() {
   if (DEMO) return demoNo();
   if (INAPP) { inappHelp(); return; }
   try { await AUTH.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
-  catch (e) { if (e.code !== "auth/popup-closed-by-user") toast("로그인하지 못했어요: " + (e.message || e.code)); }
+  catch (e) {
+    if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") { try { return await AUTH.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (e2) { e = e2; } }
+    if (e.code !== "auth/popup-closed-by-user") toast("로그인하지 못했어요: " + (e.message || e.code));
+  }
 }
 async function logout() { chatStop(); clearCache(); await AUTH.signOut(); ME = null; MD = null; AD = null; if (["mine", "admin"].includes(view)) go("about"); render(); }
 
@@ -762,7 +778,7 @@ async function refreshMe() {
 AUTH.onAuthStateChanged(async user => {
   if (DEMO) { authReady = true; ME = null; render(); return; }
   authReady = true;
-  if (!user) { chatStop(); ME = null; MD = null; MINE = null; render(); return; }
+  if (!user) { chatStop(); liveStop(); ME = null; MD = null; MINE = null; ALL = null; render(); loadSeen().then(navBadges); return; }
   const c = readCache(user.uid);
   if (c && c.ME) { ME = c.ME; MD = c.MD; render(); }
   try {
@@ -774,7 +790,113 @@ AUTH.onAuthStateChanged(async user => {
   } catch (e) { if (!c) toast("회원 정보를 불러오지 못했어요: " + e.message); }
   render();
   if (isMember()) chatStart(); else chatStop();
+  await loadSeen(); liveStart(); navBadges();
 });
+
+/* ===== 실시간 알림 · 새 소식 숫자 · 교과 목록 설정 ===== */
+let SUBJ_CFG = null, SEEN = null, LIVE = [], PEND0 = null, POLL = null;
+async function loadSubjCfg() { if (DEMO || !rtOK()) return; try { SUBJ_CFG = (await rtRef("config/subjects").get()).val() || null; } catch (e) {} }
+function subjPanel() {
+  const E = (SUBJ_CFG && SUBJ_CFG.e) || SUBJ_E, S = (SUBJ_CFG && SUBJ_CFG.s) || SUBJ_S;
+  return `<div class="panel"><h3>가입 신청서 교과 목록</h3><p style="margin:0 0 10px;font-size:14px;color:var(--sub)">한 줄에 하나씩 적어요. 신청서 목록 맨 아래에는 "기타 (직접 입력)"이 늘 붙어요. 저장하면 바로 모든 신청서에 반영돼요.</p>
+   <div class="row2"><div><label for="sbe">초등학교</label><textarea id="sbe" rows="9" style="width:100%">${esc(E.join("\n"))}</textarea></div><div><label for="sbs">중·고등학교</label><textarea id="sbs" rows="9" style="width:100%">${esc(S.join("\n"))}</textarea></div></div>
+   <div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px"><button class="btn mini" onclick="subjReset()">처음 목록으로</button><button class="btn mini ok" onclick="subjSave()">저장</button></div></div>`;
+}
+async function subjSave() {
+  const clean = v => [...new Set(v.split(/\n|,/).map(x => x.trim()).filter(x => x && x !== SUBJ_ETC))].slice(0, 40);
+  const d = { e: clean($("#sbe").value), s: clean($("#sbs").value) };
+  if (!d.e.length || !d.s.length) return toast("목록이 비어 있어요");
+  try { await rtRef("config/subjects").set(d); SUBJ_CFG = d; toast("교과 목록을 저장했어요"); render(); } catch (e) { toast("저장하지 못했어요: " + e.message); }
+}
+async function subjReset() {
+  if (!confirmLite("처음 목록으로 되돌릴까요?")) return;
+  try { await rtRef("config/subjects").set(null); SUBJ_CFG = null; toast("처음 목록으로 되돌렸어요"); render(); } catch (e) { toast("되돌리지 못했어요: " + e.message); }
+}
+
+/* 마지막으로 본 때 (계정에 저장해 기기끼리 같이 씀, 로그인 전에는 이 기기에만) */
+const seenKey = () => "jace_seen_" + (myUid() || "guest");
+const memIds = () => MD ? MD.notices.map(n => "n" + n.id).concat(MD.schedules.map(e => "e" + e.id)) : [];
+async function loadSeen() {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem(seenKey()) || "null"); } catch (e) {}
+  if (myUid() && rtOK() && !DEMO) { try { const r = (await rtRef("seen/" + myUid()).get()).val(); if (r) v = Object.assign({}, v || {}, r); } catch (e) {} }
+  SEEN = v || {};
+  seenInit();
+}
+function saveSeen(k) {
+  try { localStorage.setItem(seenKey(), JSON.stringify(SEEN)); } catch (e) {}
+  if (myUid() && rtOK() && !DEMO) rtRef(`seen/${myUid()}/${k}`).set(SEEN[k]).catch(() => {});
+}
+function seenInit() {
+  if (!SEEN) return;
+  const ch = [];
+  if (!SEEN.pub && allItems().length) { SEEN.pub = allItems().map(i => i.id); ch.push("pub"); }
+  if (!SEEN.ideas && IDEAS) { SEEN.ideas = Date.now(); ch.push("ideas"); }
+  if (!SEEN.mem && isMember() && MD) { SEEN.mem = memIds(); ch.push("mem"); }
+  ch.forEach(saveSeen);
+}
+function markSeen() {
+  if (!SEEN) return;
+  if (view === "public") { const ids = allItems().map(i => i.id); if (ids.some(x => !(SEEN.pub || []).includes(x))) { SEEN.pub = ids; saveSeen("pub"); } }
+  else if (view === "ideas" && IDEAS) { const mx = Math.max(0, ...ideaList().map(d => d.t || 0)); if (mx > (SEEN.ideas || 0)) { SEEN.ideas = mx; saveSeen("ideas"); } }
+  else if (view === "members" && isMember() && MD) { const ids = memIds(); if (ids.some(x => !(SEEN.mem || []).includes(x))) { SEEN.mem = ids; saveSeen("mem"); } }
+}
+function newCounts() {
+  const c = { public: 0, ideas: 0, members: 0, admin: 0 };
+  if (SEEN) {
+    if (SEEN.pub) c.public = allItems().filter(i => !SEEN.pub.includes(i.id)).length;
+    if (SEEN.ideas) c.ideas = ideaList().filter(d => (d.t || 0) > SEEN.ideas && d.uid !== myUid()).length;
+    if (SEEN.mem && isMember() && MD) c.members = memIds().filter(x => !SEEN.mem.includes(x)).length;
+  }
+  if (isMember() && typeof unreadN === "function") c.members += unreadN();
+  if (isAdmin() && ALL) c.admin = Object.values(ALL).filter(m => m && m.status === "대기").length;
+  return c;
+}
+function navBadges() {
+  const c = newCounts();
+  Object.keys(c).forEach(k => {
+    const a = document.querySelector(`nav a[data-v="${k}"]`); if (!a) return;
+    let b = a.querySelector(".cnt"); const n = c[k];
+    if (!n) { if (b) b.remove(); return; }
+    if (!b) { b = document.createElement("span"); b.className = "cnt"; a.appendChild(b); }
+    b.textContent = n > 99 ? "99+" : n;
+    b.setAttribute("aria-label", k === "admin" ? `승인 기다리는 신청 ${n}건` : `새 소식 ${n}개`);
+  });
+}
+
+/* 실시간: 아이디어, (운영진) 가입 신청 · 몇 분마다 자료와 공지 다시 확인 */
+function liveStop() { LIVE.forEach(f => { try { f(); } catch (e) {} }); LIVE = []; PEND0 = null; if (POLL) { clearInterval(POLL); POLL = null; } }
+function liveStart() {
+  liveStop(); if (DEMO || !rtOK()) return;
+  const on = (path, fn) => { try { const r = rtRef(path); r.on("value", fn); LIVE.push(() => r.off("value", fn)); } catch (e) {} };
+  on("ideas", sn => { IDEAS = sn.val() || {}; navBadges(); if (view === "ideas" && !ov.classList.contains("show")) render(); });
+  if (isAdmin()) on("members", sn => onMembersSnap(sn.val() || {}));
+  POLL = setInterval(async () => {
+    if (document.hidden) return;
+    try { await loadPublic(true); if (isMember() && apiReady()) await loadMember(); navBadges(); } catch (e) {}
+  }, 5 * 60 * 1000);
+}
+function onMembersSnap(v) {
+  ALL = v;
+  const pend = Object.entries(v).filter(([, m]) => m && m.status === "대기");
+  if (PEND0) { const fresh = pend.filter(([u]) => !PEND0.has(u)).map(([, m]) => m); if (fresh.length) joinAlert(fresh); }
+  PEND0 = new Set(pend.map(([u]) => u));
+  navBadges();
+  if (view === "admin" && !ov.classList.contains("show")) render();
+}
+function joinAlert(list) {
+  let b = $("#liveAlert");
+  if (!b) { b = document.createElement("div"); b.id = "liveAlert"; b.setAttribute("role", "alert"); document.body.appendChild(b); }
+  const m = list[0], who = list.length === 1 ? `${esc(m.name || "새")} 선생님${m.school ? "(" + esc(m.school) + ")" : ""}이` : `선생님 ${list.length}명이`;
+  b.innerHTML = `<div class="la-t"><b>새 가입 신청</b><span>${who} 가입 신청을 했어요.</span></div><button class="btn primary" onclick="liveAlertGo()">확인하러 가기</button><button class="la-x" aria-label="알림 닫기" onclick="document.getElementById('liveAlert').remove()">×</button>`;
+  try { if (window.Notification && Notification.permission === "granted" && document.hidden) new Notification("JACE 새 가입 신청", { body: `${list.length === 1 ? (m.name || "새") + " 선생님이" : "선생님 " + list.length + "명이"} 가입 신청을 했어요.`, icon: "icon.png" }); } catch (e) {}
+}
+function liveAlertGo() { const b = $("#liveAlert"); if (b) b.remove(); go("admin"); render(); }
+async function askNotify() {
+  if (!window.Notification) return toast("이 브라우저는 알림을 지원하지 않아요");
+  try { const r = await Notification.requestPermission(); toast(r === "granted" ? "알림을 켰어요. 홈페이지 탭을 열어 두면 다른 창을 보고 있어도 알려 드려요" : "알림이 꺼져 있어요. 브라우저 설정에서 켤 수 있어요"); render(); } catch (e) {}
+}
+const notifyState = () => !window.Notification ? "none" : Notification.permission;
 
 /* ===== 공통 데이터 ===== */
 const allItems = () => (MD ? MD.items : PUB);
@@ -944,6 +1066,7 @@ function render() {
     if (!ALL) loadAdmin().then(render).catch(e => toast("명단을 불러오지 못했어요: " + e.message));
   }
   labelTables();
+  markSeen();
   chatBadge();
   const q = $("#q"); if (q) q.oninput = e => { f.q = e.target.value; const pos = e.target.selectionStart; render(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); };
   const s = $("#sort"); if (s) s.onchange = e => { f.sort = e.target.value; render(); };
@@ -1116,7 +1239,7 @@ const OTHERS = ["없음", "1개", "2개 이상"];
 const SUBJ_E = ["초등교과전반", "체육", "음악", "미술", "영어", "과학", "정보", "보건", "특수"];
 const SUBJ_S = ["국어", "영어", "수학", "사회", "역사", "도덕", "과학", "정보", "체육", "음악", "미술", "기술·가정", "보건", "진로", "특수"];
 const SUBJ_ETC = "기타 (직접 입력)";
-function subjList(lv) { return lv === "초등학교" ? SUBJ_E : (lv === "중학교" || lv === "고등학교") ? SUBJ_S : [...new Set(SUBJ_E.concat(SUBJ_S))]; }
+function subjList(lv) { const E = (SUBJ_CFG && SUBJ_CFG.e) || SUBJ_E, S = (SUBJ_CFG && SUBJ_CFG.s) || SUBJ_S; return lv === "초등학교" ? E : (lv === "중학교" || lv === "고등학교") ? S : [...new Set(E.concat(S))]; }
 function subjOpts(lv, cur) {
   const L = subjList(lv), etc = cur && !L.includes(cur);
   return '<option value="">고르기</option>' + L.map(x => `<option${x === cur ? " selected" : ""}>${esc(x)}</option>`).join("") + `<option${etc ? " selected" : ""}>${SUBJ_ETC}</option>`;
@@ -1883,13 +2006,7 @@ function chatStop() {
   Object.assign(CHAT, { on: false, refs: [], dmRef: null, members: {}, status: {}, inbox: {}, room: [], dm: {}, active: "room", err: "" });
   chatBadge();
 }
-function chatBadge() {
-  const n = unreadN(), a = document.querySelector('nav a[data-v="members"]');
-  if (!a) return;
-  let b = a.querySelector(".cnt"); if (!n) { if (b) b.remove(); return; }
-  if (!b) { b = document.createElement("span"); b.className = "cnt"; a.appendChild(b); }
-  b.textContent = n;
-}
+function chatBadge() { navBadges(); }
 function openDm(uid) {
   CHAT.active = uid;
   if (CHAT.dmRef) CHAT.dmRef.off();
@@ -2091,11 +2208,13 @@ function adminView() {
   if (!ALL) return `<div class="loading">불러오는 중…</div>`;
   const rows = rowsSorted(), n = st => rows.filter(r => r.status === st).length, ok = n("승인");
   const btns = r => { const u = JSON.stringify(r.uid); return (r.status !== "승인" ? `<button class="btn mini ok" onclick='setSt(${u},"승인")'>승인</button> ` : "") + (r.status !== "보류" ? `<button class="btn mini" onclick='setSt(${u},"보류")'>보류</button> ` : "") + (r.status !== "대기" ? `<button class="btn mini" onclick='setSt(${u},"대기")'>대기로</button>` : ""); };
-  return statsPanel() + `<div class="panel"><h3>회원 관리</h3>
+  const nst = notifyState();
+  return statsPanel() + (nst === "default" ? `<div class="notibar"><span>가입 신청이 오면 바로 알려 드려요. 홈페이지 탭을 열어 두고 다른 창을 보고 있을 때도 알림을 받으려면 알림을 켜 주세요.</span><button class="btn mini ok" onclick="askNotify()">알림 켜기</button></div>` : "") + `<div class="panel"><h3>회원 관리</h3>
    <div class="adm-top"><span class="cnt2">회원 <b>${ok}</b>명 · 대기 ${n("대기")}명 · 보류 ${n("보류")}명${ok < 10 ? ` · 연구회 기준 10명까지 <b>${10 - ok}</b>명` : ""}</span><span class="sp"></span><button class="btn mini ok" onclick="copyList()">명단 복사 (승인 회원)</button></div>
    ${rows.length ? `<div class="tbl-wrap"><table class="adm"><tr><th>상태</th><th>역할</th><th>이름</th><th>소속</th><th>학교급</th><th>직위</th><th>교과·분야</th><th>휴대전화</th><th>다른 공동체</th><th>신청일</th><th></th></tr>
    ${rows.map(r => `<tr><td>${statusPill(r.status, r)}</td><td>${roleCell(r)}</td><td>${esc(r.name)}</td><td>${esc(r.school)}</td><td>${esc(r.level)}</td><td>${esc(r.pos)}</td><td>${esc(r.subject)}</td><td>${esc(r.phone)}</td><td${r.others === "2개 이상" ? ' class="warn" title="JACE까지 3개를 넘는지 확인"' : ""}>${esc(r.others)}</td><td>${esc(new Date(r.t).toLocaleDateString("ko-KR"))}</td><td>${btns(r)}</td></tr>`).join("")}</table></div>` : '<p style="color:var(--sub)">아직 가입 신청이 없습니다.</p>'}
    <div class="sheetnote">승인된 회원의 역할을 부회장, 총무, 임원으로 바꾸면 그 선생님도 운영진 관리를 할 수 있습니다. 명단 복사는 승인된 회원을 "순, 역할, 소속, 직위, 성명, 교과" 순서로 복사합니다.${AD && AD.sheetUrl ? ` 자료·일정 기록은 <a href="${esc(AD.sheetUrl)}" target="_blank" rel="noopener">관리 시트</a>에서 볼 수 있어요.` : ""}</div></div>
+   ${subjPanel()}
    <div class="panel"><h3>내려받기 기록 (최근 30건)</h3>${AD && AD.log.length ? `<table class="rt"><tr><th>일시</th><th>선생님</th><th>자료</th></tr>${AD.log.map(l => `<tr><td>${esc(l.at)}</td><td>${esc(l.n)}</td><td>${esc(l.t)}</td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 기록이 없습니다.</p>'}</div>
    <div class="panel"><h3>자료 관리</h3><p style="margin:0;font-size:14px;color:var(--sub)">운영진은 모든 자료를 고치거나, 내려받기 범위를 바꾸거나, 목록에서 내릴 수 있어요. 분류 목록(학교급·교과·자료 종류)과 책자 제목은 관리 시트 "설정" 탭에서 고칩니다.</p>
    <div style="overflow-x:auto;margin-top:10px"><table class="rt"><tr><th>자료</th><th>올린 선생님</th><th>내려받기</th><th></th></tr>${(MD ? MD.items : []).slice().sort((a, b) => b.dt.localeCompare(a.dt)).map(i => `<tr><td>${esc(i.t)}</td><td>${esc(i.by)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td style="text-align:right;white-space:nowrap"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> <button class="btn mini" onclick='openOwner(${JSON.stringify(i.id)})'>올린이 바꾸기</button> <button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table></div></div>`;
@@ -2287,6 +2406,25 @@ function aboutView() {
     ${J.st ? `<div class="state">${J.st}</div>` : ""}<p class="note">구글 계정으로 로그인한 뒤 신청서를 내면, 운영진 확인 후 회원으로 등록됩니다. 교육학습공동체 신청 때 회원 명단에 들어갈 정보를 함께 받습니다.</p></div>${J.btn ? `<div class="acts">${J.btn}</div>` : ""}</div></section>`;
 }
 
+
+/* ===== 앱으로 설치 (홈 화면에 추가) ===== */
+let INSTALL_EVT = null;
+const isStandalone = () => { try { return matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } };
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function instSync() { const b = $("#instBtn"); if (b) b.hidden = DEMO || isStandalone() || !(INSTALL_EVT || isIOS() || INAPP); }
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); INSTALL_EVT = e; instSync(); });
+window.addEventListener("appinstalled", () => { INSTALL_EVT = null; instSync(); toast("JACE 앱을 설치했어요. 홈 화면에서 바로 열 수 있어요"); });
+async function installApp() {
+  if (INAPP) return inappHelp();
+  if (INSTALL_EVT) { INSTALL_EVT.prompt(); try { await INSTALL_EVT.userChoice; } catch (e) {} INSTALL_EVT = null; instSync(); return; }
+  openM(`<h2>홈 화면에 JACE 앱 추가하기</h2><ol class="inst-steps">
+   <li>사파리 아래쪽(아이패드는 위쪽)의 <b>공유</b> 단추를 눌러요.</li><li>목록을 내려 <b>홈 화면에 추가</b>를 눌러요.</li><li>오른쪽 위 <b>추가</b>를 누르면 홈 화면에 JACE 아이콘이 생겨요.</li></ol>
+   <p class="sheetnote">크롬 같은 다른 브라우저에서는 이 단추를 누르면 바로 설치 창이 떠요.</p>
+   <div class="mfoot"><span class="sp"></span><button class="btn primary" onclick="closeM()">확인</button></div>`);
+}
+instSync();
+if ("serviceWorker" in navigator && location.protocol === "https:") window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+
 /* ===== 사용 안내 (간략 사용법 창) ===== */
 const HELP = [
   ["자료실 둘러보기 (누구나)", ["위쪽 '자료실'을 누르고, 왼쪽에서 학교급·교과·자료 종류를 고릅니다.", "카드를 누르면 설명이, '바로 열기'를 누르면 프로그램이 열려요.", "로그인하지 않아도 둘러보는 건 막지 않아요."]],
@@ -2296,7 +2434,7 @@ const HELP = [
   ["아이디어함 (누구나·회원)", ["'아이디어 남기기'로 있으면 좋을 도구를 적어요. 회원이 아니어도 로그인만 하면 돼요.", "같은 생각이면 '저도 필요해요'를 눌러요.", "회원은 '제가 만들어 볼게요'로 맡고, 다 만들면 '완성했어요'로 자료와 이어요."]],
   ["회원 공간 (회원)", ["'대화', '화상 회의', '모임 일정', '연수 후기', '공지', '산출물 책자' 탭이 있어요.", "모임 일정에서 '참석하기'를 누르면 참석 명단에 들어가요.", "쪽지는 대화 탭에서 선생님 이름을 눌러 보내요."]],
   ["운영진 관리 (운영진)", ["가입 신청을 '승인'하고, 역할을 부회장·총무·임원으로 바꿀 수 있어요.", "'명단 복사 (승인 회원)'는 교육청에 낼 명단을 표로 복사해요.", "'실적 복사'와 '이달 소식 카드'로 보고서와 카톡 소식을 만들어요."]],
-  ["이럴 땐 이렇게", ["비밀번호는 따로 없어요. 가입할 때 쓴 구글 계정으로 로그인하면 돼요.", "다른 계정으로 자료를 올렸다면 운영진이 '올린이 바꾸기'로 고쳐 드려요.", "카톡 안에서 열면 로그인이 막혀요. 크롬이나 사파리로 열어 주세요."]],
+  ["이럴 땐 이렇게", ["비밀번호는 따로 없어요. 가입할 때 쓴 구글 계정으로 로그인하면 돼요.", "다른 계정으로 자료를 올렸다면 운영진이 '올린이 바꾸기'로 고쳐 드려요.", "카톡 안에서 열면 로그인이 막혀요. 크롬이나 사파리로 열어 주세요.", "위쪽 '앱으로 설치'를 누르면 휴대폰 홈 화면에 JACE 앱을 둘 수 있어요."]],
 ];
 function openHelp() {
   const demoUrl = location.origin + location.pathname + "?demo";
@@ -2353,7 +2491,7 @@ window.addEventListener("hashchange", route);
 $("#ver").textContent = "· 판 " + APP_VERSION;
 if (DEMO) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "미리보기: 지어낸 자료로 둘러보는 화면이에요. 로그인, 올리기, 내려받기는 되지 않고 아무것도 저장되지 않아요."; }
 else if (!apiReady()) { const b = $("#setupBar"); b.style.display = "block"; b.textContent = "준비 중: 자료실 서버가 아직 연결되지 않아 자료 목록·올리기·공지·일정은 곧 열립니다. 가입 신청과 회원 대화는 지금 쓸 수 있어요."; }
-loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas(), loadUsedRec()])).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
+loadPublic(false).then(route).then(openDeepLink).then(() => setTimeout(recruitCheck, 1500)).then(() => Promise.all([loadUsedSc(), loadIdeas(), loadUsedRec(), loadSubjCfg()])).then(() => { seenInit(); }).then(() => { if (!ov.classList.contains("show") || view !== "public") render(); });
 
 </script>
 </body>
