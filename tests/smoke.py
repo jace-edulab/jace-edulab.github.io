@@ -59,7 +59,7 @@ DB0 = {**RT0, "members": {
 def build(user, db=None, api=True):
     stub = f"""<script>
 window.JACE_FIREBASE={{apiKey:"k",authDomain:"a",databaseURL:"",projectId:"p",appId:"x"}};
-window.JACE_API_URL={json.dumps("https://api.invalid/exec" if api else "")};window.JACE_ADMINS=["jace.edulab@gmail.com"];window.JACE_MANAGERS=["boss@x.kr"];
+window.JACE_API_URL={json.dumps("https://api.invalid/exec" if api else "")};window.JACE_ADMINS=["jace.edulab@gmail.com"];window.JACE_MANAGERS=["boss@x.kr"];window.JACE_SCHOOL_URL="https://school.invalid/exec";
 window.__RT_TEST=true;window.__NORECRUIT=true;window.__NOCONFIRM=true;window.__CALLS=[];window.__DB={json.dumps(db or {}, ensure_ascii=False)};
 let __U={json.dumps(user)};if(__U)__U.getIdToken=async()=>"tok";let __cb=null;
 const __A={{get currentUser(){{return __U}},setPersistence(){{return Promise.resolve()}},onAuthStateChanged(cb){{__cb=cb;setTimeout(()=>cb(__U),20)}},signInWithPopup(){{__U={{uid:"new",email:"new@x.kr",displayName:"새교사",getIdToken:async()=>"tok"}};setTimeout(()=>__cb(__U),10);return Promise.resolve()}},signOut(){{__U=null;setTimeout(()=>__cb(null),10);return Promise.resolve()}}}};
@@ -69,7 +69,8 @@ const __ref=p=>({{get:async()=>({{val:()=>{{const v=__get(p);return v===undefine
 window.firebase={{initializeApp(){{}},auth:Object.assign(()=>__A,{{Auth:{{Persistence:{{LOCAL:1}}}},GoogleAuthProvider:function(){{}}}}),database:Object.assign(()=>({{ref:__ref}}),{{ServerValue:{{TIMESTAMP:0}}}})}};
 const __R={{upload:{{ok:true,id:"new1"}},addFile:{{ok:true,n:2}},updateItem:{{ok:true}},getFile:{{ok:true,name:"시험.pdf",mime:"application/pdf",b64:"{B64}"}},public:{json.dumps(PUBLIC, ensure_ascii=False)},memberData:{json.dumps(MD, ensure_ascii=False)},adminData:{{ok:true,log:[{{at:"2026-11-19 10:00",n:"가교사",t:"점퍼스"}}],sheetUrl:"#"}}}};
 window.fetch=async(url,opt)=>{{let b={{ok:true}};
- if(String(url).includes("public")) b=__R.public;
+ if(String(url).includes("school.invalid")) b={{ok:true,list:[{{code:"S1",name:"햇살초등학교",kind:"초등학교",sido:"전북특별자치도",addr:"전북 가상시 햇살로 1"}},{{code:"S2",name:"햇살중학교",kind:"중학교",sido:"전라남도",addr:"전남 가상군 햇살길 2"}}]}};
+ else if(String(url).includes("public")) b=__R.public;
  else if(opt&&opt.body){{const q=JSON.parse(opt.body);window.__CALLS.push(q);b=__R[q.action]||{{ok:true}};}}
  return new Response(JSON.stringify(b),{{status:200,headers:{{"Content-Type":"application/json"}}}});}};
 </script>"""
@@ -183,7 +184,11 @@ async def join_flow(b, width):
     check(f"{tag} 가입: 로그인 뒤 신청서", await pg.locator("#jn").count() == 1 and await pg.input_value("#jn") == "새교사")
     await pg.locator("#jp").press_sequentially("010-1234 5678")
     check(f"{tag} 가입: 휴대전화 숫자만", await pg.input_value("#jp") == "01012345678")
-    await pg.fill("#js", "햇살초등학교"); await pg.select_option("#jl", "초등학교"); await pg.select_option("#jpos", "교사")
+    await pg.locator("#js").press_sequentially("햇살"); await pg.wait_for_timeout(700)
+    check(f"{tag} 가입: 학교 찾기 목록", await pg.locator("#jsList button").count() == 2)
+    await pg.locator("#jsList button").first.click(); await pg.wait_for_timeout(100)
+    check(f"{tag} 가입: 학교를 고르면 이름·학교급 채움", await pg.input_value("#js") == "햇살초등학교" and await pg.input_value("#jl") == "초등학교" and await pg.locator("#jsList button").count() == 0)
+    await pg.select_option("#jpos", "교사")
     check(f"{tag} 가입: 교과 고르기 목록", await pg.locator("#jsub option").count() > 5 and not await pg.locator("#jsubx").is_visible())
     await pg.select_option("#jsub", "기타 (직접 입력)"); await pg.wait_for_timeout(50)
     check(f"{tag} 가입: 기타를 고르면 입력칸", await pg.locator("#jsubx").is_visible())
@@ -196,7 +201,7 @@ async def join_flow(b, width):
     check(f"{tag} 가입: 이용 약속 없으면 막힘", "약속" in await pg.inner_text("#jerr"))
     await pg.check("#jc"); await pg.get_by_role("button", name="신청서 보내기").click(); await pg.wait_for_timeout(300)
     sv = await pg.evaluate("window.__DB.members.new")
-    check(f"{tag} 가입: 저장", sv and sv["status"] == "대기" and sv["phone"] == "010-1234-5678" and sv["book"] is True and sv["subject"] == "초등교과전반 및 영재", json.dumps(sv, ensure_ascii=False))
+    check(f"{tag} 가입: 저장", sv and sv["status"] == "대기" and sv["phone"] == "010-1234-5678" and sv["book"] is True and sv["subject"] == "초등교과전반 및 영재" and sv.get("sido") == "전북특별자치도" and sv.get("schoolCode") == "S1", json.dumps(sv, ensure_ascii=False))
     check(f"{tag} 가입: 승인 대기 표시", "승인 대기 중" in await pg.inner_text("#hright"))
     check(f"{tag} 가입: 운영진 관리 메뉴 없음", await pg.locator("#navAdmin").is_hidden())
     check(f"{tag} 가입 흐름 오류 없음", not errs, "; ".join(errs)); await pg.close()
