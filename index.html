@@ -628,7 +628,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.11.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.12.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -1252,23 +1252,29 @@ const subjVal = () => $("#jsub").value === SUBJ_ETC ? $("#jsubx").value.trim() :
 /* 학교 찾기 (점퍼스와 같은 나이스 학교 찾기 웹앱) */
 const SCHOOL_URL = window.JACE_SCHOOL_URL || "";
 let SCH = null, SCHT = null, SCHN = 0;
-function schFind() {
+function schFind(inp = "js", list = "jsList") {
   SCH = null; clearTimeout(SCHT);
-  const q = $("#js").value.replace(/\s+/g, ""), box = $("#jsList");
+  const q = $("#" + inp).value.replace(/\s+/g, ""), box = $("#" + list);
   if (!SCHOOL_URL || q.length < 2) { box.innerHTML = ""; return; }
   SCHT = setTimeout(async () => {
     const my = ++SCHN; box.innerHTML = `<div class="schmsg">찾는 중…</div>`;
     try {
       const j = await (await fetch(SCHOOL_URL + "?q=" + encodeURIComponent(q))).json();
-      if (my !== SCHN || !$("#jsList")) return;
+      if (my !== SCHN || !$("#" + list)) return;
       const L = (j.ok && j.list) || []; box._L = L;
-      box.innerHTML = L.length ? L.slice(0, 30).map((x, i) => `<button type="button" role="option" onclick="schPick(${i})"><b>${esc(x.name)}</b><span>${esc(x.sido)} · ${esc(x.addr || "")}</span></button>`).join("") : `<div class="schmsg">찾은 학교가 없어요. 이름을 그대로 적어 주세요.</div>`;
-    } catch (e) { if (my === SCHN && $("#jsList")) box.innerHTML = `<div class="schmsg">학교 찾기에 연결하지 못했어요. 이름을 그대로 적어 주세요.</div>`; }
+      box.innerHTML = L.length ? L.slice(0, 30).map((x, i) => `<button type="button" role="option" onclick="schPick(${i},'${list}')"><b>${esc(x.name)}</b><span>${esc(x.sido)} · ${esc(x.addr || "")}</span></button>`).join("") : `<div class="schmsg">찾은 학교가 없어요. 이름을 그대로 적어 주세요.</div>`;
+    } catch (e) { if (my === SCHN && $("#" + list)) box.innerHTML = `<div class="schmsg">학교 찾기에 연결하지 못했어요. 이름을 그대로 적어 주세요.</div>`; }
   }, 350);
 }
-function schPick(i) {
-  const box = $("#jsList"), x = box._L && box._L[i]; if (!x) return;
-  SCH = { name: x.name, sido: x.sido, code: x.code }; $("#js").value = x.name; box.innerHTML = "";
+function schPick(i, list = "jsList") {
+  const box = $("#" + list), x = box._L && box._L[i]; if (!x) return;
+  SCH = { name: x.name, sido: x.sido, code: x.code }; box.innerHTML = "";
+  if (list === "esList") {   // 운영진의 회원 정보 고치기 창
+    $("#es").value = x.name; if (LEVELS.includes(x.kind)) $("#el").value = x.kind;
+    const sd = $("#esd"); if (x.sido) { if (![...sd.options].some(o => o.value === x.sido)) sd.add(new Option(x.sido, x.sido)); sd.value = x.sido; }
+    return;
+  }
+  $("#js").value = x.name;
   if (LEVELS.includes(x.kind)) { $("#jl").value = x.kind; subjRelist(); }
 }
 const optHTML = (list, cur) => '<option value="">고르기</option>' + list.map(x => '<option' + (x === cur ? " selected" : "") + '>' + esc(x) + '</option>').join("");
@@ -2248,13 +2254,14 @@ function adminView() {
 /* 운영진: 회원 정보 직접 고치기 */
 const SIDOS = ["전북특별자치도", "전라남도", "광주광역시", "서울특별시", "부산광역시", "대구광역시", "인천광역시", "대전광역시", "울산광역시", "세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "경상북도", "경상남도", "제주특별자치도"];
 function openMemEdit(uid) {
-  const m = ALL && ALL[uid]; if (!m) return;
+  const m = ALL && ALL[uid]; if (!m) return; SCH = null;
   const sd = m.sido || "전북특별자치도";
   openM(`<h2>회원 정보 고치기</h2><p style="margin:0;color:var(--sub);font-size:14px">${esc(m.email || "")}</p><div class="form">
    <div class="row2"><div><label for="en">이름</label><input type="text" id="en" maxlength="20" value="${esc(m.name || "")}"></div>
    <div><label for="ep">휴대전화 (숫자만)</label><input type="tel" id="ep" maxlength="11" inputmode="numeric" value="${esc(String(m.phone || "").replace(/\D/g, ""))}" oninput="this.value=this.value.replace(/\\D/g,'')"></div></div>
-   <div class="row2"><div><label for="es">소속 학교(기관)</label><input type="text" id="es" maxlength="40" value="${esc(m.school || "")}"></div>
+   <div class="row2"><div><label for="es">소속 학교(기관)</label><input type="text" id="es" maxlength="40" autocomplete="off" placeholder="두 글자 이상 적으면 찾아 드려요" value="${esc(m.school || "")}" oninput="schFind('es','esList')"></div>
    <div><label for="esd">시·도</label><select id="esd">${SIDOS.concat(SIDOS.includes(sd) ? [] : [sd]).map(x => `<option${x === sd ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></div></div>
+   <div id="esList" class="schlist" role="listbox" aria-label="찾은 학교"></div>
    <div class="row2"><div><label for="el">학교급</label><select id="el">${optHTML(LEVELS, m.level)}</select></div>
    <div><label for="epos">직위</label><select id="epos">${optHTML(POSITIONS, m.pos)}</select></div></div>
    <div class="row2"><div><label for="esub">담당 교과·분야</label><input type="text" id="esub" maxlength="30" value="${esc(m.subject || "")}"></div>
@@ -2269,7 +2276,7 @@ async function sendMemEdit(uid) {
   if (v("ep") && !validPhone(v("ep"))) return err("휴대전화 번호를 숫자만 11자리로 적어 주세요.");
   if (!v("es")) return err("소속 학교(기관)를 적어 주세요.");
   const old = ALL[uid] || {}, patch = { name: v("en"), phone: v("ep") ? fmtPhone(v("ep")) : "", school: v("es"), sido: v("esd"), level: v("el"), pos: v("epos"), subject: v("esub"), others: v("eo"), u: Date.now() };
-  if (patch.school !== old.school) patch.schoolCode = "";
+  if (SCH && SCH.name === patch.school) patch.schoolCode = SCH.code; else if (patch.school !== old.school) patch.schoolCode = "";
   try { const next = Object.assign({}, old, patch); delete next.uid; await firebase.database().ref("members/" + uid).set(next); ALL[uid] = next; closeM(); render(); toast(patch.name + " 선생님 정보를 고쳤습니다"); }
   catch (e) { err("저장하지 못했어요: " + e.message); }
 }
