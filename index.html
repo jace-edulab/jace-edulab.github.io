@@ -479,6 +479,8 @@ table.adm td.warn{color:#b42318;font-weight:700}
 .recruit .racts{display:flex;gap:8px;justify-content:center}.recruit .racts .btn{padding:10px 20px;font-size:15px}
 .recruit .rfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;border-top:1px solid var(--line);padding-top:12px}.rchk{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--sub);cursor:pointer}.rchk input{width:18px;height:18px;margin:0}
 .inst-btn{margin-left:auto;min-height:36px;align-self:center;padding:0 12px;border:1.5px solid var(--navy);border-radius:999px;background:#fff;color:var(--navy);font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;flex:0 0 auto}.inst-btn[hidden]{display:none}.inst-btn:not([hidden])+.hlp-btn{margin-left:4px}
+.schlist{display:flex;flex-direction:column;max-height:220px;overflow-y:auto;border-radius:8px}.schlist:not(:empty){border:1.5px solid var(--line);margin-top:4px}
+.schlist button{text-align:left;border:0;border-bottom:1px solid #EEF0F4;background:#fff;padding:9px 12px;min-height:44px;font:inherit;cursor:pointer}.schlist button:hover{background:var(--tint)}.schlist b{display:block;font-size:14px}.schlist span{font-size:12px;color:var(--sub)}.schmsg{padding:10px 12px;font-size:13px;color:var(--sub)}
 .inst-steps{margin:0;padding-left:22px;font-size:15px;line-height:2}
 .hlp-btn{margin-left:auto;display:flex;align-items:center;gap:7px;min-height:44px;padding:0 4px 0 12px;border:0;background:none;color:var(--text);font-size:15px;font-weight:500;white-space:nowrap;cursor:pointer;flex:0 0 auto}.hlp-btn:hover{text-decoration:underline}
 .hlp-q{width:20px;height:20px;border-radius:50%;background:#111;color:#fff;font-size:12.5px;font-weight:700;display:grid;place-items:center}
@@ -626,7 +628,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.9.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.10.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -1247,6 +1249,28 @@ function subjOpts(lv, cur) {
 function subjSync() { const o = $("#jsubx"); if (o) o.style.display = $("#jsub").value === SUBJ_ETC ? "" : "none"; }
 function subjRelist() { const cur = $("#jsub").value === SUBJ_ETC ? ($("#jsubx").value.trim() || SUBJ_ETC) : $("#jsub").value; $("#jsub").innerHTML = subjOpts($("#jl").value, cur === SUBJ_ETC ? "\u0000" : cur); subjSync(); }
 const subjVal = () => $("#jsub").value === SUBJ_ETC ? $("#jsubx").value.trim() : $("#jsub").value;
+/* 학교 찾기 (점퍼스와 같은 나이스 학교 찾기 웹앱) */
+const SCHOOL_URL = window.JACE_SCHOOL_URL || "";
+let SCH = null, SCHT = null, SCHN = 0;
+function schFind() {
+  SCH = null; clearTimeout(SCHT);
+  const q = $("#js").value.replace(/\s+/g, ""), box = $("#jsList");
+  if (!SCHOOL_URL || q.length < 2) { box.innerHTML = ""; return; }
+  SCHT = setTimeout(async () => {
+    const my = ++SCHN; box.innerHTML = `<div class="schmsg">찾는 중…</div>`;
+    try {
+      const j = await (await fetch(SCHOOL_URL + "?q=" + encodeURIComponent(q))).json();
+      if (my !== SCHN || !$("#jsList")) return;
+      const L = (j.ok && j.list) || []; box._L = L;
+      box.innerHTML = L.length ? L.slice(0, 30).map((x, i) => `<button type="button" role="option" onclick="schPick(${i})"><b>${esc(x.name)}</b><span>${esc(x.sido)} · ${esc(x.addr || "")}</span></button>`).join("") : `<div class="schmsg">찾은 학교가 없어요. 이름을 그대로 적어 주세요.</div>`;
+    } catch (e) { if (my === SCHN && $("#jsList")) box.innerHTML = `<div class="schmsg">학교 찾기에 연결하지 못했어요. 이름을 그대로 적어 주세요.</div>`; }
+  }, 350);
+}
+function schPick(i) {
+  const box = $("#jsList"), x = box._L && box._L[i]; if (!x) return;
+  SCH = { name: x.name, sido: x.sido, code: x.code }; $("#js").value = x.name; box.innerHTML = "";
+  if (LEVELS.includes(x.kind)) { $("#jl").value = x.kind; subjRelist(); }
+}
 const optHTML = (list, cur) => '<option value="">고르기</option>' + list.map(x => '<option' + (x === cur ? " selected" : "") + '>' + esc(x) + '</option>').join("");
 const validPhone = v => /^01[016789]\d{7,8}$/.test(String(v || "").replace(/\D/g, ""));
 const fmtPhone = p => { const d = String(p).replace(/\D/g, ""); return d.length === 11 ? d.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : d.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3"); };
@@ -1255,12 +1279,14 @@ async function openJoin() {
   if (!ME) { if (!AUTH.currentUser) { await login(); return; } }
   if (ME && ME.rep) { go("admin"); render(); return; }
   if (ME && ME.member && !isAdmin()) { toast("이미 회원으로 등록되어 있습니다"); return; }
-  const m = MINE || {};
+  const m = MINE || {}; SCH = null;
   openM(`<h2>JACE 가입 신청</h2><p style="margin:0;color:var(--sub);font-size:14px">${esc(AUTH.currentUser.email)} 계정으로 신청합니다. 운영진이 확인하면 회원으로 등록됩니다.</p>
    <div class="form">
    <div class="row2"><div><label for="jn">이름</label><input type="text" id="jn" maxlength="20" autocomplete="name" value="${esc(m.name || AUTH.currentUser.displayName || "")}"></div>
    <div><label for="jp">휴대전화</label><input type="tel" id="jp" inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="숫자만 입력 (예: 01012345678)" oninput="this.value=this.value.replace(/\\D/g,'')" value="${esc(String(m.phone || "").replace(/\D/g, ""))}"></div></div>
-   <label for="js">소속 학교(기관)</label><input type="text" id="js" maxlength="40" placeholder="예: 햇살초등학교" value="${esc(m.school || "")}">
+   <label for="js">소속 학교(기관)</label><input type="text" id="js" maxlength="40" autocomplete="off" placeholder="학교 이름을 두 글자 이상 적으면 찾아 드려요" value="${esc(m.school || "")}" oninput="schFind()">
+   <div id="jsList" class="schlist" role="listbox" aria-label="찾은 학교"></div>
+   <div class="sheetnote" style="margin-top:4px">목록에서 고르면 학교급도 같이 채워져요. 목록에 없으면(특수학교, 교육기관 등) 그대로 적어 주세요.</div>
    <div class="row2"><div><label for="jl">학교급</label><select id="jl" onchange="subjRelist()">${optHTML(LEVELS, m.level)}</select></div>
    <div><label for="jpos">직위</label><select id="jpos">${optHTML(POSITIONS, m.pos)}</select></div></div>
    <label for="jsub">담당 교과·분야</label><select id="jsub" onchange="subjSync()">${subjOpts(m.level, m.subject || "")}</select>
@@ -1283,7 +1309,7 @@ async function openJoin() {
 }
 async function sendJoin() {
   const v = id => $("#" + id).value.trim(), err = t => { $("#jerr").textContent = t; };
-  const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: subjVal(), others: v("jo"),
+  const body = { name: v("jn"), phone: v("jp"), school: v("js"), level: v("jl"), pos: v("jpos"), subject: subjVal(), others: v("jo"), sido: (SCH && SCH.name === v("js")) ? SCH.sido : ((MINE || {}).sido || ""), schoolCode: (SCH && SCH.name === v("js")) ? SCH.code : ((MINE || {}).school === v("js") ? ((MINE || {}).schoolCode || "") : ""),
     eligible: $("#jelig").checked, agreePrivacy: $("#jpriv").checked, agreeList: $("#jreg").checked, book: $("#jbook").checked, agreeUse: $("#jc").checked };
   if (!body.name) return err("이름을 적어 주세요.");
   if (!validPhone(body.phone)) return err("휴대전화 번호를 숫자만 11자리로 적어 주세요. (예: 01012345678)");
@@ -2212,8 +2238,8 @@ function adminView() {
   return statsPanel() + (nst === "default" ? `<div class="notibar"><span>가입 신청이 오면 바로 알려 드려요. 홈페이지 탭을 열어 두고 다른 창을 보고 있을 때도 알림을 받으려면 알림을 켜 주세요.</span><button class="btn mini ok" onclick="askNotify()">알림 켜기</button></div>` : "") + `<div class="panel"><h3>회원 관리</h3>
    <div class="adm-top"><span class="cnt2">회원 <b>${ok}</b>명 · 대기 ${n("대기")}명 · 보류 ${n("보류")}명${ok < 10 ? ` · 연구회 기준 10명까지 <b>${10 - ok}</b>명` : ""}</span><span class="sp"></span><button class="btn mini ok" onclick="copyList()">명단 복사 (승인 회원)</button></div>
    ${rows.length ? `<div class="tbl-wrap"><table class="adm"><tr><th>상태</th><th>역할</th><th>이름</th><th>소속</th><th>학교급</th><th>직위</th><th>교과·분야</th><th>휴대전화</th><th>다른 공동체</th><th>신청일</th><th></th></tr>
-   ${rows.map(r => `<tr><td>${statusPill(r.status, r)}</td><td>${roleCell(r)}</td><td>${esc(r.name)}</td><td>${esc(r.school)}</td><td>${esc(r.level)}</td><td>${esc(r.pos)}</td><td>${esc(r.subject)}</td><td>${esc(r.phone)}</td><td${r.others === "2개 이상" ? ' class="warn" title="JACE까지 3개를 넘는지 확인"' : ""}>${esc(r.others)}</td><td>${esc(new Date(r.t).toLocaleDateString("ko-KR"))}</td><td>${btns(r)}</td></tr>`).join("")}</table></div>` : '<p style="color:var(--sub)">아직 가입 신청이 없습니다.</p>'}
-   <div class="sheetnote">승인된 회원의 역할을 부회장, 총무, 임원으로 바꾸면 그 선생님도 운영진 관리를 할 수 있습니다. 명단 복사는 승인된 회원을 "순, 역할, 소속, 직위, 성명, 교과" 순서로 복사합니다.${AD && AD.sheetUrl ? ` 자료·일정 기록은 <a href="${esc(AD.sheetUrl)}" target="_blank" rel="noopener">관리 시트</a>에서 볼 수 있어요.` : ""}</div></div>
+   ${rows.map(r => `<tr><td>${statusPill(r.status, r)}</td><td>${roleCell(r)}</td><td>${esc(r.name)}</td><td>${esc(r.school)}${isJB(r) ? "" : ` <span class="pill sm" style="background:#fff1e6;color:#b5651d">${esc(sidoShort(r.sido))}</span>`}</td><td>${esc(r.level)}</td><td>${esc(r.pos)}</td><td>${esc(r.subject)}</td><td>${esc(r.phone)}</td><td${r.others === "2개 이상" ? ' class="warn" title="JACE까지 3개를 넘는지 확인"' : ""}>${esc(r.others)}</td><td>${esc(new Date(r.t).toLocaleDateString("ko-KR"))}</td><td>${btns(r)}</td></tr>`).join("")}</table></div>` : '<p style="color:var(--sub)">아직 가입 신청이 없습니다.</p>'}
+   <div class="sheetnote">승인된 회원의 역할을 부회장, 총무, 임원으로 바꾸면 그 선생님도 운영진 관리를 할 수 있습니다. 명단 복사는 교육청 제출용이라 전북 소속의 승인된 회원만 "순, 역할, 소속, 직위, 성명, 교과" 순서로 복사합니다.${AD && AD.sheetUrl ? ` 자료·일정 기록은 <a href="${esc(AD.sheetUrl)}" target="_blank" rel="noopener">관리 시트</a>에서 볼 수 있어요.` : ""}</div></div>
    ${subjPanel()}
    <div class="panel"><h3>내려받기 기록 (최근 30건)</h3>${AD && AD.log.length ? `<table class="rt"><tr><th>일시</th><th>선생님</th><th>자료</th></tr>${AD.log.map(l => `<tr><td>${esc(l.at)}</td><td>${esc(l.n)}</td><td>${esc(l.t)}</td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 기록이 없습니다.</p>'}</div>
    <div class="panel"><h3>자료 관리</h3><p style="margin:0;font-size:14px;color:var(--sub)">운영진은 모든 자료를 고치거나, 내려받기 범위를 바꾸거나, 목록에서 내릴 수 있어요. 분류 목록(학교급·교과·자료 종류)과 책자 제목은 관리 시트 "설정" 탭에서 고칩니다.</p>
@@ -2227,10 +2253,13 @@ async function setRole(uid, role) {
   try { await firebase.database().ref("members/" + uid + "/role").set(role); ALL[uid].role = role; render(); toast(ALL[uid].name + " 선생님: " + role); }
   catch (e) { toast("바꾸지 못했습니다"); render(); }
 }
+/* 교육청 명단은 전북 소속만: 시·도를 모르는 예전 회원은 전북으로 봄 */
+const isJB = r => !r.sido || /전북|전라북/.test(r.sido);
+const sidoShort = v => String(v || "").replace(/특별자치도|특별자치시|광역시|특별시/, "").replace(/^(충청|전라|경상)(.)도$/, (m, a, b) => a[0] + b).replace(/도$/, "");
 function copyList() {
-  const rows = rowsSorted().filter(r => r.status === "승인");
+  const ok = rowsSorted().filter(r => r.status === "승인"), rows = ok.filter(isJB), out = ok.length - rows.length;
   const tsv = ["순\t역할\t소속\t직위\t성명\t교과"].concat(rows.map((r, i) => [i + 1, roleOf(r), r.school, r.pos, r.name, r.subject].join("\t"))).join("\n");
-  copyText(tsv, "승인 회원 " + rows.length + "명을 복사했습니다. 한글이나 엑셀 표에 붙여 넣으세요");
+  copyText(tsv, "전북 승인 회원 " + rows.length + "명을 복사했습니다." + (out ? " (다른 시·도 회원 " + out + "명은 뺐어요)" : "") + " 한글이나 엑셀 표에 붙여 넣으세요");
 }
 
 /* ===== 연수 후기 ===== */

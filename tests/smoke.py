@@ -52,6 +52,7 @@ RT0 = {"usedSc": {"p3": {"u1": "해초", "u2": "달초", "u3": "해초"}},
 DB0 = {**RT0, "members": {
   "m1": {"name": "가교사", "school": "달빛중학교", "level": "중학교", "pos": "교사", "subject": "체육", "phone": "010-1111-2222", "others": "없음", "status": "승인", "role": "회원", "email": "m1@x.kr", "t": 1},
   "w1": {"name": "나교사", "school": "별초등학교", "level": "초등학교", "pos": "교감", "subject": "초등교과전반", "phone": "010-3333-4444", "others": "2개 이상", "status": "대기", "email": "w1@x.kr", "t": 2},
+  "jn": {"name": "남도교사", "school": "남도중학교", "level": "중학교", "pos": "교사", "subject": "체육", "phone": "010-7777-8888", "others": "없음", "status": "승인", "role": "회원", "email": "jn@x.kr", "sido": "전라남도", "t": 3},
   "bs": {"name": "박회장", "school": "봄초등학교", "level": "초등학교", "pos": "교사", "subject": "초등교과전반", "phone": "010-5555-6666", "others": "없음", "status": "승인", "email": "boss@x.kr", "t": 0}}}
 
 
@@ -284,7 +285,7 @@ async def rep_admin(b, width):
     # 운영진 관리
     await pg.evaluate("location.hash='#admin'"); await pg.wait_for_timeout(500)
     check(f"{tag} 운영진 화면에도 사용 안내 단추", await pg.locator("nav .hlp-btn").is_visible())
-    check(f"{tag} 운영진: 명단 3줄", await pg.locator("table.adm tr").count() == 4)
+    check(f"{tag} 운영진: 명단 4줄(다른 시·도 표시 포함)", await pg.locator("table.adm tr").count() == 5 and "전남" in await pg.locator("table.adm tr", has_text="남도교사").inner_text())
     check(f"{tag} 운영진: 회장 맨 위", "박회장" in await pg.locator("table.adm tr >> nth=1").inner_text())
     check(f"{tag} 운영진: 3개 초과 경고", await pg.locator("td.warn").count() == 1)
     check(f"{tag} 운영진: 내려받기 기록", await pg.locator("main", has_text="점퍼스").count() >= 1)
@@ -295,7 +296,7 @@ async def rep_admin(b, width):
     await pg.context.grant_permissions(["clipboard-read", "clipboard-write"])
     await pg.get_by_role("button", name="명단 복사 (승인 회원)").click(); await pg.wait_for_timeout(200)
     clip = await pg.evaluate("navigator.clipboard.readText()")
-    check(f"{tag} 운영진: 명단 복사", clip.splitlines()[0] == "순\t역할\t소속\t직위\t성명\t교과" and clip.splitlines()[1].startswith("1\t회장\t") and len(clip.splitlines()) == 4, clip)
+    check(f"{tag} 운영진: 명단 복사(전북만)", "남도교사" not in clip and clip.splitlines()[0] == "순\t역할\t소속\t직위\t성명\t교과" and clip.splitlines()[1].startswith("1\t회장\t") and len(clip.splitlines()) == 4, clip)
     await pg.evaluate("() => { window.__CALLS = []; openOwner('p2'); }"); await pg.wait_for_timeout(200)
     opts = await pg.locator("#own option").all_inner_texts()
     check(f"{tag} 올린이 바꾸기: 승인 회원 + 운영진만", any("박회장" in o for o in opts) and any("JACE 운영진" in o for o in opts) and not any("대기교사" in o for o in opts), str(opts))
@@ -323,7 +324,7 @@ async def rep_admin(b, width):
     pg, errs = await newpage(b, width, {"uid": "m1", "email": "m1@x.kr"}, db=db2)
     check(f"{tag} 총무: 운영진 메뉴", await pg.locator("#navAdmin").is_visible())
     await pg.evaluate("location.hash='#admin'"); await pg.wait_for_timeout(500)
-    check(f"{tag} 총무: 명단 열림", await pg.locator("table.adm tr").count() == 4)
+    check(f"{tag} 총무: 명단 열림", await pg.locator("table.adm tr").count() == 5)
     check(f"{tag} 총무 오류 없음", not errs, "; ".join(errs)); await pg.close()
 
 
