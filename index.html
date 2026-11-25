@@ -628,7 +628,7 @@ footer .pcnote{display:block;margin-top:6px;font-size:12px;color:var(--sub)}
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy"><span id="busyTxt">처리 중…</span></div>
 <script>
-const APP_VERSION = "2.10.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
+const APP_VERSION = "2.11.0";   // 판 번호: server/Code.gs 의 APP_VERSION 과 늘 같게
 const DEMO = (() => { try { return new URLSearchParams(location.search).has("demo"); } catch (e) { return false; } })();   // ?demo : 지어낸 자료로 미리 눌러 보기
 
 /* ===== 설정 (config.js) ===== */
@@ -2233,7 +2233,7 @@ function roleCell(r) {
 function adminView() {
   if (!ALL) return `<div class="loading">불러오는 중…</div>`;
   const rows = rowsSorted(), n = st => rows.filter(r => r.status === st).length, ok = n("승인");
-  const btns = r => { const u = JSON.stringify(r.uid); return (r.status !== "승인" ? `<button class="btn mini ok" onclick='setSt(${u},"승인")'>승인</button> ` : "") + (r.status !== "보류" ? `<button class="btn mini" onclick='setSt(${u},"보류")'>보류</button> ` : "") + (r.status !== "대기" ? `<button class="btn mini" onclick='setSt(${u},"대기")'>대기로</button>` : ""); };
+  const btns = r => { const u = JSON.stringify(r.uid); return `<button class="btn mini" onclick='openMemEdit(${u})'>고치기</button> ` + (r.status !== "승인" ? `<button class="btn mini ok" onclick='setSt(${u},"승인")'>승인</button> ` : "") + (r.status !== "보류" ? `<button class="btn mini" onclick='setSt(${u},"보류")'>보류</button> ` : "") + (r.status !== "대기" ? `<button class="btn mini" onclick='setSt(${u},"대기")'>대기로</button>` : ""); };
   const nst = notifyState();
   return statsPanel() + (nst === "default" ? `<div class="notibar"><span>가입 신청이 오면 바로 알려 드려요. 홈페이지 탭을 열어 두고 다른 창을 보고 있을 때도 알림을 받으려면 알림을 켜 주세요.</span><button class="btn mini ok" onclick="askNotify()">알림 켜기</button></div>` : "") + `<div class="panel"><h3>회원 관리</h3>
    <div class="adm-top"><span class="cnt2">회원 <b>${ok}</b>명 · 대기 ${n("대기")}명 · 보류 ${n("보류")}명${ok < 10 ? ` · 연구회 기준 10명까지 <b>${10 - ok}</b>명` : ""}</span><span class="sp"></span><button class="btn mini ok" onclick="copyList()">명단 복사 (승인 회원)</button></div>
@@ -2244,6 +2244,34 @@ function adminView() {
    <div class="panel"><h3>내려받기 기록 (최근 30건)</h3>${AD && AD.log.length ? `<table class="rt"><tr><th>일시</th><th>선생님</th><th>자료</th></tr>${AD.log.map(l => `<tr><td>${esc(l.at)}</td><td>${esc(l.n)}</td><td>${esc(l.t)}</td></tr>`).join("")}</table>` : '<p style="color:var(--sub)">아직 기록이 없습니다.</p>'}</div>
    <div class="panel"><h3>자료 관리</h3><p style="margin:0;font-size:14px;color:var(--sub)">운영진은 모든 자료를 고치거나, 내려받기 범위를 바꾸거나, 목록에서 내릴 수 있어요. 분류 목록(학교급·교과·자료 종류)과 책자 제목은 관리 시트 "설정" 탭에서 고칩니다.</p>
    <div style="overflow-x:auto;margin-top:10px"><table class="rt"><tr><th>자료</th><th>올린 선생님</th><th>내려받기</th><th></th></tr>${(MD ? MD.items : []).slice().sort((a, b) => b.dt.localeCompare(a.dt)).map(i => `<tr><td>${esc(i.t)}</td><td>${esc(i.by)}</td><td>${i.m ? '<span class="status st-wait">회원만</span>' : '<span class="status st-ok">누구나</span>'}</td><td style="text-align:right;white-space:nowrap"><button class="btn mini" onclick='openUpload(${JSON.stringify(i.id)})'>고치기</button> <button class="btn mini" onclick='flip(${JSON.stringify(i.id)})'>${i.m ? "누구나 받기로" : "회원만 받기로"}</button> <button class="btn mini" onclick='openOwner(${JSON.stringify(i.id)})'>올린이 바꾸기</button> <button class="btn mini" onclick='hideItem(${JSON.stringify(i.id)})'>내리기</button></td></tr>`).join("")}</table></div></div>`;
+}
+/* 운영진: 회원 정보 직접 고치기 */
+const SIDOS = ["전북특별자치도", "전라남도", "광주광역시", "서울특별시", "부산광역시", "대구광역시", "인천광역시", "대전광역시", "울산광역시", "세종특별자치시", "경기도", "강원특별자치도", "충청북도", "충청남도", "경상북도", "경상남도", "제주특별자치도"];
+function openMemEdit(uid) {
+  const m = ALL && ALL[uid]; if (!m) return;
+  const sd = m.sido || "전북특별자치도";
+  openM(`<h2>회원 정보 고치기</h2><p style="margin:0;color:var(--sub);font-size:14px">${esc(m.email || "")}</p><div class="form">
+   <div class="row2"><div><label for="en">이름</label><input type="text" id="en" maxlength="20" value="${esc(m.name || "")}"></div>
+   <div><label for="ep">휴대전화 (숫자만)</label><input type="tel" id="ep" maxlength="11" inputmode="numeric" value="${esc(String(m.phone || "").replace(/\D/g, ""))}" oninput="this.value=this.value.replace(/\\D/g,'')"></div></div>
+   <div class="row2"><div><label for="es">소속 학교(기관)</label><input type="text" id="es" maxlength="40" value="${esc(m.school || "")}"></div>
+   <div><label for="esd">시·도</label><select id="esd">${SIDOS.concat(SIDOS.includes(sd) ? [] : [sd]).map(x => `<option${x === sd ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></div></div>
+   <div class="row2"><div><label for="el">학교급</label><select id="el">${optHTML(LEVELS, m.level)}</select></div>
+   <div><label for="epos">직위</label><select id="epos">${optHTML(POSITIONS, m.pos)}</select></div></div>
+   <div class="row2"><div><label for="esub">담당 교과·분야</label><input type="text" id="esub" maxlength="30" value="${esc(m.subject || "")}"></div>
+   <div><label for="eo">다른 교육학습공동체</label><select id="eo">${optHTML(OTHERS, m.others)}</select></div></div>
+   <div class="sheetnote" style="margin-top:6px">교육청 명단 복사에는 시·도가 전북인 회원만 들어가요. 고친 이름과 학교는 그 선생님이 다음에 들어올 때 대화방 이름에도 반영돼요.</div></div>
+   <div class="err" id="eerr"></div>
+   <div class="mfoot"><button class="btn" onclick="closeM()">취소</button><button class="btn primary" onclick='sendMemEdit(${JSON.stringify(uid)})'>저장</button></div>`);
+}
+async function sendMemEdit(uid) {
+  const v = id => $("#" + id).value.trim(), err = t => { $("#eerr").textContent = t; };
+  if (!v("en")) return err("이름을 적어 주세요.");
+  if (v("ep") && !validPhone(v("ep"))) return err("휴대전화 번호를 숫자만 11자리로 적어 주세요.");
+  if (!v("es")) return err("소속 학교(기관)를 적어 주세요.");
+  const old = ALL[uid] || {}, patch = { name: v("en"), phone: v("ep") ? fmtPhone(v("ep")) : "", school: v("es"), sido: v("esd"), level: v("el"), pos: v("epos"), subject: v("esub"), others: v("eo"), u: Date.now() };
+  if (patch.school !== old.school) patch.schoolCode = "";
+  try { const next = Object.assign({}, old, patch); delete next.uid; await firebase.database().ref("members/" + uid).set(next); ALL[uid] = next; closeM(); render(); toast(patch.name + " 선생님 정보를 고쳤습니다"); }
+  catch (e) { err("저장하지 못했어요: " + e.message); }
 }
 async function setSt(uid, st) {
   try { await firebase.database().ref("members/" + uid + "/status").set(st); ALL[uid].status = st; render(); toast(ALL[uid].name + " 선생님: " + st); }
